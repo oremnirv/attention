@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 from gp_kernels import rbf_kernel
+import matplotlib
 from gp_priors import *
 import numpy as np
 
