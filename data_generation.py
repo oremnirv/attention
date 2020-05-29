@@ -1,3 +1,5 @@
+import numpy as np
+
 def data_generator_for_gp_mimick(num_samples, obs_per_sample, kernel, tr_percent=0.8):
     '''
 
