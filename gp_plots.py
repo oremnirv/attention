@@ -11,8 +11,7 @@ def plot_gp_prior(num_func, data=None, n=50):
     else:
         x_te = np.linspace(-5, 5, n).reshape(-1, 1)
     k = rbf_kernel(x_te)
-    print(k)
-    f_prior = generate_priors(k, n, num_func)
+    f_prior = generate_priors( k, n, num_func)
     with matplotlib.rc_context({'figure.figsize': [12, 5]}):
         for idx, func in enumerate(f_prior):
             plt.plot(x_te, func, label='f' + str(idx))
