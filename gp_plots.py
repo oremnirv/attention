@@ -36,7 +36,7 @@ def plot_nin_five_conf(x_te, μ, σ):
         plt.show()
 
 
-def 3d_surf_plot(x1, x2, y):
+def d3_surf_plot(x1, x2, y):
     X = np.meshgrid(x1, x2)
     axes = plt.figure().gca(projection='3d')
     axes.plot_surface(X, y)
