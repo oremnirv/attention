@@ -29,12 +29,11 @@ def scatter_tr_vs_predicted_tr():
 def plot_nin_five_conf(x_te, μ, σ):
     with matplotlib.rc_context({'figure.figsize': [10, 2.5]}):
         # squeeze() is a numpy function that turns column vectors into simple 1d vectors.
-
-    plt.fill_between(newx, μ.squeeze()-2*σ, μ.squeeze()+2*σ, alpha=.2)
-    plt.plot(newx, μ.squeeze())
-    plt.scatter(x, y, color='black')
-    plt.title(model1.kernel_)
-    plt.show()
+        plt.fill_between(newx, μ.squeeze()-2*σ, μ.squeeze()+2*σ, alpha=.2)
+        plt.plot(newx, μ.squeeze())
+        plt.scatter(x, y, color='black')
+        plt.title(model1.kernel_)
+        plt.show()
 
 
 def 3d_surf_plot(x1, x2, y):
