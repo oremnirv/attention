@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from gp_kernels import *
 import numpy as np
 
 
