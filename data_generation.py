@@ -34,21 +34,29 @@ def data_generator_for_gp_mimick(num_samples, obs_per_sample, kernel, tr_percent
 
     return eng_tr.T.reshape(-1, cols - 1, 2), eng_te.T.reshape(-1, cols - 1, 2), fren_tr, fren_te, y_fren_tr.reshape(-1, 1), y_fren_te.reshape(-1, 1)
 
-
-
-
 def data_generator_for_gp_mimick_gpt(num_obs, kernel, tr_percent=0.8):
     '''
-
-
-
+    Generator for training a GPT inspired netowrk. Make sure x is drawn in a range that 
+    Doesn't include 0 --> 0 is currently used for padding.
+    -----------------------
+    Parameters:
+    num_obs (int): how many observations to generate
+    kernel (function of am SKlearn kernel object): e.g. rbf_kernel which comes from gp_kernels file
+    tr_percent (float): daefult 0.8
+    -----------------------
+    Returns:
+    pad_pos_tr (np array): the first rows * tr_percent from the x generated values padded by zeros according to obs_per_sample  
+    pad_pos_te (np array): all rows of x not chosen for training 
+    pad_y_fren_tr (np array): the first rows * tr_percent from the f_prior generated values padded by zeros according to obs_per_sample  
+    pad_y_fren_te (np array): all rows of f_prior not chosen for training
+    df_tr (np array): positions and targets combined (training) 
+    df_te (np array): positions and targets combined (testing) 
     '''
-    obs_per_sample = np.random.randint(20, 60, size = num_obs)
-    df = np.zeros((num_obs * 2, np.max(obs_per_sample)))
+    df = np.zeros((num_obs * 2, 59))
     for i in range(0, num_obs * 2, 2):
-        x = np.random.uniform(5, 15, size=(1, obs_per_sample[int(i / 2)]))
+        x = np.random.uniform(5, 15, size=(1, 59))
         k = kernel(x)
-        f_prior = generate_priors(k, obs_per_sample[int(i / 2)], 1)
+        f_prior = generate_priors(k, 59, 1)
 
         df[i, :x.shape[1]] = x
         df[i + 1, :x.shape[1]] = f_prior
@@ -59,10 +67,12 @@ def data_generator_for_gp_mimick_gpt(num_obs, kernel, tr_percent=0.8):
     tr_rows = tr_rows if tr_rows % 2 == 0 else tr_rows + 1
     df_tr = df[:tr_rows, :]
     df_te = df[tr_rows:, :]
-
+    
+    # get all even rows
     pad_pos_tr = df_tr[::2, :]
     pad_pos_te = df_te[::2, :]
+    # get all odd rows
     pad_y_fren_tr = df_tr[1::2, :]
     pad_y_fren_te = df_te[1::2, :]
 
-    return pad_pos_tr, pad_pos_te, pad_y_fren_tr, pad_y_fren_te
+    return pad_pos_tr, pad_pos_te, pad_y_fren_tr, pad_y_fren_te, df_tr, df_te
