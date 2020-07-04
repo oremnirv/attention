@@ -1,9 +1,9 @@
 import numpy as np
-from gp_priors import *
-from gp_kernels import *
+from data import gp_priors
+from data import gp_kernels 
 
 
-def data_generator_for_gp_mimick(num_samples, obs_per_sample, kernel, tr_percent=0.8):
+def dat_generator_for_gp_mimick(num_samples, obs_per_sample, kernel, tr_percent=0.8):
     '''
 
 
