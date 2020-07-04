@@ -50,7 +50,6 @@ def create_padding_mask(seq):
   # to the attention. Extra dimension is used in create_masks function
     return seq[:, tf.newaxis, :]  
 
-
 def create_tar_mask(size):
     '''
     '''
@@ -76,7 +75,6 @@ def create_look_ahead_mask(size):
     '''
     mask = 1 - tf.linalg.band_part(tf.ones((size, size)), -1, 0)
     return mask  # (seq_len, seq_len)
-
 
 def create_masks(tar):
     '''

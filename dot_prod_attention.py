@@ -57,7 +57,6 @@ def dot_prod_position(q, k, v, mask):
     return u2
 
 
-
 def dot_product_attention(q, k, v, mask):
     '''
     Attention inspired by Transformer (but not the same). The Transformer embeds the 
