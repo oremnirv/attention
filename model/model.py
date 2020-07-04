@@ -23,6 +23,8 @@ class Decoder(tf.keras.layers.Layer):
 
         self.layernorm1 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
         self.layernorm2 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
+        self.layernorm3 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
+
     
         self.dropout1 = tf.keras.layers.Dropout(rate)
         self.dropout2 = tf.keras.layers.Dropout(rate)
@@ -77,6 +79,7 @@ class Decoder(tf.keras.layers.Layer):
 
         L = tf.matmul(tar1, tf.cast(pos_attn1, tf.float64))
         L = self.dropout3(L, training = training) 
+        L = self.layernorm3(L)
         
 #         print('L :', L)
         # shape=(128, 58, 16, 16)
