@@ -1,4 +1,9 @@
+from model import model, losses, dot_prod_attention
+from data import data_generation, batch_creator, gp_kernels
+from keras.callbacks import ModelCheckpoint
+from helpers import helpers, masks
 import tensorflow as tf
+
 
 @tf.function
 def train_step(pos, tar, pos_mask):
@@ -15,7 +20,7 @@ def train_step(pos, tar, pos_mask):
     '''
     tar_inp = tar[:, :-1]
     tar_real = tar[:, 1:]
-    combined_mask_tar = create_masks(tar_inp)
+    combined_mask_tar = masks.create_masks(tar_inp)
     with tf.GradientTape(persistent=True) as tape:
         pred = decoder(pos, tar_inp, True, pos_mask, combined_mask_tar)
 #         print('pred: ')
@@ -47,7 +52,7 @@ def test_step(pos_te, tar_te, pos_mask_te):
     '''
     tar_inp_te = tar_te[:, :-1]
     tar_real_te = tar_te[:, 1:]
-    combined_mask_tar_te = create_masks(tar_inp_te)
+    combined_mask_tar_te = masks.create_masks(tar_inp_te)
   # training=False is only needed if there are layers with different
   # behavior during training versus inference (e.g. Dropout).
     pred = decoder(pos_te, tar_inp_te, False, pos_mask_te, combined_mask_tar_te)

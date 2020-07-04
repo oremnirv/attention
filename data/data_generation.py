@@ -13,7 +13,7 @@ def dat_generator_for_gp_mimick(num_samples, obs_per_sample, kernel, tr_percent=
     for i in range(0, num_samples * 2, 2):
         x = np.random.uniform(-5, 5, size=(1, obs_per_sample))
         k = kernel(x)
-        f_prior = generate_priors(k, obs_per_sample, 1)
+        f_prior = gp_priors.generate_priors(k, obs_per_sample, 1)
 
         df[i, :] = x
         df[i + 1, :] = f_prior
@@ -56,7 +56,7 @@ def data_generator_for_gp_mimick_gpt(num_obs, kernel, tr_percent=0.8):
     for i in range(0, num_obs * 2, 2):
         x = np.random.uniform(5, 15, size=(1, 59))
         k = kernel(x)
-        f_prior = generate_priors(k, 59, 1)
+        f_prior = gp_priors.generate_priors(k, 59, 1)
 
         df[i, :x.shape[1]] = x
         df[i + 1, :x.shape[1]] = f_prior

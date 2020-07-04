@@ -1,4 +1,5 @@
 from tensorflow.keras import regularizers
+from model import dot_prod_attention
 from keras import layers
 import tensorflow as tf
 
@@ -35,7 +36,7 @@ class Decoder(tf.keras.layers.Layer):
 #         print('v_p: ', v_p)
         #shape=(128, 59, 16)
         
-        pos_attn1 = dot_prod_position(q_p, k_p, v_p, mask = pos_mask)
+        pos_attn1 = dot_prod_attention.dot_prod_position(q_p, k_p, v_p, mask = pos_mask)
 #         print('pos_attn1 :', pos_attn1)
 #       shape=(128, 58, 16, 16)
     
@@ -49,7 +50,7 @@ class Decoder(tf.keras.layers.Layer):
 #         print('q :', q)
 #       shape=(128, 58, 16)
 
-        tar_attn1, _, _ = dot_product_attention(q, k, v, tar_mask)
+        tar_attn1, _, _ = dot_prod_attention.dot_product_attention(q, k, v, tar_mask)
         # tar_attn1 is (batch_size, max_seq_len - 1, tar_d_model)
 
 #         print('tar_attn1 :', tar_attn1)
