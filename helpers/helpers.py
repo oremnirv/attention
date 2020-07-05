@@ -13,7 +13,7 @@ def mkdir(folder):
         print('New folder {}'.format(folder))
 
 
-def tf_summaries(run, string, train_loss_r, test_loss_r):
+def tf_summaries(run, string, train_loss_r, test_loss_r, tr_r2, te_r2):
     '''
 
     '''
@@ -21,14 +21,19 @@ def tf_summaries(run, string, train_loss_r, test_loss_r):
     , step=string)
     tf.summary.scalar("test loss run {}".format(run), test_loss_r,
      step=string)
+    tf.summary.scalar('train r2', tr_r2, step=string)
+    tf.summary.scalar('test r2', te_r2, step=string)
 
 
-def print_progress(epoch, batch_n, train_loss_r, test_loss_r):
+def print_progress(epoch, batch_n, train_loss_r, test_loss_r, tr_r2):
     '''
 
     '''
-    print('Epoch {} batch {} train Loss {:.4f} test Loss {:.4f}'.format(epoch, batch_n,
-                                                                        train_loss_r, test_loss_r))
+    print('Epoch {} batch {} train Loss {:.4f} test Loss {:.4f} with R^2 {:.4f}'.format(epoch, batch_n,
+                                                                        train_loss_r, test_loss_r, tr_r2))
+
+
+
 
 
 def quick_hist_counter(left, right, jump, arr):
