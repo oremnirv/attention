@@ -2,7 +2,7 @@ import tensorflow as tf
 
 loss_object = tf.keras.losses.MeanSquaredError()
 
-def loss_function(real, pred):
+def loss_function(real, pred, pred_sig):
     '''
     Masked MSE. Since the target sequences are padded, 
     it is important to apply a padding mask when calculating the loss.
@@ -16,7 +16,7 @@ def loss_function(real, pred):
     loss value (tf.float64)
     '''
     mask = tf.math.logical_not(tf.math.equal(real, 0))
-    loss_ = loss_object(real, pred)
+    loss_ = tf.math.divide(loss_object(real, pred), pred_sig) - tf.math.log(pred_sig)
     
 #     print('loss_ :', loss_)
 #     shape= (128X58)

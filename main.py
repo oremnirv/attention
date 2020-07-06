@@ -22,11 +22,11 @@ def train_step(pos, tar, pos_mask):
     tar_real = tar[:, 1:]
     combined_mask_tar = masks.create_masks(tar_inp)
     with tf.GradientTape(persistent=True) as tape:
-        pred = decoder(pos, tar_inp, True, pos_mask, combined_mask_tar)
+        pred, pred_sig = decoder(pos, tar_inp, True, pos_mask, combined_mask_tar)
 #         print('pred: ')
 #         tf.print(pred)
 
-        loss = loss_function(tar_real, pred)
+        loss = loss_function(tar_real, pred, pred_sig)
 
     gradients = tape.gradient(loss, decoder.trainable_variables)
 #     tf.print(gradients)
@@ -55,8 +55,8 @@ def test_step(pos_te, tar_te, pos_mask_te):
     combined_mask_tar_te = masks.create_masks(tar_inp_te)
   # training=False is only needed if there are layers with different
   # behavior during training versus inference (e.g. Dropout).
-    pred = decoder(pos_te, tar_inp_te, False, pos_mask_te, combined_mask_tar_te)
-    t_loss = loss_function(tar_real_te, pred)
+    pred, pred_sig = decoder(pos_te, tar_inp_te, False, pos_mask_te, combined_mask_tar_te)
+    t_loss = loss_function(tar_real_te, pred, pred_sig)
     test_loss(t_loss)
 
 
