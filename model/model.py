@@ -21,7 +21,9 @@ class Decoder(tf.keras.layers.Layer):
         self.B = tf.keras.layers.Dense(l, name = 'B')
         self.A = tf.keras.layers.Dense(1, name = 'A')
 
-        self.Asig = tf.keras.layers.Dense(1, activation = 'relu', name = 'Asig')
+        self.Bsig = tf.keras.layers.Dense(l, activation = 'relu', name = 'Bsig')
+        self.Asig = tf.keras.layers.Dense(1, name = 'Asig')
+
 
         self.layernorm1 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
         self.layernorm2 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
@@ -87,9 +89,12 @@ class Decoder(tf.keras.layers.Layer):
         # shape=(128, 58, 16, 16)
         
         L2 = self.A(tf.reshape(L, shape = [tf.shape(L)[0], tf.shape(L)[1] ,self.l ** 2])) 
-        Lsig = self.Asig(tf.reshape(L, shape = [tf.shape(L)[0], tf.shape(L)[1] ,self.l ** 2])) 
+
+        Lsig1 = self.Bsig(L) 
+        print(Lsig1)
+        Lsig2 = self.Asig(tf.reshape(Lsig1, shape = [tf.shape(L)[0], tf.shape(L)[1] ,self.l ** 2])) 
         
 #         print('L2 :', L2)
       # shape=(128, 58, 1)  
         
-        return tf.squeeze(L2), tf.squeeze(Lsig)
+        return tf.squeeze(L2), tf.squeeze(Lsig2)
