@@ -16,9 +16,8 @@ def loss_function(real, pred, pred_sig):
     loss value (tf.float64)
     '''
     mask = tf.math.logical_not(tf.math.equal(real, 0))
-    loss_ = tf.math.divide(loss_object(real, pred), pred_sig) - tf.math.log(pred_sig)
+    loss_ = -1 * (tf.math.divide(loss_object(real, pred), pred_sig) - tf.math.log(pred_sig))
     
-#     print('loss_ :', loss_)
 #     shape= (128X58)
     
     mask = tf.cast(mask, dtype=loss_.dtype)

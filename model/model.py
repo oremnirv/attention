@@ -21,7 +21,7 @@ class Decoder(tf.keras.layers.Layer):
         self.B = tf.keras.layers.Dense(l, name = 'B')
         self.A = tf.keras.layers.Dense(1, name = 'A')
 
-        self.Asig = tf.keras.layers.Dense(1, name = 'Asig')
+        self.Asig = tf.keras.layers.Dense(1, activation = 'relu', name = 'Asig')
 
         self.layernorm1 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
         self.layernorm2 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
