@@ -17,11 +17,14 @@ def loss_function(real, pred, pred_log_sig):
     '''
     # tf.print(pred_log_sig)
     mask = tf.math.logical_not(tf.math.equal(real, 0))
-    loss_ =  (tf.math.divide(loss_object(real, pred), tf.math.square(tf.math.exp(pred_log_sig))) + (pred_log_sig))
+    mse = loss_object(real, pred)
+    loss_ =  (tf.math.divide(mse, tf.math.square(tf.math.exp(pred_log_sig))) + (pred_log_sig))
+
     
 #     shape= (128X58)
     
     mask = tf.cast(mask, dtype=loss_.dtype)
     loss_ *= mask
+
     
-    return tf.reduce_sum(loss_) / tf.reduce_sum(mask)
+    return tf.reduce_sum(loss_) / tf.reduce_sum(mask), mse, mask 
