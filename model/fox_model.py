@@ -38,11 +38,13 @@ class Decoder(tf.keras.layers.Layer):
 
 
     #a call method, the layer's forward pass
-    def call(self, tar_position, tar_inp, training, pos_mask, tar_mask):
+    def call(self, tar_token_pos, tar_time_pos, tar_inp, training, pos_mask, tar_mask):
         
-        # Adding extra dimension to allow multiplication of 
-        # a sequnce with itself. 
-        tar_position = tar_position[:, :, tf.newaxis]
+        embbed = self.e1(tar_token_pos)
+
+        tar_time_pos = tar_time_pos[:, :, tf.newaxis]
+
+        tar_position = tf.concat([embbed, tar_time_pos], axis = 2)
         
         q_p = self.wq(tar_position) 
         k_p = self.wk(tar_position)
