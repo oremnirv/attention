@@ -10,7 +10,7 @@ class Decoder(tf.keras.layers.Layer):
         
         self.l = l
 
-        self.e1 = tf.keras.layers.Embedding(5, 8, mask_zero = True)
+        self.e1 = tf.keras.layers.Embedding(5, 4, mask_zero = True)
         
         self.wq = tf.keras.layers.Dense(l, name = 'wq')
         self.wk = tf.keras.layers.Dense(l, name = 'wk')
@@ -27,9 +27,9 @@ class Decoder(tf.keras.layers.Layer):
         self.Asig = tf.keras.layers.Dense(1, name = 'Asig')
 
 
-        self.layernorm1 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
-        self.layernorm2 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
-        self.layernorm3 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
+        # self.layernorm1 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
+        # self.layernorm2 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
+        # self.layernorm3 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
 
     
         # self.dropout1 = tf.keras.layers.Dropout(rate)
@@ -41,11 +41,12 @@ class Decoder(tf.keras.layers.Layer):
     def call(self, tar_token_pos, tar_time_pos, tar_inp, training, pos_mask, tar_mask):
         
         embbed = self.e1(tar_token_pos)
+        # tf.print(embbed)
 
         tar_time_pos = tar_time_pos[:, :, tf.newaxis]
 
         tar_position = tf.concat([embbed, tar_time_pos], axis = 2)
-        
+
         q_p = self.wq(tar_position) 
         k_p = self.wk(tar_position)
         v_p = self.wk(tar_position)

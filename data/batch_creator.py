@@ -59,20 +59,7 @@ def create_batch_gp_mim_2(pos, tar, pos_mask, batch_s=128):
 
 def create_batch_foxes(token_pos, time_pos, tar, pos_mask, batch_s=128):
     '''
-    Get a batch of positions, targets and position mask from data generated 
-    by data_generator_for_gp_mimick_gpt function and from position_mask function 
-    -------------------------
-    Parameters:
-    pos (2D np array): 1st/2nd output from data_generator_for_gp_mimick_gpt function 
-    tar (2D np array): 3rd/4th output from data_generator_for_gp_mimick_gpt function  
-    pos_mask (4D np.array): output from position_mask function 
-    batch_s (int): deafult 128
-    -------------------------
-    Returns:
-    batch_pos_tr (2D np array)
-    batch_tar_tr (2D np array)
-    batch_pos_mask (4D np array)
-    batch_idx_tr (1D np array): indices (=row numbers) chosen for current batch
+
     
     '''
     shape = tar.shape[0]
