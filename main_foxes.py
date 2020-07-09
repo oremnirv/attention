@@ -3,6 +3,7 @@ from data import data_generation, batch_creator, gp_kernels
 from keras.callbacks import ModelCheckpoint
 from helpers import helpers, masks
 import tensorflow as tf
+import numpy as np 
 
 
 @tf.function
