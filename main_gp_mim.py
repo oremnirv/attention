@@ -7,7 +7,7 @@ import time
 
 
 @tf.function
-def train_step(decoder, optimizer_c, pos, tar, pos_mask):
+def train_step(decoder, optimizer_c, train_loss, m_tr, pos, tar, pos_mask):
     '''
     A typical train step function for TF2. Elements which we wish to track their gradient
     has to be inside the GradientTape() clause. see (1) https://www.tensorflow.org/guide/migrate 
@@ -43,7 +43,7 @@ def train_step(decoder, optimizer_c, pos, tar, pos_mask):
 
 
 @tf.function
-def test_step(decoder, pos_te, tar_te, pos_mask_te):
+def test_step(decoder, test_loss, m_te, pos_te, tar_te, pos_mask_te):
     '''
     
     ---------------
@@ -96,11 +96,11 @@ def main():
                 batch_pos_tr, batch_tar_tr, batch_pos_mask, _ = batch_creator.create_batch_gp_mim_2(pad_pos_tr, pad_y_fren_tr, pp)
                 # batch_tar_tr shape := 128 X 59 = (batch_size, max_seq_len)
                 # batch_pos_tr shape := 128 X 59 = (batch_size, max_seq_len)
-                train_step(decoder, optimizer_c, batch_pos_tr, batch_tar_tr, batch_pos_mask)
+                train_step(decoder, optimizer_c, train_loss, m_tr, batch_pos_tr, batch_tar_tr, batch_pos_mask)
 
                 if batch % 50 == 0:
                     batch_pos_te, batch_tar_te, batch_pos_mask_te, _ = batch_creator.create_batch_gp_mim_2(pad_pos_te, pad_y_fren_te, pp_te)
-                    test_step(decoder, batch_pos_te, batch_tar_te, batch_pos_mask_te)
+                    test_step(decoder, test_loss, m_te, batch_pos_te, batch_tar_te, batch_pos_mask_te)
                     helpers.print_progress(epoch, batch_n, train_loss.result(), test_loss.result())
                     helpers.tf_summaries(run, step, train_loss.result(), test_loss.result())
                     checkpoint.save(folder + '/')
