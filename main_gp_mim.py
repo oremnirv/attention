@@ -98,7 +98,7 @@ def main():
                 # batch_pos_tr shape := 128 X 59 = (batch_size, max_seq_len)
                 train_step(decoder, optimizer_c, train_loss, m_tr, batch_pos_tr, batch_tar_tr, batch_pos_mask)
 
-                if batch % 50 == 0:
+                if batch_n % 50 == 0:
                     batch_pos_te, batch_tar_te, batch_pos_mask_te, _ = batch_creator.create_batch_gp_mim_2(pad_pos_te, pad_y_fren_te, pp_te)
                     test_step(decoder, test_loss, m_te, batch_pos_te, batch_tar_te, batch_pos_mask_te)
                     helpers.print_progress(epoch, batch_n, train_loss.result(), test_loss.result())
