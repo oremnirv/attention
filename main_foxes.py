@@ -8,7 +8,7 @@ import time
 
 
 @tf.function
-def train_step(token_pos, time_pos, tar, pos_mask):
+def train_step(decoder, optimizer_c, token_pos, time_pos, tar, pos_mask):
     '''
     A typical train step function for TF2. Elements which we wish to track their gradient
     has to be inside the GradientTape() clause. see (1) https://www.tensorflow.org/guide/migrate 
@@ -42,7 +42,7 @@ def train_step(token_pos, time_pos, tar, pos_mask):
 
 
 @tf.function
-def test_step(token_pos_te, time_pos_te, tar_te, pos_mask_te):
+def test_step(decoder, token_pos_te, time_pos_te, tar_te, pos_mask_te):
     '''
 
     ---------------
@@ -124,13 +124,13 @@ def main():
                     token_tr, pad_pos_tr, tar_tr, pp)
                 # batch_tar_tr shape := 128 X 59 = (batch_size, max_seq_len)
                 # batch_pos_tr shape := 128 X 59 = (batch_size, max_seq_len)
-                train_step(batch_tok_pos_tr, batch_tim_pos_tr,
+                train_step(decoder, optimizer_c, batch_tok_pos_tr, batch_tim_pos_tr,
                            batch_tar_tr, batch_pos_mask)
 
                 if batch_n % 50 == 0:
                     batch_tok_pos_te, batch_tim_pos_te, batch_tar_te, batch_pos_mask_te, _ = batch_creator.create_batch_foxes(
                         token_te, pad_pos_te, tar_te, pp_te)
-                    test_step(batch_tok_pos_te, batch_tim_pos_te,
+                    test_step(decoder, batch_tok_pos_te, batch_tim_pos_te,
                               batch_tar_te, batch_pos_mask_te)
                     helpers.print_progress(
                         epoch, batch_n, train_loss.result(), test_loss.result(), m_tr.result())

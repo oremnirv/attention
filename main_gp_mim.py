@@ -7,7 +7,7 @@ import time
 
 
 @tf.function
-def train_step(decoder, pos, tar, pos_mask):
+def train_step(decoder, optimizer_c, pos, tar, pos_mask):
     '''
     A typical train step function for TF2. Elements which we wish to track their gradient
     has to be inside the GradientTape() clause. see (1) https://www.tensorflow.org/guide/migrate 
@@ -32,7 +32,7 @@ def train_step(decoder, pos, tar, pos_mask):
     gradients = tape.gradient(loss, decoder.trainable_variables)
 #     tf.print(gradients)
 # Ask the optimizer to apply the processed gradients.
-    optimizer.apply_gradients(zip(gradients, decoder.trainable_variables))
+    optimizer_c.apply_gradients(zip(gradients, decoder.trainable_variables))
     train_loss(loss)
     m_tr.update_state(mse, mask)
 
@@ -96,7 +96,7 @@ def main():
                 batch_pos_tr, batch_tar_tr, batch_pos_mask, _ = batch_creator.create_batch_gp_mim_2(pad_pos_tr, pad_y_fren_tr, pp)
                 # batch_tar_tr shape := 128 X 59 = (batch_size, max_seq_len)
                 # batch_pos_tr shape := 128 X 59 = (batch_size, max_seq_len)
-                train_step(decoder, batch_pos_tr, batch_tar_tr, batch_pos_mask)
+                train_step(decoder, optimizer_c, batch_pos_tr, batch_tar_tr, batch_pos_mask)
 
                 if batch % 50 == 0:
                     batch_pos_te, batch_tar_te, batch_pos_mask_te, _ = batch_creator.create_batch_gp_mim_2(pad_pos_te, pad_y_fren_te, pp_te)
