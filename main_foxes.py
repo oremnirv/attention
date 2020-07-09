@@ -102,7 +102,7 @@ def main():
     writer = tf.summary.create_file_writer(save_dir + '/logs/')
     optimizer_c = tf.keras.optimizers.Adam()
     decoder = fox_model.Decoder(16)
-    EPOCHS = 5000
+    EPOCHS = 10000
     batch_s = 32
     run = 0
     step = 0
