@@ -61,7 +61,7 @@ def test_step(pos_te, tar_te, pos_mask_te):
 
 
 def main():
-    save_dir = '/home/ec2-user/GPT'
+    save_dir = '/home/ubuntu/GPT'
     pad_pos_tr, pad_pos_te, pad_y_fren_tr, pad_y_fren_te, _, df_te = data_generation.data_generator_for_gp_mimick_gpt(50000, gp_kernels.rbf_kernel)
     pp = masks.position_mask(pad_pos_tr)
     pp_te = masks.position_mask(pad_pos_te)
@@ -79,7 +79,7 @@ def main():
     num_batches = int(pad_y_fren_tr.shape[0] / batch_s)
     tf.random.set_seed(1)    
     checkpoint = tf.train.Checkpoint(optimizer = optimizer_c, model = decoder)
-    main_folder = "/home/ec2-user/GPT/ckpt/check_"
+    main_folder = "/home/ubuntu/GPT/ckpt/check_"
     folder = main_folder + str(run); helpers.mkdir(folder)
     tf.keras.backend.set_floatx('float64')
 
