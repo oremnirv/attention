@@ -89,13 +89,13 @@ def main():
             start = time.time()
 
             for batch in range(num_batches):
-                batch_pos_tr, batch_tar_tr, batch_pos_mask, _ = create_batch_gp_mim_2(pad_pos_tr, pad_y_fren_tr, pp)
+                batch_pos_tr, batch_tar_tr, batch_pos_mask, _ = batch_creator.create_batch_gp_mim_2(pad_pos_tr, pad_y_fren_tr, pp)
                 # batch_tar_tr shape := 128 X 59 = (batch_size, max_seq_len)
                 # batch_pos_tr shape := 128 X 59 = (batch_size, max_seq_len)
                 train_step(batch_pos_tr, batch_tar_tr, batch_pos_mask)
 
                 if batch % 50 == 0:
-                    batch_pos_te, batch_tar_te, batch_pos_mask_te, _ = create_batch_gp_mim_2(pad_pos_te, pad_y_fren_te, pp_te)
+                    batch_pos_te, batch_tar_te, batch_pos_mask_te, _ = batch_creator.create_batch_gp_mim_2(pad_pos_te, pad_y_fren_te, pp_te)
                     test_step(batch_pos_te, batch_tar_te, batch_pos_mask_te)
                     helpers.print_progress(epoch, batch_n, train_loss.result(), test_loss.result())
                     helpers.tf_summaries(run, step, train_loss.result(), test_loss.result())
