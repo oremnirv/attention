@@ -95,7 +95,7 @@ class Decoder(tf.keras.layers.Layer):
         L2 = self.A(tf.reshape(L, shape = [tf.shape(L)[0], tf.shape(L)[1] ,self.l ** 2])) 
 
         Lsig1 = self.Bsig(L) 
-        print(Lsig1)
+        # print(Lsig1)
         Lsig2 = self.Asig(tf.reshape(Lsig1, shape = [tf.shape(L)[0], tf.shape(L)[1] ,self.l ** 2])) 
         
 #         print('L2 :', L2)
