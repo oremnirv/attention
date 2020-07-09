@@ -92,7 +92,7 @@ def main():
         for epoch in range(EPOCHS):
             start = time.time()
 
-            for batch in range(num_batches):
+            for batch_n in range(num_batches):
                 batch_pos_tr, batch_tar_tr, batch_pos_mask, _ = batch_creator.create_batch_gp_mim_2(pad_pos_tr, pad_y_fren_tr, pp)
                 # batch_tar_tr shape := 128 X 59 = (batch_size, max_seq_len)
                 # batch_pos_tr shape := 128 X 59 = (batch_size, max_seq_len)
