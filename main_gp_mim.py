@@ -1,4 +1,4 @@
-from model import model, losses, dot_prod_attention
+from model import classic_model, losses, dot_prod_attention
 from data import data_generation, batch_creator, gp_kernels
 from keras.callbacks import ModelCheckpoint
 from helpers import helpers, masks
@@ -72,7 +72,7 @@ def main():
     m_te = tf.keras.metrics.Mean()
     writer = tf.summary.create_file_writer(save_dir + '/logs/')
     optimizer_c = tf.keras.optimizers.Adam()
-    decoder = Decoder(16)
+    decoder = classic_model.Decoder(16)
     EPOCHS = 50
     batch_s  = 128
     run = 0; step = 0
