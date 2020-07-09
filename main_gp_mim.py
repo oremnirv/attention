@@ -7,7 +7,7 @@ import time
 
 
 @tf.function
-def train_step(pos, tar, pos_mask):
+def train_step(decoder, pos, tar, pos_mask):
     '''
     A typical train step function for TF2. Elements which we wish to track their gradient
     has to be inside the GradientTape() clause. see (1) https://www.tensorflow.org/guide/migrate 
@@ -27,20 +27,23 @@ def train_step(pos, tar, pos_mask):
 #         print('pred: ')
 #         tf.print(pred)
 
-        loss = loss_function(tar_real, pred, pred_sig)
+        loss, mse, mask = loss_function(tar_real, pred, pred_sig)
 
     gradients = tape.gradient(loss, decoder.trainable_variables)
 #     tf.print(gradients)
 # Ask the optimizer to apply the processed gradients.
     optimizer.apply_gradients(zip(gradients, decoder.trainable_variables))
     train_loss(loss)
+    m_tr.update_state(mse, mask)
+
+
 #     b = decoder.trainable_weights[0]
 #     tf.print(tf.reduce_mean(b))
 
 
 
 @tf.function
-def test_step(pos_te, tar_te, pos_mask_te):
+def test_step(decoder, pos_te, tar_te, pos_mask_te):
     '''
     
     ---------------
@@ -57,8 +60,9 @@ def test_step(pos_te, tar_te, pos_mask_te):
   # training=False is only needed if there are layers with different
   # behavior during training versus inference (e.g. Dropout).
     pred, pred_sig = decoder(pos_te, tar_inp_te, False, pos_mask_te, combined_mask_tar_te)
-    t_loss = loss_function(tar_real_te, pred, pred_sig)
+    t_loss, t_mse, t_mask = loss_function(tar_real_te, pred, pred_sig)
     test_loss(t_loss)
+    m_te.update_state(t_mse, t_mask)
 
 
 def main():
@@ -92,11 +96,11 @@ def main():
                 batch_pos_tr, batch_tar_tr, batch_pos_mask, _ = batch_creator.create_batch_gp_mim_2(pad_pos_tr, pad_y_fren_tr, pp)
                 # batch_tar_tr shape := 128 X 59 = (batch_size, max_seq_len)
                 # batch_pos_tr shape := 128 X 59 = (batch_size, max_seq_len)
-                train_step(batch_pos_tr, batch_tar_tr, batch_pos_mask)
+                train_step(decoder, batch_pos_tr, batch_tar_tr, batch_pos_mask)
 
                 if batch % 50 == 0:
                     batch_pos_te, batch_tar_te, batch_pos_mask_te, _ = batch_creator.create_batch_gp_mim_2(pad_pos_te, pad_y_fren_te, pp_te)
-                    test_step(batch_pos_te, batch_tar_te, batch_pos_mask_te)
+                    test_step(decoder, batch_pos_te, batch_tar_te, batch_pos_mask_te)
                     helpers.print_progress(epoch, batch_n, train_loss.result(), test_loss.result())
                     helpers.tf_summaries(run, step, train_loss.result(), test_loss.result())
                     checkpoint.save(folder + '/')
