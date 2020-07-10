@@ -93,8 +93,6 @@ def main():
     token_tr = np.concatenate((f_token_tr, r_token_tr), axis=0)
     token_te = np.concatenate((f_token_te, r_token_te), axis=0)
 
-    pp = masks.position_mask(pad_pos_tr)
-    pp_te = masks.position_mask(pad_pos_te)
     loss_object = tf.keras.losses.MeanSquaredError()
     train_loss = tf.keras.metrics.Mean(name='train_loss')
     test_loss = tf.keras.metrics.Mean(name='test_loss')
@@ -120,16 +118,21 @@ def main():
             start = time.time()
 
             for batch_n in range(num_batches):
-                batch_tok_pos_tr, batch_tim_pos_tr, batch_tar_tr, batch_pos_mask, _ = batch_creator.create_batch_foxes(
+                batch_tok_pos_tr, batch_tim_pos_tr, batch_tar_tr, _ = batch_creator.create_batch_foxes(
                     token_tr, pad_pos_tr, tar_tr, pp)
+
+                batch_pos_mask = masks.position_mask(batch_tok_pos_tr)
+
                 # batch_tar_tr shape := 128 X 59 = (batch_size, max_seq_len)
                 # batch_pos_tr shape := 128 X 59 = (batch_size, max_seq_len)
                 train_step(decoder, optimizer_c, train_loss, m_tr, batch_tok_pos_tr, batch_tim_pos_tr,
                            batch_tar_tr, batch_pos_mask)
 
                 if batch_n % 50 == 0:
-                    batch_tok_pos_te, batch_tim_pos_te, batch_tar_te, batch_pos_mask_te, _ = batch_creator.create_batch_foxes(
+                    batch_tok_pos_te, batch_tim_pos_te, batch_tar_te, _ = batch_creator.create_batch_foxes(
                         token_te, pad_pos_te, tar_te, pp_te)
+                    batch_pos_mask_te = masks.position_mask(batch_tok_pos_te)
+
                     test_step(decoder, test_loss, m_te, batch_tok_pos_te, batch_tim_pos_te,
                               batch_tar_te, batch_pos_mask_te)
                     helpers.print_progress(
