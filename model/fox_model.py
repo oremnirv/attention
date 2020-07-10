@@ -10,7 +10,7 @@ class Decoder(tf.keras.layers.Layer):
         
         self.l = l
 
-        self.e1 = tf.keras.layers.Embedding(5, 4, mask_zero = True)
+        self.e1 = tf.keras.layers.Embedding(5, 8, mask_zero = True)
         
         self.wq = tf.keras.layers.Dense(l, name = 'wq')
         self.wk = tf.keras.layers.Dense(l, name = 'wk')
@@ -30,11 +30,13 @@ class Decoder(tf.keras.layers.Layer):
         self.layernorm1 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
         self.layernorm2 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
         self.layernorm3 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
+        self.layernorm4 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
 
     
         self.dropout1 = tf.keras.layers.Dropout(rate)
         self.dropout2 = tf.keras.layers.Dropout(rate)
         self.dropout3 = tf.keras.layers.Dropout(rate)
+        self.dropout4 = tf.keras.layers.Dropout(rate)
 
 
     #a call method, the layer's forward pass
@@ -95,7 +97,9 @@ class Decoder(tf.keras.layers.Layer):
         
         L2 = self.A(tf.reshape(L, shape = [tf.shape(L)[0], tf.shape(L)[1] ,self.l ** 2])) 
 
-        Lsig1 = self.Bsig(L) 
+        Lsig1 = self.Bsig(L)
+        Lsig1 = self.dropout4(Lsig1, training = training) 
+        Lsig1 = self.layernorm4(Lsig1) 
         # print(Lsig1)
         Lsig2 = self.Asig(tf.reshape(Lsig1, shape = [tf.shape(L)[0], tf.shape(L)[1] ,self.l ** 2])) 
         
