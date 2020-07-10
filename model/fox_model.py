@@ -45,7 +45,7 @@ class Decoder(tf.keras.layers.Layer):
 
         tar_time_pos = tar_time_pos[:, :, tf.newaxis]
 
-        tar_position = tf.concat([embbed, tar_time_pos], axis = 2)
+        tar_position = tf.concat([tf.cast(embbed, tf.float64), tf.cast(tar_time_pos, tf.float64)], axis = 2)
 
         q_p = self.wq(tar_position) 
         k_p = self.wk(tar_position)
