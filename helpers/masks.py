@@ -18,10 +18,10 @@ def position_mask(arr):
     '''
     rows = arr.shape[0]
     cols = arr.shape[1]
-    mask = tf.ones((rows, cols - 1, cols, cols))
-    specific = tf.reduce_sum(tf.equal(arr, 0), 1)
+    mask = np.ones((rows, cols - 1, cols, cols))
+    specific = np.sum(np.equal(arr, 0), 1)
     for i in range(2, cols + 1):
-        mask[:, i - 2, :i, :i] = tf.zeros((i, i))
+        mask[:, i - 2, :i, :i] = np.zeros((i, i))
     for j in range(rows):
         k  = specific[j]
         mask[j, k:, :, :] = 1
