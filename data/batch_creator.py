@@ -31,7 +31,7 @@ def create_batch_gp_mim(enc_tr, dec_tr, y_tr, batch_s=128):
     batch_y_tr = (y_tr[batch_idx_tr].reshape(-1, 1))
     return batch_enc_tr, batch_dec_tr, batch_y_tr, batch_idx_tr
 
-def create_batch_gp_mim_2(pos, tar, pos_mask, batch_s=128):
+def create_batch_gp_mim_2(pos, tar, batch_s=128):
     '''
     Get a batch of positions, targets and position mask from data generated 
     by data_generator_for_gp_mimick_gpt function and from position_mask function 
@@ -53,11 +53,10 @@ def create_batch_gp_mim_2(pos, tar, pos_mask, batch_s=128):
     batch_idx_tr = np.random.choice(list(range(shape)), batch_s)
     batch_tar_tr = tar[batch_idx_tr, :]
     batch_pos_tr = pos[batch_idx_tr, :]
-    batch_pos_mask = pos_mask[batch_idx_tr, :, :, :]
-    return batch_pos_tr, batch_tar_tr , batch_pos_mask, batch_idx_tr
+    return batch_pos_tr, batch_tar_tr, batch_idx_tr
 
 
-def create_batch_foxes(token_pos, time_pos, tar, pos_mask, batch_s=128):
+def create_batch_foxes(token_pos, time_pos, tar, batch_s=128):
     '''
 
     
@@ -67,5 +66,4 @@ def create_batch_foxes(token_pos, time_pos, tar, pos_mask, batch_s=128):
     batch_tar_tr = tar[batch_idx_tr, :]
     batch_tok_pos_tr = token_pos[batch_idx_tr, :]
     batch_tim_pos_tr = time_pos[batch_idx_tr, :]
-    batch_pos_mask = pos_mask[batch_idx_tr, :, :, :]
-    return batch_tok_pos_tr, batch_tim_pos_tr, batch_tar_tr , batch_pos_mask, batch_idx_tr
+    return batch_tok_pos_tr, batch_tim_pos_tr, batch_tar_tr, batch_idx_tr

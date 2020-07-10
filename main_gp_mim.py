@@ -7,7 +7,7 @@ import time
 
 
 @tf.function
-def train_step(decoder, optimizer_c, train_loss, m_tr, pos, tar, pos_mask):
+def train_step(decoder, optimizer_c, train_loss, m_tr, pos, tar):
     '''
     A typical train step function for TF2. Elements which we wish to track their gradient
     has to be inside the GradientTape() clause. see (1) https://www.tensorflow.org/guide/migrate 
@@ -22,6 +22,7 @@ def train_step(decoder, optimizer_c, train_loss, m_tr, pos, tar, pos_mask):
     tar_inp = tar[:, :-1]
     tar_real = tar[:, 1:]
     combined_mask_tar = masks.create_masks(tar_inp)
+    pos_mask = masks.position_mask(pos.shape[0], pos.shape[1])
     with tf.GradientTape(persistent=True) as tape:
         pred, pred_sig = decoder(pos, tar_inp, True, pos_mask, combined_mask_tar)
 #         print('pred: ')
@@ -43,7 +44,7 @@ def train_step(decoder, optimizer_c, train_loss, m_tr, pos, tar, pos_mask):
 
 
 @tf.function
-def test_step(decoder, test_loss, m_te, pos_te, tar_te, pos_mask_te):
+def test_step(decoder, test_loss, m_te, pos_te, tar_te):
     '''
     
     ---------------
@@ -57,6 +58,7 @@ def test_step(decoder, test_loss, m_te, pos_te, tar_te, pos_mask_te):
     tar_inp_te = tar_te[:, :-1]
     tar_real_te = tar_te[:, 1:]
     combined_mask_tar_te = masks.create_masks(tar_inp_te)
+    pos_mask_te = masks.position_mask(pos_te.shape[0], pos_te.shape[1])
   # training=False is only needed if there are layers with different
   # behavior during training versus inference (e.g. Dropout).
     pred, pred_sig = decoder(pos_te, tar_inp_te, False, pos_mask_te, combined_mask_tar_te)
@@ -68,8 +70,6 @@ def test_step(decoder, test_loss, m_te, pos_te, tar_te, pos_mask_te):
 def main():
     save_dir = '/home/ubuntu/GPT'
     pad_pos_tr, pad_pos_te, pad_y_fren_tr, pad_y_fren_te, _, df_te = data_generation.data_generator_for_gp_mimick_gpt(50000, gp_kernels.rbf_kernel)
-    pp = masks.position_mask(pad_pos_tr)
-    pp_te = masks.position_mask(pad_pos_te)
     loss_object = tf.keras.losses.MeanSquaredError()
     train_loss = tf.keras.metrics.Mean(name='train_loss')
     test_loss = tf.keras.metrics.Mean(name='test_loss')
@@ -93,14 +93,14 @@ def main():
             start = time.time()
 
             for batch_n in range(num_batches):
-                batch_pos_tr, batch_tar_tr, batch_pos_mask, _ = batch_creator.create_batch_gp_mim_2(pad_pos_tr, pad_y_fren_tr, pp)
+                batch_pos_tr, batch_tar_tr, _ = batch_creator.create_batch_gp_mim_2(pad_pos_tr, pad_y_fren_tr)
                 # batch_tar_tr shape := 128 X 59 = (batch_size, max_seq_len)
                 # batch_pos_tr shape := 128 X 59 = (batch_size, max_seq_len)
-                train_step(decoder, optimizer_c, train_loss, m_tr, batch_pos_tr, batch_tar_tr, batch_pos_mask)
+                train_step(decoder, optimizer_c, train_loss, m_tr, batch_pos_tr, batch_tar_tr)
 
                 if batch_n % 50 == 0:
-                    batch_pos_te, batch_tar_te, batch_pos_mask_te, _ = batch_creator.create_batch_gp_mim_2(pad_pos_te, pad_y_fren_te, pp_te)
-                    test_step(decoder, test_loss, m_te, batch_pos_te, batch_tar_te, batch_pos_mask_te)
+                    batch_pos_te, batch_tar_te, _ = batch_creator.create_batch_gp_mim_2(pad_pos_te, pad_y_fren_te)
+                    test_step(decoder, test_loss, m_te, batch_pos_te, batch_tar_te)
                     helpers.print_progress(epoch, batch_n, train_loss.result(), test_loss.result(), m_tr.result())
                     helpers.tf_summaries(run, step, train_loss.result(), test_loss.result(), m_tr.result(), m_te.result())
                     checkpoint.save(folder + '/')
