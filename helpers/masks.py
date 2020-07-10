@@ -19,7 +19,7 @@ def position_mask(arr):
     rows = arr.shape[0]
     cols = arr.shape[1]
     mask = tf.ones((rows, cols - 1, cols, cols))
-    specific = tf.sum(tf.equal(arr, 0), 1)
+    specific = tf.reduce_sum(tf.equal(arr, 0), 1)
     for i in range(2, cols + 1):
         mask[:, i - 2, :i, :i] = tf.zeros((i, i))
     for j in range(rows):
