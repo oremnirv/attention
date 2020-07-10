@@ -2,22 +2,22 @@ import tensorflow as tf
 import numpy as np
 
 
-def position_mask(rows, cols):
+def position_mask(arr):
     '''
     This tries to emulate the kernel matrix. 
     In the first stage we have a 2X2 matrix of zeros, next
     3X3 matrix of zeros, etc.
     -------------------------
     Parameters:
-    rows (int):
-    cols (int):
+    arr (np array): the 1st/2nd output from data_generator_for_gp_mimick_gpt function
     -------------------------
     Returns:
     mask (4D np array): if there are 100 rows and 50 cols in arr then this will 
     return [100, 49, 50, 50] array -- where the first dim is observation number 
     second dim is timestamp and third+fourth dim are the mask matrix.
     '''
-
+    rows = arr.shape[0]
+    cols = arr.shape[1]
     mask = np.ones((rows, cols - 1, cols, cols))
     specific = np.sum(np.equal(arr, 0), 1)
     for i in range(2, cols + 1):
