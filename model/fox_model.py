@@ -86,7 +86,7 @@ class Decoder(tf.keras.layers.Layer):
 #         print('tar1 :', tar1)
         # shape=(128, 58, 16, 16)
 
-        L = tf.matmul(tar1, tf.cast(pos_attn1, tf.float64))
+        L = tf.matmul(tf.cast(tar1, tf.float64), tf.cast(pos_attn1, tf.float64))
         L = self.dropout3(L, training = training) 
         L = self.layernorm3(L)
         
