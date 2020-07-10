@@ -119,7 +119,7 @@ def main():
 
             for batch_n in range(num_batches):
                 batch_tok_pos_tr, batch_tim_pos_tr, batch_tar_tr, _ = batch_creator.create_batch_foxes(
-                    token_tr, pad_pos_tr, tar_tr, pp)
+                    token_tr, pad_pos_tr, tar_tr)
 
                 batch_pos_mask = masks.position_mask(batch_tok_pos_tr)
 
@@ -130,7 +130,7 @@ def main():
 
                 if batch_n % 50 == 0:
                     batch_tok_pos_te, batch_tim_pos_te, batch_tar_te, _ = batch_creator.create_batch_foxes(
-                        token_te, pad_pos_te, tar_te, pp_te)
+                        token_te, pad_pos_te, tar_te)
                     batch_pos_mask_te = masks.position_mask(batch_tok_pos_te)
 
                     test_step(decoder, test_loss, m_te, batch_tok_pos_te, batch_tim_pos_te,
