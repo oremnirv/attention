@@ -22,7 +22,7 @@ def train_step(decoder, optimizer_c, train_loss, m_tr, pos, tar):
     tar_inp = tar[:, :-1]
     tar_real = tar[:, 1:]
     combined_mask_tar = masks.create_masks(tar_inp)
-    pos_mask = masks.position_mask(pos.shape[0], pos.shape[1])
+    pos_mask = masks.position_mask(pos)
     with tf.GradientTape(persistent=True) as tape:
         pred, pred_sig = decoder(pos, tar_inp, True, pos_mask, combined_mask_tar)
 #         print('pred: ')
@@ -58,7 +58,7 @@ def test_step(decoder, test_loss, m_te, pos_te, tar_te):
     tar_inp_te = tar_te[:, :-1]
     tar_real_te = tar_te[:, 1:]
     combined_mask_tar_te = masks.create_masks(tar_inp_te)
-    pos_mask_te = masks.position_mask(pos_te.shape[0], pos_te.shape[1])
+    pos_mask_te = masks.position_mask(pos_te)
   # training=False is only needed if there are layers with different
   # behavior during training versus inference (e.g. Dropout).
     pred, pred_sig = decoder(pos_te, tar_inp_te, False, pos_mask_te, combined_mask_tar_te)
