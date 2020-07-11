@@ -72,7 +72,7 @@ def test_step(decoder, test_loss, m_te, token_pos_te, time_pos_te, tar_te, pos_m
 
 
 def main():
-    install(keras)
+    install('keras')
     from keras.callbacks import ModelCheckpoint
     from model import fox_model, losses, dot_prod_attention
     from data import data_generation, batch_creator, gp_kernels
