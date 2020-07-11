@@ -5,7 +5,10 @@ from helpers import helpers, masks
 import tensorflow as tf
 import numpy as np 
 import time 
+import os
 
+os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
 @tf.function
 def train_step(decoder, optimizer_c, train_loss, m_tr, token_pos, time_pos, tar, pos_mask):
