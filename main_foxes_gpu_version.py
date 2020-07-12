@@ -1,3 +1,7 @@
+from model import fox_model, losses, dot_prod_attention
+from data import data_generation, batch_creator, gp_kernels
+from keras.callbacks import ModelCheckpoint
+from helpers import helpers, masks
 import tensorflow as tf
 import numpy as np 
 import time 
@@ -6,11 +10,6 @@ import os
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
-import subprocess
-import sys
-
-def install(package):
-    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
 @tf.function
 def train_step(decoder, optimizer_c, train_loss, m_tr, token_pos, time_pos, tar, pos_mask):
@@ -72,12 +71,6 @@ def test_step(decoder, test_loss, m_te, token_pos_te, time_pos_te, tar_te, pos_m
 
 
 def main():
-    install('keras')
-    from keras.callbacks import ModelCheckpoint
-    from model import fox_model, losses, dot_prod_attention
-    from data import data_generation, batch_creator, gp_kernels
-    from helpers import helpers, masks
-
     save_dir = '/home/mg963/GPT_fox'
     df = np.load('/home/mg963/fnr.npy')
 
