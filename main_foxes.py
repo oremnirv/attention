@@ -112,6 +112,12 @@ def main():
     main_folder = "/home/mg963/GPT_fox/ckpt/check_"
     folder = main_folder + str(run)
     helpers.mkdir(folder)
+    manager = tf.train.CheckpointManager(ckpt, folder, max_to_keep=3)
+    ckpt.restore(manager.latest_checkpoint)
+    if manager.latest_checkpoint:
+        print("Restored from {}".format(manager.latest_checkpoint))
+    else:
+        print("Initializing from scratch.")
 
     with writer.as_default():
         for epoch in range(EPOCHS):
@@ -139,8 +145,9 @@ def main():
                         epoch, batch_n, train_loss.result(), test_loss.result(), m_tr.result())
                     helpers.tf_summaries(run, step, train_loss.result(
                     ), test_loss.result(), m_tr.result(), m_te.result())
-                    checkpoint.save(folder + '/')
+                    manager.save()
                 step += 1
+                ckpt.step.assign_add(1)
 
             print('Time taken for 1 epoch: {} secs\n'.format(time.time() - start))
 
