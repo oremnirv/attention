@@ -58,10 +58,10 @@ def test_step(decoder, test_loss, m_te, token_pos_te, time_pos_te, tar_te, pos_m
     combined_mask_tar_te = masks.create_masks(tar_inp_te)
   # training=False is only needed if there are layers with different
   # behavior during training versus inference (e.g. Dropout).
-    pred, pred_sig = decoder(token_pos_te, time_pos_te,
+    pred_te, pred_sig_te = decoder(token_pos_te, time_pos_te,
                              tar_inp_te, False, pos_mask_te, combined_mask_tar_te)
-    tf.print(tf.math.reduce_min(pred_sig))
-    t_loss, t_mse, t_mask = losses.loss_function(tar_real_te, pred, pred_sig)
+    # tf.print(tf.math.reduce_min(pred_sig))
+    t_loss, t_mse, t_mask = losses.loss_function(tar_real_te, pred_te, pred_sig_te)
     test_loss(t_loss)
     m_te.update_state(t_mse, t_mask)
 
