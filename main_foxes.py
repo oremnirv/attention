@@ -67,8 +67,8 @@ def test_step(decoder, test_loss, m_te, token_pos_te, time_pos_te, tar_te, pos_m
 
 
 def main():
-    save_dir = '/home/mg963/GPT_fox'
-    df = np.load('/home/mg963/fnr.npy')
+    save_dir = '/home/ubuntu/GPT_fox'
+    df = np.load('/home/ubuntu/fnr.npy')
 
     t = df[2::5]
     f = df[0::5]
@@ -109,7 +109,7 @@ def main():
     num_batches = int(tar_tr.shape[0] / batch_s)
     tf.random.set_seed(1)
     checkpoint = tf.train.Checkpoint(optimizer=optimizer_c, model=decoder)
-    main_folder = "/home/mg963/GPT_fox/ckpt/check_"
+    main_folder = "/home/ubuntu/GPT_fox/ckpt/check_"
     folder = main_folder + str(run)
     helpers.mkdir(folder)
     manager = tf.train.CheckpointManager(ckpt, folder, max_to_keep=3)
