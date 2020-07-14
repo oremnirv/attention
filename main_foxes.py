@@ -103,12 +103,12 @@ def main():
     optimizer_c = tf.keras.optimizers.Adam()
     decoder = fox_model.Decoder(16)
     EPOCHS = 5000
-    batch_s = 15
+    batch_s = 25
     run = 0
     step = 0
     num_batches = int(tar_tr.shape[0] / batch_s)
     tf.random.set_seed(1)
-    checkpoint = tf.train.Checkpoint(optimizer=optimizer_c, model=decoder)
+    ckpt = tf.train.Checkpoint(step=tf.Variable(1), optimizer = optimizer_c, net = decoder)
     main_folder = "/home/ubuntu/GPT_fox/ckpt/check_"
     folder = main_folder + str(run)
     helpers.mkdir(folder)
