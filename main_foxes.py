@@ -124,6 +124,8 @@ def main():
             start = time.time()
 
             for batch_n in range(num_batches):
+                m_tr.reset_states(); train_loss.reset_states()
+                m_te.reset_states(); test_loss.reset_states()
                 batch_tok_pos_tr, batch_tim_pos_tr, batch_tar_tr, _ = batch_creator.create_batch_foxes(
                     token_tr, pad_pos_tr, tar_tr, batch_s = 15)
 

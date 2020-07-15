@@ -91,6 +91,8 @@ def main():
             start = time.time()
 
             for batch_n in range(num_batches):
+                m_tr.reset_states(); train_loss.reset_states()
+                m_te.reset_states(); test_loss.reset_states()
                 batch_pos_tr, batch_tar_tr, _ = batch_creator.create_batch_gp_mim_2(pad_pos_tr, pad_y_fren_tr)
                 # batch_tar_tr shape := 128 X 59 = (batch_size, max_seq_len)
                 # batch_pos_tr shape := 128 X 59 = (batch_size, max_seq_len)
