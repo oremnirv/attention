@@ -1,3 +1,6 @@
+###########################
+# Author: Omer Nivron
+###########################
 from tensorflow.keras import regularizers
 from model import dot_prod_attention
 from keras import layers

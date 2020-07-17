@@ -1,3 +1,6 @@
+###########################
+# Author: Omer Nivron
+###########################
 from model import classic_model, losses, dot_prod_attention
 from data import data_generation, batch_creator, gp_kernels
 from keras.callbacks import ModelCheckpoint

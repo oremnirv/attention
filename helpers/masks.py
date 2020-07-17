@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 
 
-def position_mask(arr):
+def position_mask(arr, mask_val = 0):
     '''
     This tries to emulate the kernel matrix. 
     In the first stage we have a 2X2 matrix of zeros, next
@@ -10,6 +10,7 @@ def position_mask(arr):
     -------------------------
     Parameters:
     arr (np array): the 1st/2nd output from data_generator_for_gp_mimick_gpt function
+    mask_val (int)
     -------------------------
     Returns:
     mask (4D np array): if there are 100 rows and 50 cols in arr then this will 
@@ -19,7 +20,7 @@ def position_mask(arr):
     rows = arr.shape[0]
     cols = arr.shape[1]
     mask = np.ones((rows, cols - 1, cols, cols))
-    specific = np.sum(np.equal(arr, 0), 1)
+    specific = np.sum(np.equal(arr, mask_val), 1)
     for i in range(2, cols + 1):
         mask[:, i - 2, :i, :i] = np.zeros((i, i))
     for j in range(rows):
@@ -29,7 +30,7 @@ def position_mask(arr):
     return mask
 
 
-def create_padding_mask(seq):
+def create_padding_mask(seq, pad_val = 0):
     '''
     Used to pad sequences that have zeros where there was no event.
     Typically this will be combined with create_look_ahead_mask function.
@@ -38,13 +39,13 @@ def create_padding_mask(seq):
     -------------------
     Parameters:
     seq (tensor): shape is (batch_size, seq_len)
-    
+    pad_val (int)
     -------------------
     Returns:
     A binary tensor  (batch_size, 1, seq_len): 1 where there was no event and 0 otherwise.
     
     '''
-    seq = tf.cast(tf.math.equal(seq, 0), tf.float32)
+    seq = tf.cast(tf.math.equal(seq, pad_val), tf.float32)
   
   # add extra dimensions to add the padding
   # to the attention. Extra dimension is used in create_masks function

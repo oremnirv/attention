@@ -1,6 +1,7 @@
+###########################
+# Author: Omer Nivron
+###########################
 import tensorflow as tf
-
-
 
 
 def dot_prod_position(q, k, v, mask):

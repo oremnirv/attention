@@ -1,3 +1,7 @@
+###########################
+# Author: Omer Nivron
+###########################
+
 import numpy as np
 from data import gp_priors
 from data import gp_kernels 

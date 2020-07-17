@@ -1,3 +1,6 @@
+###########################
+# Author: Omer Nivron
+###########################
 import tensorflow as tf
 
 loss_object = tf.keras.losses.MeanSquaredError()
