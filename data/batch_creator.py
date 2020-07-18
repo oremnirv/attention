@@ -51,8 +51,8 @@ def create_batch_gp_mim_2(pos, tar, batch_s=128):
     '''
     shape = tar.shape[0]
     batch_idx_tr = np.random.choice(list(range(shape)), batch_s)
-    batch_tar_tr = tar[batch_idx_tr, :]
-    batch_pos_tr = pos[batch_idx_tr, :]
+    batch_tar_tr = tar[batch_idx_tr]
+    batch_pos_tr = pos[batch_idx_tr]
     return batch_pos_tr, batch_tar_tr, batch_idx_tr
 
 
