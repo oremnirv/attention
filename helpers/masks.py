@@ -80,6 +80,16 @@ def create_look_ahead_mask(size):
 def create_masks(tar):
     '''
     Create unified masking hiding future from current timestamps and hiding paddings. 
+    
+    Example:
+    masks.create_masks(tf.constant([1, 2, 5, 0, 0], shape = [1, 5]))
+    <tf.Tensor: shape=(1, 5, 5), dtype=float32, numpy=
+    array([[[0., 1., 1., 1., 1.],
+            [0., 0., 1., 1., 1.],
+            [0., 0., 0., 1., 1.],
+            [0., 0., 0., 1., 1.],
+            [0., 0., 0., 1., 1.]]], dtype=float32)>
+
     -------------------
     Parameters: 
     tar (tensor): batch of padded target sequences 
