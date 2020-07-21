@@ -38,7 +38,7 @@ def dat_generator_for_gp_mimick(num_samples, obs_per_sample, kernel, tr_percent=
 
     return eng_tr.T.reshape(-1, cols - 1, 2), eng_te.T.reshape(-1, cols - 1, 2), fren_tr, fren_te, y_fren_tr.reshape(-1, 1), y_fren_te.reshape(-1, 1)
 
-def data_generator_for_gp_mimick_gpt(num_obs, kernel, tr_percent=0.8, seq_len=59):
+def data_generator_for_gp_mimick_gpt(num_obs, kernel, tr_percent=0.8, seq_len=59, extarpo = True, extarpo_num = 19):
     '''
     Generator for training a GPT inspired netowrk.
     -----------------------
@@ -57,18 +57,23 @@ def data_generator_for_gp_mimick_gpt(num_obs, kernel, tr_percent=0.8, seq_len=59
     df_te (np array): positions and targets combined (testing) 
     '''
     df = np.zeros((num_obs * 2, seq_len))
+    rows = df.shape[0]
+    cols = df.shape[1]
+    tr_rows = int(tr_percent * rows)
+    tr_rows = tr_rows if tr_rows % 2 == 0 else tr_rows + 1
     for i in range(0, num_obs * 2, 2):
-        x = np.random.uniform(5, 15, size=(1, seq_len))
+        if ((i > tr_rows) & (extarpo)):
+            x = np.concatenate((np.random.uniform(5, 15, size=(1, seq_len - extarpo_num))  np.random.uniform(15.1, 20, size=(1, extarpo_num))))
+
+        else:
+            x = np.random.uniform(5, 15, size=(1, seq_len))
         k = kernel(x)
         f_prior = gp_priors.generate_priors(k, seq_len, 1)
 
         df[i, :x.shape[1]] = x
         df[i + 1, :x.shape[1]] = f_prior
 
-    rows = df.shape[0]
-    cols = df.shape[1]
-    tr_rows = int(tr_percent * rows)
-    tr_rows = tr_rows if tr_rows % 2 == 0 else tr_rows + 1
+
     df_tr = df[:tr_rows, :]
     df_te = df[tr_rows:, :]
     
