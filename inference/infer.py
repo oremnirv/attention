@@ -16,7 +16,7 @@ def evaluate(model, pos, tar, pos_mask):
     pred_log_sig (tf tensor float64)
     
     '''
-    combined_mask_tar = create_masks(tar)
+    combined_mask_tar = masks.create_masks(tar)
     pred, pred_log_sig = model(pos, tar, False, pos_mask, combined_mask_tar)
     return pred, pred_log_sig 
 
@@ -37,7 +37,7 @@ def inference(model, pos, tar, num_steps = 1):
     '''
     n = tar.shape[1]
     temp_pos = pos[:, :(n + 1)]
-    pos_mask = position_mask(temp_pos)
+    pos_mask = masks.position_mask(temp_pos)
     
     pred, pred_log_sig = evaluate(model, temp_pos, tar, pos_mask)
     tar = tf.concat((tar, tf.reshape(pred[n - 1], [1, 1])), axis = 1)
