@@ -1,4 +1,5 @@
 from helpers import masks 
+import tensorflow as tf
 
 
 def evaluate(model, pos, tar, pos_mask):
