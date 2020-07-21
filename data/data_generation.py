@@ -38,29 +38,29 @@ def dat_generator_for_gp_mimick(num_samples, obs_per_sample, kernel, tr_percent=
 
     return eng_tr.T.reshape(-1, cols - 1, 2), eng_te.T.reshape(-1, cols - 1, 2), fren_tr, fren_te, y_fren_tr.reshape(-1, 1), y_fren_te.reshape(-1, 1)
 
-def data_generator_for_gp_mimick_gpt(num_obs, kernel, tr_percent=0.8):
+def data_generator_for_gp_mimick_gpt(num_obs, kernel, tr_percent=0.8, seq_len=59):
     '''
-    Generator for training a GPT inspired netowrk. Make sure x is drawn in a range that 
-    Doesn't include 0 --> 0 is currently used for padding.
+    Generator for training a GPT inspired netowrk.
     -----------------------
     Parameters:
     num_obs (int): how many observations to generate
     kernel (function of am SKlearn kernel object): e.g. rbf_kernel which comes from gp_kernels file
     tr_percent (float): daefult 0.8
+    seq_len (int): daefult 59
     -----------------------
     Returns:
-    pad_pos_tr (np array): the first rows * tr_percent from the x generated values padded by zeros according to obs_per_sample  
+    pad_pos_tr (np array): the first rows * tr_percent from the x generated values 
     pad_pos_te (np array): all rows of x not chosen for training 
-    pad_y_fren_tr (np array): the first rows * tr_percent from the f_prior generated values padded by zeros according to obs_per_sample  
+    pad_y_fren_tr (np array): the first rows * tr_percent from the f_prior generated values 
     pad_y_fren_te (np array): all rows of f_prior not chosen for training
     df_tr (np array): positions and targets combined (training) 
     df_te (np array): positions and targets combined (testing) 
     '''
-    df = np.zeros((num_obs * 2, 59))
+    df = np.zeros((num_obs * 2, seq_len))
     for i in range(0, num_obs * 2, 2):
-        x = np.random.uniform(5, 15, size=(1, 59))
+        x = np.random.uniform(5, 15, size=(1, seq_len))
         k = kernel(x)
-        f_prior = gp_priors.generate_priors(k, 59, 1)
+        f_prior = gp_priors.generate_priors(k, seq_len, 1)
 
         df[i, :x.shape[1]] = x
         df[i + 1, :x.shape[1]] = f_prior
