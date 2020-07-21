@@ -26,11 +26,11 @@ def train_step(decoder, optimizer_c, train_loss, m_tr, pos, tar, pos_mask):
     tar_real = tar[:, 1:]
     combined_mask_tar = masks.create_masks(tar_inp)
     with tf.GradientTape(persistent=True) as tape:
-        pred, pred_sig = decoder(pos, tar_inp, True, pos_mask, combined_mask_tar)
+        pred, pred_log_sig = decoder(pos, tar_inp, True, pos_mask, combined_mask_tar)
 #         print('pred: ')
 #         tf.print(pred)
 
-        loss, mse, mask = losses.loss_function(tar_real, pred, pred_sig)
+        loss, mse, mask = losses.loss_function(tar_real, pred, pred_log_sig)
 
     gradients = tape.gradient(loss, decoder.trainable_variables)
 #     tf.print(gradients)
@@ -62,8 +62,8 @@ def test_step(decoder, test_loss, m_te, pos_te, tar_te, pos_mask_te):
     combined_mask_tar_te = masks.create_masks(tar_inp_te)
   # training=False is only needed if there are layers with different
   # behavior during training versus inference (e.g. Dropout).
-    pred, pred_sig = decoder(pos_te, tar_inp_te, False, pos_mask_te, combined_mask_tar_te)
-    t_loss, t_mse, t_mask = losses.loss_function(tar_real_te, pred, pred_sig)
+    pred_te, pred_log_sig_te = decoder(pos_te, tar_inp_te, False, pos_mask_te, combined_mask_tar_te)
+    t_loss, t_mse, t_mask = losses.loss_function(tar_real_te, pred_te, pred_log_sig_te)
     test_loss(t_loss)
     m_te.update_state(t_mse, t_mask)
 
@@ -84,9 +84,15 @@ def main():
     run = 0; step = 0
     num_batches = int(pad_y_fren_tr.shape[0] / batch_s)
     tf.random.set_seed(1)    
-    checkpoint = tf.train.Checkpoint(optimizer = optimizer_c, model = decoder)
+    ckpt = tf.train.Checkpoint(step=tf.Variable(1), optimizer = optimizer_c, net = decoder)
     main_folder = "/home/ubuntu/GPT/ckpt/check_"
     folder = main_folder + str(run); helpers.mkdir(folder)
+    manager = tf.train.CheckpointManager(ckpt, folder, max_to_keep=3)
+    ckpt.restore(manager.latest_checkpoint)
+    if manager.latest_checkpoint:
+        print("Restored from {}".format(manager.latest_checkpoint))
+    else:
+        print("Initializing from scratch.")
     tf.keras.backend.set_floatx('float64')
 
     with writer.as_default():
@@ -109,8 +115,9 @@ def main():
                     test_step(decoder, test_loss, m_te, batch_pos_te, batch_tar_te, batch_pos_mask_te)
                     helpers.print_progress(epoch, batch_n, train_loss.result(), test_loss.result(), m_tr.result())
                     helpers.tf_summaries(run, step, train_loss.result(), test_loss.result(), m_tr.result(), m_te.result())
-                    checkpoint.save(folder + '/')
+                    manager.save()
                 step += 1
+                ckpt.step.assign_add(1)
 
             print ('Time taken for 1 epoch: {} secs\n'.format(time.time() - start))
 
