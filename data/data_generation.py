@@ -62,8 +62,8 @@ def data_generator_for_gp_mimick_gpt(num_obs, kernel, tr_percent=0.8, seq_len=59
     tr_rows = int(tr_percent * rows)
     tr_rows = tr_rows if tr_rows % 2 == 0 else tr_rows + 1
     for i in range(0, num_obs * 2, 2):
-        if ((i > tr_rows) & (extarpo)):
-            x = np.concatenate((np.random.uniform(5, 15, size=(1, seq_len - extarpo_num))  np.random.uniform(15.1, 20, size=(1, extarpo_num))))
+        if ((i >= tr_rows) & (extarpo)):
+            x = np.concatenate((np.random.uniform(5, 15, size=(1, seq_len - extarpo_num)), np.random.uniform(15.1, 20, size=(1, extarpo_num))), axis = 1)
 
         else:
             x = np.random.uniform(5, 15, size=(1, seq_len))
