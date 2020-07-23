@@ -46,13 +46,19 @@ class Decoder(tf.keras.layers.Layer):
     def call(self, tar_token_pos, tar_time_pos, tar_time_pos2, tar_pos, tar_inp, training, pos_mask, tar_mask):
         
         embbed = self.e1(tar_token_pos)
-        print(embbed)
+        # print(embbed)
 
         tar_time_pos = tar_time_pos[:, :, tf.newaxis]
+        tar_time_pos2 = tar_time_pos2[:, :, tf.newaxis]
+        tar_pos = tf.transpose(tar_pos, perm = [0, 2, 1]) 
+
 
         tar_position = tf.concat([tf.cast(embbed, tf.float64), tf.cast(tar_time_pos, tf.float64)], axis = 2)
+        tar_position = tf.concat([tar_position, tf.cast(tar_time_pos2, tf.float64)], axis = 2)
+        tar_position = tf.concat([tar_position, tf.cast(tar_pos, tf.float64)], axis = 2)
 
-        print(tar_position)
+
+        # print(tar_position)
 
         q_p = self.wq(tar_position) 
         k_p = self.wk(tar_position)
