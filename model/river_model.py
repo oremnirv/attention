@@ -8,7 +8,7 @@ import tensorflow as tf
 
 
 class Decoder(tf.keras.layers.Layer):
-    def __init__(self, l, rate=0.3):
+    def __init__(self, l, rate=0.1):
         super(Decoder, self).__init__()
         
         self.l = l
