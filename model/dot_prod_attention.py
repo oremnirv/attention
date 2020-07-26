@@ -82,10 +82,12 @@ def dot_product_attention(q, k, v, mask):
     # similarity
     # q = k = v  shape := (batch_size, max_seq_len - 1, l)
     matmul_qk = tf.matmul(q, k, transpose_b = True, name = 'qk')
+
+    dk = tf.cast(tf.shape(k)[-1], tf.float64)
 #     print('matmul_qk: ', matmul_qk)
 #     shape=(128, 58, 58)
     
-    nl_qk = tf.cast(tf.nn.relu(matmul_qk, name = 'nl_qk'), tf.float64) 
+    nl_qk = tf.cast(tf.nn.relu(matmul_qk / tf.math.sqrt(dk), name = 'nl_qk'), tf.float64) 
 #     print('nl_qk: ', nl_qk)
 #     shape=(128, 58, 58)
 #     nl_qk shape := (batch_size, max_seq_len - 1, max_seq_len - 1)
@@ -95,7 +97,7 @@ def dot_product_attention(q, k, v, mask):
     # want to use matmul as is 
     
     if mask is not None:
-        nl_qk +=  ((tf.cast(mask, tf.float64)) * -1e9)
+        nl_qk +=  ((tf.cast(mask[:, tf.newaxis, :, :], tf.float64)) * -1e9)
     
         
 #     print('nl_qk after mask: ', nl_qk)

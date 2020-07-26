@@ -8,10 +8,12 @@ import tensorflow as tf
 
 
 class Decoder(tf.keras.layers.Layer):
-    def __init__(self, l, rate=0.1):
+    def __init__(self, l, rate=0.1, num_heads = 4, depth = 4):
         super(Decoder, self).__init__()
         
         self.l = l
+        self.num_heads = num_heads
+        self.depth = depth
 
         self.e1 = tf.keras.layers.Embedding(10, 8, mask_zero = True)
         
@@ -22,6 +24,8 @@ class Decoder(tf.keras.layers.Layer):
         self.hq = tf.keras.layers.Dense(l, name = 'hq')
         self.hk = tf.keras.layers.Dense(l, name = 'hk')
         self.hv = tf.keras.layers.Dense(l, name = 'hv')
+
+        self.dense = tf.keras.layers.Dense(l, name = 'dense_after_mha')
         
         self.B = tf.keras.layers.Dense(l, name = 'B')
         self.A = tf.keras.layers.Dense(1, name = 'A')
@@ -41,9 +45,16 @@ class Decoder(tf.keras.layers.Layer):
         self.dropout3 = tf.keras.layers.Dropout(rate)
         self.dropout4 = tf.keras.layers.Dropout(rate)
 
+    def split_heads(self, x, batch_size):
+        """Split the last dimension into (num_heads, depth).
+        Transpose the result such that the shape is (batch_size, num_heads, seq_len, depth)
+        """
+        x = tf.reshape(x, (batch_size, -1, self.num_heads, self.depth))
+        return tf.transpose(x, perm=[0, 2, 1, 3])
+
 
     #a call method, the layer's forward pass
-    def call(self, tar_token_pos, tar_time_pos, tar_time_pos2, tar_pos, tar_inp, training, pos_mask, tar_mask):
+    def call(self, tar_token_pos, tar_time_pos, tar_time_pos2, tar_pos, tar_inp, training, pos_mask, tar_mask, batch_size = 64):
         
         embbed = self.e1(tar_token_pos)
         # print(embbed)
@@ -64,6 +75,10 @@ class Decoder(tf.keras.layers.Layer):
         k_p = self.wk(tar_position)
         v_p = self.wk(tar_position)
 
+        # q_p = self.split_heads(q_p, batch_size)  # (batch_size, num_heads, seq_len_q, depth)
+        # k_p = self.split_heads(k_p, batch_size)  # (batch_size, num_heads, seq_len_k, depth)
+        # v_p = self.split_heads(v_p, batch_size)  # (batch_size, num_heads, seq_len_v, depth)
+
 
 #         print('v_p: ', v_p)
         #shape=(128, 59, 16)
@@ -80,11 +95,24 @@ class Decoder(tf.keras.layers.Layer):
         q = self.hq(tar_inp) 
         k = self.hk(tar_inp)
         v = self.hv(tar_inp)
+
+        q = self.split_heads(q, batch_size)  # (batch_size, num_heads, seq_len_q, depth)
+        k = self.split_heads(k, batch_size)  # (batch_size, num_heads, seq_len_k, depth)
+        v = self.split_heads(v, batch_size)  # (batch_size, num_heads, seq_len_v, depth)
+
         
 #         print('q :', q)
 #       shape=(128, 58, 16)
 
         tar_attn1, _, _ = dot_prod_attention.dot_product_attention(q, k, v, tar_mask)
+
+        tar_attn1 = tf.transpose(tar_attn1, perm=[0, 2, 1, 3])  # (batch_size, seq_len_q, num_heads, depth)
+
+        tar_attn1 = tf.reshape(tar_attn1, 
+                                  (batch_size, -1, self.l))  # (batch_size, seq_len_q, d_model)
+
+        tar_attn1 = self.dense(tar_attn1)  # (batch_size, seq_len_q, d_model)
+
         tar_attn1 = self.dropout2(tar_attn1, training = training)
         tar_attn1 = self.layernorm2(tar_attn1)
         # tar_attn1 is (batch_size, max_seq_len - 1, tar_d_model)

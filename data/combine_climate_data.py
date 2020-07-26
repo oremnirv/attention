@@ -19,8 +19,11 @@ def climate_data_to_model_input(path, n_rows=10000):
 
         # pick differing sequence length
         seq_len = np.random.choice(np.arange(5, 20), 2)
-        seq1_idx = list(np.random.choice(list(df_1.index), seq_len[0]))
-        seq2_idx = list(np.random.choice(list(df_2.index), seq_len[1]))
+        seq1_idx = sorted(list(np.random.choice(list(df_1.index)[:-21], seq_len[0])))
+
+        df_2 = df_2[df_2['dt'] > max(df_1.loc[seq1_idx, 'dt'])]
+        seq2_idx = sorted(list(np.random.choice(list(df_2.index), seq_len[1])))
+
         m = (seq_len[0] + seq_len[1])
         combined_array[row, :m] = np.concatenate(
             (df_1.loc[seq1_idx, 't2m'], df_2.loc[seq2_idx, 't2m']))
