@@ -2,7 +2,7 @@ from helpers import masks
 import tensorflow as tf
 
 
-def evaluate(model, pos, tar, pos_mask):
+def evaluate(model, pos, tar, pos_mask, mh = False):
     '''
     Run a forward pass of the network
     ------------------
@@ -18,12 +18,16 @@ def evaluate(model, pos, tar, pos_mask):
     
     '''
     combined_mask_tar = masks.create_masks(tar)
-    pred, pred_log_sig = model(pos, tar, False, pos_mask, combined_mask_tar)
+    if mh:
+        pred, pred_log_sig = model(pos, tar, False, pos_mask, combined_mask_tar, batch_size = 1)
+    else:
+        pred = model(pos, tar, False, pos_mask, combined_mask_tar)
+        pred_log_sig = None
     return pred, pred_log_sig 
 
 
 
-def inference(model, pos, tar, num_steps = 1):
+def inference(model, pos, tar, num_steps = 1, mh = False):
     '''
     how many steps to infer -- this could be used both for interpolation and extrapolation 
     ------------------
@@ -39,11 +43,16 @@ def inference(model, pos, tar, num_steps = 1):
     n = tar.shape[1]
     temp_pos = pos[:, :(n + 1)]
     pos_mask = masks.position_mask(temp_pos)
-    
-    pred, pred_log_sig = evaluate(model, temp_pos, tar, pos_mask)
+    if  mh:
+        pred, pred_log_sig = evaluate(model, temp_pos, tar, pos_mask, mh = True)
+    else:
+        pred, pred_log_sig = evaluate(model, temp_pos, tar, pos_mask)
+        pred_log_sig = None
+
+
     tar = tf.concat((tar, tf.reshape(pred[n - 1], [1, 1])), axis = 1)
-    if num_steps > 1:
-        pred, pred_log_sig  = inference(pos, tar, num_steps - 1)
+    # if num_steps > 1:
+    #     pred, pred_log_sig  = inference(pos, tar, num_steps - 1)
     
     return pred, pred_log_sig 
     

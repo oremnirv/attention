@@ -83,6 +83,7 @@ def dot_product_attention(q, k, v, mask, head = False):
     # similarity
     # q = k = v  shape := (batch_size, max_seq_len - 1, l)
     matmul_qk = tf.matmul(q, k, transpose_b = True, name = 'qk')
+    # print('1', matmul_qk)
 
     if head:
         dk = tf.cast(tf.shape(k)[-1], tf.float64)
@@ -94,7 +95,9 @@ def dot_product_attention(q, k, v, mask, head = False):
 #     print('matmul_qk: ', matmul_qk)
 #     shape=(128, 58, 58)
     
-        nl_qk = tf.cast(tf.nn.relu(matmul_qk, name = 'nl_qk'), tf.float64) 
+        # nl_qk = tf.cast(tf.nn.relu(matmul_qk, name = 'nl_qk'), tf.float64)
+        nl_qk = tf.cast(matmul_qk, tf.float64) 
+ 
     # print('nl_qk: ', nl_qk)
 #     shape=(128, 58, 58)
 #     nl_qk shape := (batch_size, max_seq_len - 1, max_seq_len - 1)
@@ -106,6 +109,7 @@ def dot_product_attention(q, k, v, mask, head = False):
         if mask is not None:
         # mask[:, tf.newaxis, :, :]
             nl_qk +=  ((tf.cast(mask, tf.float64)) * -1e9)
+            # print('2', nl_qk)
     
         
 #     print('nl_qk after mask: ', nl_qk)
@@ -120,7 +124,7 @@ def dot_product_attention(q, k, v, mask, head = False):
     # So we can expect an output from these rows which we want to ignore
     # this will be enforced in the masking of the loss function 
     
-#     print('attention_weights: ', attention_weights)
+    # print('attention_weights: ', attention_weights)
 #     shape=(128, 58, 58)
    
     # weight values 
@@ -128,7 +132,7 @@ def dot_product_attention(q, k, v, mask, head = False):
     # v shape := batch_size X (max_seq_len - 1) X l
     out_tar = tf.matmul(attention_weights, tf.cast(v, tf.float64))
     
-#   print('out_tar: ', out_tar)
+    # print('out_tar: ', out_tar)
 #   shape=(128, 58, l)
     
     return out_tar, attention_weights, matmul_qk

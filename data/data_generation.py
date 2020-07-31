@@ -1,14 +1,15 @@
 ###########################
 # Author: Omer Nivron
 ###########################
-
+from sklearn.gaussian_process.kernels import ExpSineSquared
+from sklearn.gaussian_process import GaussianProcessRegressor
 import numpy as np
 from data import gp_priors
 from data import gp_kernels 
 import pandas as pd
 
 
-def dat_generator_for_gp_mimick(num_samples, obs_per_sample, kernel, tr_percent=0.8):
+def dat_generator_for_gp_mimick(num_samples, obs_per_sample, tr_percent=0.8):
     '''
 
 
@@ -17,7 +18,7 @@ def dat_generator_for_gp_mimick(num_samples, obs_per_sample, kernel, tr_percent=
     df = np.zeros((num_samples * 2, obs_per_sample))
     for i in range(0, num_samples * 2, 2):
         x = np.random.uniform(-5, 5, size=(1, obs_per_sample))
-        k = kernel(x)
+        k = gp_kernels.rbf_kernel(x.reshape(-1, 1))
         f_prior = gp_priors.generate_priors(k, obs_per_sample, 1)
 
         df[i, :] = x
@@ -39,7 +40,7 @@ def dat_generator_for_gp_mimick(num_samples, obs_per_sample, kernel, tr_percent=
 
     return eng_tr.T.reshape(-1, cols - 1, 2), eng_te.T.reshape(-1, cols - 1, 2), fren_tr, fren_te, y_fren_tr.reshape(-1, 1), y_fren_te.reshape(-1, 1)
 
-def data_generator_for_gp_mimick_gpt(num_obs, tr_percent=0.8, seq_len=59, extarpo = True, extarpo_num = 19):
+def data_generator_for_gp_mimick_gpt(num_obs, tr_percent=0.8, seq_len=59, extarpo = True, extarpo_num = 19, ordered = False, rbf = True):
     '''
     Generator for training a GPT inspired netowrk.
     -----------------------
@@ -69,8 +70,18 @@ def data_generator_for_gp_mimick_gpt(num_obs, tr_percent=0.8, seq_len=59, extarp
             x = np.random.uniform(5, 15, size=(1, seq_len))
 
 
-        k = gp_kernels.rbf_kernel(x.reshape(-1, 1))
-        f_prior = gp_priors.generate_priors(k, seq_len, 1)
+        if ordered:
+            x = np.sort(x)
+
+        if rbf:
+            k = gp_kernels.rbf_kernel(x.reshape(-1, 1))
+            f_prior = gp_priors.generate_priors(k, seq_len, 1)
+        else:
+            # print(x.reshape(-1, 1).shape)
+            k = 1.0 * ExpSineSquared(length_scale=1.0, periodicity=3.0, length_scale_bounds=(0.1, 10.0))
+            gp = GaussianProcessRegressor(kernel=k)
+            f_prior = np.squeeze(gp.sample_y(x.reshape(-1, 1)))
+
 
         df[i, :x.shape[1]] = x
         df[i + 1, :x.shape[1]] = f_prior

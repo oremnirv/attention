@@ -7,8 +7,14 @@ def KUEE(y_true, μ_te, σ_te):
 
     
     '''
-    if ((y_true >= μ_te - 2 * σ_te) & (y_true <= μ_te + 2 * σ_te)):
-        return np.sum((y_true >= μ_te - 2 * σ_te) & (y_true <= μ_te + 2 * σ_te))
+
+    y_true = round(y_true, 4)
+    lower = μ_te - 2 * σ_te
+    upper = μ_te + 2 * σ_te
+
+    cond = ((y_true >= lower) & (y_true <= upper))
+    if cond:
+        return np.sum(cond)
     else: 
         return 0
 
