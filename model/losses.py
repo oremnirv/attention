@@ -30,11 +30,11 @@ def loss_function(real, pred, pred_log_sig = None, epsilon = 0.001):
 
     # if pred_log_sig:
 
-    # loss_ =  (tf.math.divide(mse, tf.math.square(tf.math.exp(pred_log_sig)) + epsilon) + (pred_log_sig))
+    loss_ =  (tf.math.divide(mse, tf.math.square(tf.math.exp(pred_log_sig)) + epsilon) + (pred_log_sig))
 
     # else:
 
-    loss_ = mse
+    # loss_ = mse
 #     shape= (128X58)
     
     mask = tf.cast(mask, dtype=loss_.dtype)

@@ -41,13 +41,11 @@ def create_batch_gp_mim_2(pos, tar, batch_s=128):
     Parameters:
     pos (2D np array): 1st/2nd output from data_generator_for_gp_mimick_gpt function 
     tar (2D np array): 3rd/4th output from data_generator_for_gp_mimick_gpt function  
-    pos_mask (4D np.array): output from position_mask function 
     batch_s (int): deafult 128
     -------------------------
     Returns:
     batch_pos_tr (2D np array)
     batch_tar_tr (2D np array)
-    batch_pos_mask (4D np array)
     batch_idx_tr (1D np array): indices (=row numbers) chosen for current batch
 
     '''
