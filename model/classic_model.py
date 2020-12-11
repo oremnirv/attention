@@ -27,11 +27,11 @@ class Decoder(tf.keras.layers.Layer):
         self.A1 = tf.keras.layers.Dense(64, name = 'A1')
         self.A2 = tf.keras.layers.Dense(32, name = 'A2')
         self.A3 = tf.keras.layers.Dense(16, name = 'A3')
-        self.A4 = tf.keras.layers.Dense(1, name = 'A4')
+        self.A4 = tf.keras.layers.Dense(2, name = 'A4')
 
 
-        self.Bsig = tf.keras.layers.Dense(l, activation = 'relu', name = 'Bsig')
-        self.Asig = tf.keras.layers.Dense(1, name = 'Asig')
+        # self.Bsig = tf.keras.layers.Dense(l, activation = 'relu', name = 'Bsig')
+        self.Asig = tf.keras.layers.Dense(58, name = 'Asig')
 
 
         # self.layernorm1 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
@@ -49,6 +49,8 @@ class Decoder(tf.keras.layers.Layer):
         
         # Adding extra dimension to allow multiplication of 
         # a sequnce with itself. 
+        print('tar_position shape: ', tar_position.shape)
+
         tar_position = tar_position[:, :, tf.newaxis]
         
         q_p = self.wq(tar_position) 
@@ -61,6 +63,7 @@ class Decoder(tf.keras.layers.Layer):
         #shape=(128, 59, 16)
         
         pos_attn1, _, _ = dot_prod_attention.dot_product_attention(q_p, k_p, v_p, pos_mask)
+        pos_attn1 =   self.Asig(pos_attn1) 
         # pos_attn1 = self.dropout1(pos_attn1, training = training)
         # pos_attn1 = self.layernorm1(pos_attn1)
         print('pos_attn1 :', pos_attn1)
@@ -88,11 +91,12 @@ class Decoder(tf.keras.layers.Layer):
         
         # tar1 = self.B(tar_attn1)
         
-        print('tar1 :', tar_attn1)
+        # print('tar1 :', tar_attn1)
         # shape=(128, 58, 16, 16)
 
+        L = tf.add(tf.cast(tar1, tf.float64), tf.cast(pos_attn1, tf.float64))
         # L = tf.matmul(tf.cast(tar1, tf.float64), tf.cast(pos_attn1, tf.float64))
-        L = tf.concat([tf.cast(tar_attn1, tf.float64), tf.cast(pos_attn1, tf.float64)], axis = 2)
+        # L = tf.concat([tf.cast(tar_attn1, tf.float64), tf.cast(pos_attn1, tf.float64)], axis = 1)
 
         # L = self.dropout3(L, training = training) 
         # L = self.layernorm3(L)
