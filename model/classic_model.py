@@ -63,7 +63,7 @@ class Decoder(tf.keras.layers.Layer):
         #shape=(128, 59, 16)
         
         pos_attn1, _, _ = dot_prod_attention.dot_product_attention(q_p, k_p, v_p, pos_mask)
-        pos_attn1 =   self.Asig(pos_attn1) 
+        pos_attn1 =   tf.transpose(self.Asig(tf.transpose(pos_attn1,  perm = [0, 2, 1])), perm = [0, 2, 1])
         # pos_attn1 = self.dropout1(pos_attn1, training = training)
         # pos_attn1 = self.layernorm1(pos_attn1)
         print('pos_attn1 :', pos_attn1)
@@ -94,7 +94,7 @@ class Decoder(tf.keras.layers.Layer):
         # print('tar1 :', tar_attn1)
         # shape=(128, 58, 16, 16)
 
-        L = tf.add(tf.cast(tar1, tf.float64), tf.cast(pos_attn1, tf.float64))
+        L = tf.add(tf.cast(tar_attn1, tf.float64), tf.cast(pos_attn1, tf.float64))
         # L = tf.matmul(tf.cast(tar1, tf.float64), tf.cast(pos_attn1, tf.float64))
         # L = tf.concat([tf.cast(tar_attn1, tf.float64), tf.cast(pos_attn1, tf.float64)], axis = 1)
 
