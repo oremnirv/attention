@@ -59,14 +59,14 @@ class Decoder(tf.keras.layers.Layer):
         # v_p *= 1 - tf.cast(tar_mask, tf.float64)
 
 
-        print('v_p: ', v_p)
+        # print('v_p: ', v_p)
         #shape=(128, 59, 16)
         
         pos_attn1, _, _ = dot_prod_attention.dot_product_attention(q_p, k_p, v_p, pos_mask)
         # pos_attn1 =   tf.transpose(self.Asig(tf.transpose(pos_attn1,  perm = [0, 2, 1])), perm = [0, 2, 1])
         # pos_attn1 = self.dropout1(pos_attn1, training = training)
         # pos_attn1 = self.layernorm1(pos_attn1)
-        print('pos_attn1 :', pos_attn1)
+        # print('pos_attn1 :', pos_attn1)
 #       shape=(128, 58, 16, 16)
     
         tar_inp = tar_inp[:, :, tf.newaxis]
@@ -76,10 +76,10 @@ class Decoder(tf.keras.layers.Layer):
         k = self.hk(tar_inp)
         v = self.hv(tar_inp)
         
-        print('q :', q)
+        # print('q :', q)
 # #       shape=(128, 58, 16)
 
-        print('tar mask :', tar_mask)
+        # print('tar mask :', tar_mask)
 
         tar_attn1, _, _ = dot_prod_attention.dot_product_attention(q, k, v, tar_mask)
         # tar_attn1 =   tf.transpose(self.Bsig(tf.transpose(tar_attn1,  perm = [0, 2, 1])), perm = [0, 2, 1])
@@ -87,7 +87,7 @@ class Decoder(tf.keras.layers.Layer):
         # tar_attn1 = self.layernorm2(tar_attn1)
         # tar_attn1 is (batch_size, max_seq_len - 1, tar_d_model)
 
-        print('tar_attn1 :', tar_attn1)
+        # print('tar_attn1 :', tar_attn1)
 #       shape=(128, 58, l)
 #       shape=(128, 58, 16)
         # tar_attn1 = tar_attn1[:, :, :, tf.newaxis]
@@ -104,7 +104,7 @@ class Decoder(tf.keras.layers.Layer):
         # L = self.dropout3(L, training = training) 
         # L = self.layernorm3(L)
         
-        print('L :', L)
+        # print('L :', L)
         # shape=(128, 58, 16, 16)
         
         # L2 = self.A(tf.reshape(L, shape = [tf.shape(L)[0], tf.shape(L)[1] ,self.l ** 2])) 
