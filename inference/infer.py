@@ -2,7 +2,7 @@ from helpers import masks
 import tensorflow as tf
 
 
-def evaluate(model, pos, tar, pos_mask, mh = False):
+def evaluate(model, pos, tar, mh = False):
     '''
     Run a forward pass of the network
     ------------------
@@ -17,13 +17,16 @@ def evaluate(model, pos, tar, pos_mask, mh = False):
     pred_log_sig (tf tensor float64)
     
     '''
+    combined_mask_pos = masks.create_masks(pos)
     combined_mask_tar = masks.create_masks(tar)
     if mh:
-        pred, pred_log_sig = model(pos, tar, False, pos_mask, combined_mask_tar, batch_size = 1)
+        pred, pred_log_sig = model(pos, tar, False, combined_mask_pos, combined_mask_tar, batch_size = 1)
+        sample_y = np.random.normal(pred, np.exp(pred_log_sig))
     else:
-        pred = model(pos, tar, False, pos_mask, combined_mask_tar)
-        pred_log_sig = None
-    return pred, pred_log_sig 
+        pred, pred_log_sig = model(pos, tar, False, combined_mask_pos, combined_mask_tar)
+        sample_y = np.random.normal(pred, np.exp(pred_log_sig))
+        # pred_log_sig = None
+    return pred, pred_log_sig, sample_y 
 
 
 
@@ -42,17 +45,16 @@ def inference(model, pos, tar, num_steps = 1, mh = False):
     '''
     n = tar.shape[1]
     temp_pos = pos[:, :(n + 1)]
-    pos_mask = masks.position_mask(temp_pos)
     if  mh:
-        pred, pred_log_sig = evaluate(model, temp_pos, tar, pos_mask, mh = True)
+        pred, pred_log_sig, sample_y = evaluate(model, temp_pos, tar, mh = True)
     else:
-        pred, pred_log_sig = evaluate(model, temp_pos, tar, pos_mask)
-        pred_log_sig = None
+        pred, pred_log_sig, sample_y = evaluate(model, temp_pos, tar)
+        # pred_log_sig = None
 
 
-    tar = tf.concat((tar, tf.reshape(pred[n - 1], [1, 1])), axis = 1)
-    # if num_steps > 1:
-    #     pred, pred_log_sig  = inference(pos, tar, num_steps - 1)
+    tar = tf.concat((tar, sample_y), axis = 1)
+    if num_steps > 1:
+        model, pos, tar = inference(model, pos, tar, num_steps - 1)
     
-    return pred, pred_log_sig 
+    return model, pos, tar
     

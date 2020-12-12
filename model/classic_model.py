@@ -30,8 +30,8 @@ class Decoder(tf.keras.layers.Layer):
         self.A4 = tf.keras.layers.Dense(2, name = 'A4')
 
 
-        # self.Bsig = tf.keras.layers.Dense(l, activation = 'relu', name = 'Bsig')
-        self.Asig = tf.keras.layers.Dense(58, name = 'Asig')
+        self.Bsig = tf.keras.layers.Dense(32, name = 'Bsig')
+        self.Asig = tf.keras.layers.Dense(32, name = 'Asig')
 
 
         # self.layernorm1 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
@@ -49,7 +49,7 @@ class Decoder(tf.keras.layers.Layer):
         
         # Adding extra dimension to allow multiplication of 
         # a sequnce with itself. 
-        print('tar_position shape: ', tar_position.shape)
+        # print('tar_position shape: ', tar_position.shape)
 
         tar_position = tar_position[:, :, tf.newaxis]
         
@@ -77,9 +77,12 @@ class Decoder(tf.keras.layers.Layer):
         v = self.hv(tar_inp)
         
         print('q :', q)
-#       shape=(128, 58, 16)
+# #       shape=(128, 58, 16)
+
+        print('tar mask :', tar_mask)
 
         tar_attn1, _, _ = dot_prod_attention.dot_product_attention(q, k, v, tar_mask)
+        tar_attn1 =   tf.transpose(self.Bsig(tf.transpose(tar_attn1,  perm = [0, 2, 1])), perm = [0, 2, 1])
         # tar_attn1 = self.dropout2(tar_attn1, training = training)
         # tar_attn1 = self.layernorm2(tar_attn1)
         # tar_attn1 is (batch_size, max_seq_len - 1, tar_d_model)
@@ -106,10 +109,10 @@ class Decoder(tf.keras.layers.Layer):
         
         # L2 = self.A(tf.reshape(L, shape = [tf.shape(L)[0], tf.shape(L)[1] ,self.l ** 2])) 
         L2 = tf.nn.leaky_relu(self.A1(L))
-        print('L2 after A1', L2) 
+        # print('L2 after A1', L2) 
         L2 = self.A2(L2) 
         L2 = tf.nn.leaky_relu(self.A3(L2)) 
-        print('L2', L2)
+        # print('L2', L2)
         L2 = self.A4(L2)
 
 
@@ -120,7 +123,7 @@ class Decoder(tf.keras.layers.Layer):
         # Lsig1 = self.Bsig(L) 
         # Lsig2 = self.Asig(tf.reshape(Lsig1, shape = [tf.shape(L)[0], tf.shape(L)[1] ,self.l ** 2])) 
         
-        print('L2 :', L2)
+        # print('L2 :', L2)
       # shape=(128, 58, 1)  
         
         return tf.squeeze(L2) #, tf.squeeze(Lsig2)

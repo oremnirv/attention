@@ -20,19 +20,19 @@ def loss_function(real, pred, pred_log_sig = None, epsilon = 0.001):
     '''
     # tf.print(pred_log_sig)
     mask = tf.math.logical_not(tf.math.equal(real, 0))
-    print('mask: ')
-    tf.print(mask)
+    # print('mask: ')
+    # tf.print(mask.shape)
     mse = loss_object(real, pred)
     # print('mse: ')
     # tf.print(mse)
     # print('mse divided: ')
     # tf.print(tf.math.divide(mse, tf.math.square(tf.math.exp(pred_log_sig)) + epsilon))
-    print('pred_log_sig: ')
-    tf.print(pred_log_sig)
+    # print('pred_log_sig: ')
+    # tf.print(pred_log_sig)
 
     # if pred_log_sig:
 
-    loss_ =  (tf.math.divide(mse, tf.math.square(tf.math.exp(pred_log_sig)) + epsilon) + (pred_log_sig))
+    loss_ =  1/2 * (tf.math.divide(mse, tf.math.square(tf.math.exp(pred_log_sig)) + epsilon) + (pred_log_sig))
 
     # else:
 
