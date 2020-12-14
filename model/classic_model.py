@@ -24,14 +24,14 @@ class Decoder(tf.keras.layers.Layer):
         self.B = tf.keras.layers.Dense(l, name = 'B')
         self.A = tf.keras.layers.Dense(1, name = 'A')
 
-        self.A1 = tf.keras.layers.Dense(64, name = 'A1')
-        self.A2 = tf.keras.layers.Dense(32, name = 'A2')
-        self.A3 = tf.keras.layers.Dense(16, name = 'A3')
+        self.A1 = tf.keras.layers.Dense(32, name = 'A1')
+        self.A2 = tf.keras.layers.Dense(8, name = 'A2')
+        self.A3 = tf.keras.layers.Dense(8, name = 'A3')
         self.A4 = tf.keras.layers.Dense(2, name = 'A4')
 
 
         # self.Bsig = tf.keras.layers.Dense(32, name = 'Bsig')
-        self.Asig = tf.keras.layers.Dense(32, name = 'Asig')
+        self.Asig = tf.keras.layers.Dense(8, name = 'Asig')
 
 
         # self.layernorm1 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
@@ -108,10 +108,12 @@ class Decoder(tf.keras.layers.Layer):
         # shape=(128, 58, 16, 16)
         
         # L2 = self.A(tf.reshape(L, shape = [tf.shape(L)[0], tf.shape(L)[1] ,self.l ** 2])) 
-        L2 = tf.nn.leaky_relu(self.A1(L))
+        # L2 = tf.nn.leaky_relu(self.A1(L))
         # print('L2 after A1', L2) 
-        L2 = self.A2(L2) + self.Asig(current_pos[:, :, tf.newaxis]) 
-        L2 = tf.nn.leaky_relu(self.A3(L2)) 
+        L2 = self.A2(L) + self.Asig(current_pos[:, :, tf.newaxis]) 
+        # L2 = tf.nn.leaky_relu(self.A3(L2)) 
+        L2 = tf.nn.leaky_relu((L2)) 
+
         # print('L2', L2)
         L2 = self.A4(L2)
 

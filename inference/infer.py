@@ -27,7 +27,7 @@ def evaluate(model, pos, tar, mh = False):
         sample_y = np.random.normal(pred[ -1, 0], np.exp(pred[ -1, 1]))
     else:
         pred = model(pos1, current_pos, tar, False, combined_mask_pos, combined_mask_tar)
-        print(pred.shape)
+        # print(pred.shape)
         sample_y = np.random.normal(pred[ -1, 0], np.exp(pred[ -1, 1]))
 
     return pred[:, 0], pred[:, 1], sample_y 
@@ -56,8 +56,8 @@ def inference(model, pos, tar, num_steps = 1, mh = False):
 
 
     tar = tf.concat((tar, tf.reshape(sample_y, [1, 1])), axis = 1)
-    # if num_steps > 1:
-    #     model, pos, tar = inference(model, pos, tar, num_steps - 1)
+    if num_steps > 1:
+        model, pos, tar = inference(model, pos, tar, num_steps - 1)
     
     return model, pos, tar
     
