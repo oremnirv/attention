@@ -12,6 +12,15 @@ class Decoder(tf.keras.layers.Layer):
         super(Decoder, self).__init__()
         
         self.l = l
+
+        self.BN1 = tf.keras.layers.BatchNormalization(name = 'BN1') 
+        self.BN2 = tf.keras.layers.BatchNormalization(name = 'BN2') 
+        self.BN3 = tf.keras.layers.BatchNormalization(name = 'BN3') 
+        self.BN4 = tf.keras.layers.BatchNormalization(name = 'BN4') 
+        self.BN5 = tf.keras.layers.BatchNormalization(name = 'BN5') 
+        self.BN6 = tf.keras.layers.BatchNormalization(name = 'BN6') 
+        self.BN7 = tf.keras.layers.BatchNormalization(name = 'BN7') 
+
         
         self.wq = tf.keras.layers.Dense(l, name = 'wq')
         self.wk = tf.keras.layers.Dense(l, name = 'wk')
@@ -53,9 +62,9 @@ class Decoder(tf.keras.layers.Layer):
         
         tar_position = tar_position[:, :, tf.newaxis]
         
-        q_p = self.wq(tar_position) 
-        k_p = self.wk(tar_position)
-        v_p = self.wk(tar_position) 
+        q_p = self.BN1(self.wq(tar_position))
+        k_p = self.BN2(self.wk(tar_position))
+        v_p = self.BN3(self.wk(tar_position))
         # v_p *= 1 - tf.cast(tar_mask, tf.float64)
 
 
@@ -72,9 +81,9 @@ class Decoder(tf.keras.layers.Layer):
         tar_inp = tar_inp[:, :, tf.newaxis]
 
         
-        q = self.hq(tar_inp) 
-        k = self.hk(tar_inp)
-        v = self.hv(tar_inp)
+        q = self.BN4(self.hq(tar_inp)) 
+        k = self.BN5(self.hk(tar_inp))
+        v = self.BN6(self.hv(tar_inp))
         
         # print('q :', q)
 # #       shape=(128, 58, 16)
@@ -111,8 +120,9 @@ class Decoder(tf.keras.layers.Layer):
         # L2 = tf.nn.leaky_relu(self.A1(L))
         # print('L2 after A1', L2) 
         L2 = self.A2(L) + self.Asig(current_pos[:, :, tf.newaxis]) 
+
         # L2 = tf.nn.leaky_relu(self.A3(L2)) 
-        L2 = tf.nn.leaky_relu((L2)) 
+        L2 = tf.nn.leaky_relu(self.BN7(L2)) 
 
         # print('L2', L2)
         L2 = self.A4(L2)

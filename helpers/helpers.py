@@ -25,12 +25,12 @@ def tf_summaries(run, string, train_loss_r, test_loss_r, tr_metric, te_metric):
     tf.summary.scalar('test metric', te_metric, step=string)
 
 
-def print_progress(epoch, batch_n, train_loss_r, test_loss_r, tr_metric):
+def print_progress(epoch, batch_n, train_loss_r, test_loss_r, tr_metric, te_metric):
     '''
 
     '''
-    print('Epoch {} batch {} train Loss {:.4f} test Loss {:.4f} with MSE metric {:.4f}'.format(epoch, batch_n,
-                                                                        train_loss_r, test_loss_r, tr_metric))
+    print('Epoch {} batch {} train Loss {:.4f} test Loss {:.4f} with training MSE metric {:.4f} and testing MSE metric {:.4f}'.format(epoch, batch_n,
+                                                                        train_loss_r, test_loss_r, tr_metric, te_metric))
 
 
 
