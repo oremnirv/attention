@@ -64,7 +64,7 @@ class Decoder(tf.keras.layers.Layer):
         
         q_p = self.BN1(self.wq(tar_position))
         k_p = self.BN2(self.wk(tar_position))
-        v_p = self.BN3(self.wk(tar_position))
+        v_p = self.BN3(self.wv(tar_position))
         # v_p *= 1 - tf.cast(tar_mask, tf.float64)
 
 

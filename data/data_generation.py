@@ -40,7 +40,7 @@ def dat_generator_for_gp_mimick(num_samples, obs_per_sample, tr_percent=0.8):
 
     return eng_tr.T.reshape(-1, cols - 1, 2), eng_te.T.reshape(-1, cols - 1, 2), fren_tr, fren_te, y_fren_tr.reshape(-1, 1), y_fren_te.reshape(-1, 1)
 
-def data_generator_for_gp_mimick_gpt(num_obs, tr_percent=0.8, seq_len=600, extarpo = False, extarpo_num = 19, ordered = False, rbf = True):
+def data_generator_for_gp_mimick_gpt(num_obs, tr_percent=0.8, seq_len=600, extarpo = False, extarpo_num = 19, ordered = False, rbf = True, same_x = False):
     '''
     Generator for training a GPT inspired netowrk.
     -----------------------
@@ -63,11 +63,14 @@ def data_generator_for_gp_mimick_gpt(num_obs, tr_percent=0.8, seq_len=600, extar
     tr_rows = int(tr_percent * rows)
     tr_rows = tr_rows if tr_rows % 2 == 0 else tr_rows + 1
     for i in range(0, num_obs * 2, 2):
-        if ((i >= tr_rows) & (extarpo)):
+        if ((i >= tr_rows) & (extarpo) & ~(same_x)):
             x = np.concatenate((np.random.uniform(5, 15, size=(1, seq_len - extarpo_num)), np.random.uniform(15.1, 20, size=(1, extarpo_num))), axis = 1)
 
-        else:
+        elif(~same_x):
             x = np.random.uniform(5, 15, size=(1, seq_len))
+
+        else:
+            x = np.random.permutation(np.linspace(5, 15, 600))
 
 
         if ordered:
