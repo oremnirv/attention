@@ -13,7 +13,7 @@ def mkdir(folder):
         print('New folder {}'.format(folder))
 
 
-def tf_summaries(run, string, train_loss_r, test_loss_r, tr_metric, te_metric):
+def tf_summaries(run, string, train_loss_r, test_loss_r, tr_metric, te_metric, weights, names):
     '''
 
     '''
@@ -23,6 +23,12 @@ def tf_summaries(run, string, train_loss_r, test_loss_r, tr_metric, te_metric):
      step=string)
     tf.summary.scalar('train metric', tr_metric, step=string)
     tf.summary.scalar('test metric', te_metric, step=string)
+    for idx, var in enumerate(weights):
+        # print(names[idx])
+        # print('#############')
+        # print (names[idx].numpy().decode('utf-8'))
+        tf.summary.histogram(names[idx].numpy().decode('utf-8'), var, step = string)
+
 
 
 def print_progress(epoch, batch_n, train_loss_r, test_loss_r, tr_metric, te_metric):

@@ -41,7 +41,11 @@ def build_graph():
 		gradients = tape.gradient(loss, decoder.trainable_variables)
 		optimizer_c.apply_gradients(zip(gradients, decoder.trainable_variables))
 		train_loss(loss); m_tr.update_state(mse, mask)
-		return pred[:, :, 0], pred[:, :, 1]
+		names = [v.name for v in decoder.trainable_variables]
+		print(names)
+
+
+		return pred[:, :, 0], pred[:, :, 1], decoder.trainable_variables, names
 
 	@tf.function
 	def test_step(decoder, test_loss, m_te, pos_te, curr_pos_te, tar_te):

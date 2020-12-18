@@ -51,22 +51,22 @@ class Decoder(tf.keras.layers.Layer):
         tar_inp = tar_inp[:, :, tf.newaxis]
         
         tar = tf.concat([tar_position, tar_inp], axis = 2)
-        print('tar: ', tar)
+        # print('tar: ', tar)
 
         q1 = self.wq(tar)
-        print('q1: ', q1)
+        # print('q1: ', q1)
         q1 = q1[:, :, :, tf.newaxis]
         q = tf.squeeze(tf.matmul(q1, current_pos1))
-        print('q: ', q)
-        print('tar: ', tar)
+        # print('q: ', q)
+        # print('tar: ', tar)
         k1 = self.wk(tar)
         k1 = k1[:, :, :, tf.newaxis]
         k = tf.squeeze(tf.matmul(k1, current_pos1))
         v = self.wv(tar_inp)
         # v_p *= 1 - tf.cast(tar_mask, tf.float64)
 
-        print('k_x: ', k)
-        print('v_y: ', v)
+        # print('k_x: ', k)
+        # print('v_y: ', v)
         #shape=(128, 59, 16)
 
         tar_attn1, _, _ = dot_prod_attention.dot_product_attention(q, k, v, tar_mask)
