@@ -41,40 +41,36 @@ class Decoder(tf.keras.layers.Layer):
 
 
     #a call method, the layer's forward pass
-    def call(self, tar_position, current_pos, tar_inp, training, pos_mask, tar_mask):
+    def call(self, tar_position, tar_inp, training, pos_mask):
         
         # Adding extra dimension to allow multiplication of 
         # a sequnce with itself. 
+
+        print('pos_mask: ', pos_mask[:, 1:, :-1])
         # print('tar_position shape: ', tar_position.shape)
-        current_pos1 = current_pos[:, :, tf.newaxis, tf.newaxis]
         tar_position = tar_position[:, :, tf.newaxis]
         tar_inp = tar_inp[:, :, tf.newaxis]
-        
-        tar = tf.concat([tar_position, tar_inp], axis = 2)
-        # print('tar: ', tar)
+                # print('tar: ', tar)
 
-        q1 = self.wq(tar)
-        # print('q1: ', q1)
-        q1 = q1[:, :, :, tf.newaxis]
-        q = tf.squeeze(tf.matmul(q1, current_pos1))
-        # print('q: ', q)
-        # print('tar: ', tar)
-        k1 = self.wk(tar)
-        k1 = k1[:, :, :, tf.newaxis]
-        k = tf.squeeze(tf.matmul(k1, current_pos1))
+        q = self.wq(tar_position)
+        k = self.wk(tar_position)
         v = self.wv(tar_inp)
         # v_p *= 1 - tf.cast(tar_mask, tf.float64)
+        print('q_x: ', q)
 
-        # print('k_x: ', k)
-        # print('v_y: ', v)
+        print('k_x: ', k)
+        print('v_y: ', v)
         #shape=(128, 59, 16)
 
-        tar_attn1, _, _ = dot_prod_attention.dot_product_attention(q, k, v, tar_mask)
+        tar_attn1, _, _ = dot_prod_attention.dot_product_attention(q, k, v, pos_mask[:, 1:, :-1])
+
+        print('tar_attn1: ', tar_attn1)
 
 
         
-
-        L2 = self.A2(tar_attn1) + self.A3(current_pos[:, :, tf.newaxis]) 
+        current_position = tar_position[:, 1:, tf.newaxis]
+        print('current_position: ', current_position)
+        L2 = self.A2(tar_attn1) + self.A3(current_position) 
 
         
         L2 = tf.nn.leaky_relu(L2)

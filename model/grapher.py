@@ -15,7 +15,7 @@ def build_graph():
 	m_te = tf.keras.metrics.Mean()
 
 	@tf.function
-	def train_step(decoder, optimizer_c, train_loss, m_tr, pos, curr_pos, tar):
+	def train_step(decoder, optimizer_c, train_loss, m_tr, pos, tar):
 		'''
 		A typical train step function for TF2. Elements which we wish to track their gradient
 		has to be inside the GradientTape() clause. see (1) https://www.tensorflow.org/guide/migrate 
@@ -33,22 +33,25 @@ def build_graph():
 		combined_mask_pos = masks.create_masks(pos)
 		combined_mask_tar = masks.create_masks(tar_inp)
 
+		print('combined_mask_pos: ', combined_mask_pos)
+		# print('combined_mask_tar: ', combined_mask_tar)
+
 
 		with tf.GradientTape(persistent=True) as tape:
-			pred = decoder(pos, curr_pos, tar_inp, True, combined_mask_pos , combined_mask_tar)
+			pred = decoder(pos, tar_inp, True, combined_mask_pos)
 			loss, mse, mask = losses.loss_function(tar_real[:, 50:], pred = pred[:, 50:, 0], pred_log_sig = pred[:, 50:, 1])
 
 		gradients = tape.gradient(loss, decoder.trainable_variables)
 		optimizer_c.apply_gradients(zip(gradients, decoder.trainable_variables))
 		train_loss(loss); m_tr.update_state(mse, mask)
 		names = [v.name for v in decoder.trainable_variables]
-		print(names)
+		# print(names)
 
 
 		return pred[:, :, 0], pred[:, :, 1], decoder.trainable_variables, names
 
 	@tf.function
-	def test_step(decoder, test_loss, m_te, pos_te, curr_pos_te, tar_te):
+	def test_step(decoder, test_loss, m_te, pos_te, tar_te):
 		'''
 		---------------
 		Parameters:
@@ -60,11 +63,11 @@ def build_graph():
 		tar_inp_te = tar_te[:, :-1]
 		tar_real_te = tar_te[:, 1:]
 		combined_mask_pos_te = masks.create_masks(pos_te)
-		combined_mask_tar_te = masks.create_masks(tar_inp_te)    
+		# combined_mask_tar_te = masks.create_masks(tar_inp_te)    
 		# training=False is only needed if there are layers with different
 		# behavior during training versus inference (e.g. Dropout).
 
-		pred_te = decoder(pos_te, curr_pos_te, tar_inp_te, False, combined_mask_pos_te, combined_mask_tar_te)
+		pred_te = decoder(pos_te, tar_inp_te, False, combined_mask_pos_te)
 		t_loss, t_mse, t_mask = losses.loss_function(tar_real_te[:, 50:], pred = pred_te[:, 50:, 0], pred_log_sig = pred_te[:, 50:, 1])
 
 		test_loss(t_loss); m_te.update_state(t_mse, t_mask)
