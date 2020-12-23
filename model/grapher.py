@@ -31,14 +31,15 @@ def build_graph():
 		tar_real = tar[:, 1:]
 	    
 		combined_mask_pos = masks.create_masks(pos)
-		combined_mask_tar = masks.create_masks(tar_inp)
+		# combined_mask_tar = masks.create_masks(tar_inp)
 
 		print('combined_mask_pos: ', combined_mask_pos)
 		# print('combined_mask_tar: ', combined_mask_tar)
 
 
 		with tf.GradientTape(persistent=True) as tape:
-			pred = decoder(pos, tar_inp, True, combined_mask_pos)
+			pred = decoder(pos, tar_inp, True, combined_mask_pos[:, 1:, :-1])
+			print(pred)
 			loss, mse, mask = losses.loss_function(tar_real[:, 50:], pred = pred[:, 50:, 0], pred_log_sig = pred[:, 50:, 1])
 
 		gradients = tape.gradient(loss, decoder.trainable_variables)
@@ -67,7 +68,7 @@ def build_graph():
 		# training=False is only needed if there are layers with different
 		# behavior during training versus inference (e.g. Dropout).
 
-		pred_te = decoder(pos_te, tar_inp_te, False, combined_mask_pos_te)
+		pred_te = decoder(pos_te, tar_inp_te, False, combined_mask_pos_te[:, 1:, :-1])
 		t_loss, t_mse, t_mask = losses.loss_function(tar_real_te[:, 50:], pred = pred_te[:, 50:, 0], pred_log_sig = pred_te[:, 50:, 1])
 
 		test_loss(t_loss); m_te.update_state(t_mse, t_mask)

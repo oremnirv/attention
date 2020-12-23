@@ -59,7 +59,7 @@ def dot_prod_position(q, k, v, mask):
 
 
 
-def dot_product_attention(q, k, v, mask, head = False):
+def dot_product_attention(q, k, v, mask):
     '''
     Attention inspired by Transformer (but not the same). The Transformer embeds the 
     target words to q (query), k (key), v (value). So if we have a batch of 128 sequences 
@@ -82,37 +82,24 @@ def dot_product_attention(q, k, v, mask, head = False):
     '''
     # similarity
     # q = k = v  shape := (batch_size, max_seq_len - 1, l)
+    print('mask: ', mask)
     matmul_qk = tf.matmul(q, k, transpose_b = True, name = 'qk')
+    print('matmul_qk before filter: ', matmul_qk)
+    matmul_qk = matmul_qk[:, 1:, :-1]
+    print('matmul_qk: ', matmul_qk)
     # print('1', matmul_qk)
 
-    if head:
-        dk = tf.cast(tf.shape(k)[-1], tf.float64)
-        nl_qk = tf.cast(tf.nn.relu(matmul_qk / tf.math.sqrt(dk), name = 'nl_qk'), tf.float64) 
-        if mask is not None:
-            nl_qk +=  ((tf.cast(mask[:, tf.newaxis, :, :], tf.float64)) * -1e9)
 
-    else: 
-#     print('matmul_qk: ', matmul_qk)
-#     shape=(128, 58, 58)
-    
-        # nl_qk = tf.cast(tf.nn.relu(matmul_qk, name = 'nl_qk'), tf.float64)
-        nl_qk = tf.cast(matmul_qk, tf.float64) 
- 
-    # print('nl_qk: ', nl_qk)
-#     shape=(128, 58, 58)
-#     nl_qk shape := (batch_size, max_seq_len - 1, max_seq_len - 1)
+    dk = tf.cast(tf.shape(k)[-1], tf.float64)
+    nl_qk = tf.cast(tf.nn.relu(matmul_qk / tf.math.sqrt(dk), name = 'nl_qk'), tf.float64) 
 
-    # -1e9 will turn the softmax output in this locations to zero
-    # this is a good mask as an input for softmax -- we need also masking when 
-    # want to use matmul as is 
-    
-        if mask is not None:
-        # mask[:, tf.newaxis, :, :]
-            nl_qk +=  ((tf.cast(mask, tf.float64)) * -1e9)
+    if mask is not None:
+    # mask[:, tf.newaxis, :, :]
+        nl_qk +=  ((tf.cast(mask, tf.float64)) * -1e9)
             # print('2', nl_qk)
     
         
-#     print('nl_qk after mask: ', nl_qk)
+    print('nl_qk after mask: ', nl_qk)
 #     shape=(128, 58, 58)
         
      # turn simialrity to scores

@@ -46,7 +46,7 @@ class Decoder(tf.keras.layers.Layer):
         # Adding extra dimension to allow multiplication of 
         # a sequnce with itself. 
 
-        print('pos_mask: ', pos_mask[:, 1:, :-1])
+        print('pos_mask: ', pos_mask)
         # print('tar_position shape: ', tar_position.shape)
         tar_position = tar_position[:, :, tf.newaxis]
         tar_inp = tar_inp[:, :, tf.newaxis]
@@ -62,13 +62,13 @@ class Decoder(tf.keras.layers.Layer):
         print('v_y: ', v)
         #shape=(128, 59, 16)
 
-        tar_attn1, _, _ = dot_prod_attention.dot_product_attention(q, k, v, pos_mask[:, 1:, :-1])
+        tar_attn1, _, _ = dot_prod_attention.dot_product_attention(q, k, v, pos_mask)
 
         print('tar_attn1: ', tar_attn1)
 
 
         
-        current_position = tar_position[:, 1:, tf.newaxis]
+        current_position = tar_position[:, 1:, :]
         print('current_position: ', current_position)
         L2 = self.A2(tar_attn1) + self.A3(current_position) 
 
