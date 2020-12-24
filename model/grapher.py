@@ -33,7 +33,7 @@ def build_graph():
 		combined_mask_pos = masks.create_masks(pos)
 		# combined_mask_tar = masks.create_masks(tar_inp)
 
-		print('combined_mask_pos: ', combined_mask_pos)
+		# print('combined_mask_pos: ', combined_mask_pos)
 		# print('combined_mask_tar: ', combined_mask_tar)
 
 

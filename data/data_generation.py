@@ -40,7 +40,7 @@ def dat_generator_for_gp_mimick(num_samples, obs_per_sample, tr_percent=0.8):
 
     return eng_tr.T.reshape(-1, cols - 1, 2), eng_te.T.reshape(-1, cols - 1, 2), fren_tr, fren_te, y_fren_tr.reshape(-1, 1), y_fren_te.reshape(-1, 1)
 
-def data_generator_for_gp_mimick_gpt(num_obs, tr_percent=0.8, seq_len=600, extarpo = False, extarpo_num = 19, ordered = False, rbf = True, same_x = False):
+def data_generator_for_gp_mimick_gpt(num_obs, tr_percent=0.8, seq_len=200, extarpo = False, extarpo_num = 19, ordered = False, rbf = True, same_x = False):
     '''
     Generator for training a GPT inspired netowrk.
     -----------------------

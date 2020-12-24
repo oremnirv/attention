@@ -7,11 +7,12 @@ from keras import layers
 import tensorflow as tf
 
 
-class Decoder(tf.keras.layers.Layer):
-    def __init__(self, l, rate=0):
+class Decoder(tf.keras.Model):
+    def __init__(self, l, rate=0, num_heads = 1):
         super(Decoder, self).__init__()
         
         self.l = l
+        self.mha = dot_prod_attention.MultiHeadAttention(l, num_heads)
 
         self.BN1 = tf.keras.layers.BatchNormalization(name = 'BN1') 
         self.BN2 = tf.keras.layers.BatchNormalization(name = 'BN2') 
@@ -46,30 +47,33 @@ class Decoder(tf.keras.layers.Layer):
         # Adding extra dimension to allow multiplication of 
         # a sequnce with itself. 
 
-        print('pos_mask: ', pos_mask)
+        # print('pos_mask: ', pos_mask)
         # print('tar_position shape: ', tar_position.shape)
         tar_position = tar_position[:, :, tf.newaxis]
         tar_inp = tar_inp[:, :, tf.newaxis]
                 # print('tar: ', tar)
 
-        q = self.wq(tar_position)
-        k = self.wk(tar_position)
-        v = self.wv(tar_inp)
+        # q = self.wq(tar_position)
+        # k = self.wk(tar_position)
+        # v = self.wv(tar_inp)
         # v_p *= 1 - tf.cast(tar_mask, tf.float64)
-        print('q_x: ', q)
+        # print('q_x: ', q)
 
-        print('k_x: ', k)
-        print('v_y: ', v)
+        # print('k_x: ', k)
+        # print('v_y: ', v)
         #shape=(128, 59, 16)
 
-        tar_attn1, _, _ = dot_prod_attention.dot_product_attention(q, k, v, pos_mask)
+        # tar_attn1, _, _ = dot_prod_attention.dot_product_attention(q, k, v, pos_mask)
 
-        print('tar_attn1: ', tar_attn1)
+        tar_attn1, _ = self.mha(tar_inp, tar_position, tar_position, pos_mask)
+
+
+        # print('tar_attn1: ', tar_attn1)
 
 
         
         current_position = tar_position[:, 1:, :]
-        print('current_position: ', current_position)
+        # print('current_position: ', current_position)
         L2 = self.A2(tar_attn1) + self.A3(current_position) 
 
         
@@ -86,3 +90,4 @@ class Decoder(tf.keras.layers.Layer):
       # shape=(128, 58, 1)  
         
         return tf.squeeze(L2) #, tf.squeeze(Lsig2)
+

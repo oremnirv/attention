@@ -33,7 +33,7 @@ def create_batch_gp_mim(enc_tr, dec_tr, y_tr, batch_s=128):
     return batch_enc_tr, batch_dec_tr, batch_y_tr, batch_idx_tr
 
 
-def create_batch_gp_mim_2(pos, tar, batch_s=128):
+def create_batch_gp_mim_2(pos, tar, batch_s=128, chnge_context = True):
     '''
     Get a batch of positions, targets and position mask from data generated 
     by data_generator_for_gp_mimick_gpt function and from position_mask function 
@@ -50,9 +50,14 @@ def create_batch_gp_mim_2(pos, tar, batch_s=128):
 
     '''
     shape = tar.shape[0]
+    cols = tar.shape[1]
     batch_idx_tr = np.random.choice(list(range(shape)), batch_s)
     batch_tar_tr = tar[batch_idx_tr]
     batch_pos_tr = pos[batch_idx_tr]
+    if chnge_context:
+        permute_idx = np.random.permutation(np.arange(cols))
+        batch_tar_tr = batch_tar_tr[:, permute_idx]
+        batch_pos_tr = batch_pos_tr[:, permute_idx]
     return batch_pos_tr, batch_tar_tr, batch_idx_tr
 
 def fake_batch(pos, tar, batch_s=1):
