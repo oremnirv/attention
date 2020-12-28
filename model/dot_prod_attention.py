@@ -141,9 +141,13 @@ class MultiHeadAttention(tf.keras.layers.Layer):
 
     self.depth = d_model // self.num_heads
 
-    self.wq = tf.keras.layers.Dense(d_model)
-    self.wk = tf.keras.layers.Dense(d_model)
-    self.wv = tf.keras.layers.Dense(d_model)
+    self.wq = tf.keras.layers.Dense(d_model, name = 'wq')
+    self.wk = tf.keras.layers.Dense(d_model, name = 'wk')
+    self.wv = tf.keras.layers.Dense(d_model, name = 'wv')  
+
+    self.hq = tf.keras.layers.Dense(self.depth, name = 'hq')
+    self.hk = tf.keras.layers.Dense(self.depth, name = 'hk')
+    self.hv = tf.keras.layers.Dense(self.depth, name = 'hv')  
 
     self.dense = tf.keras.layers.Dense(d_model)
 
@@ -157,6 +161,8 @@ class MultiHeadAttention(tf.keras.layers.Layer):
   def call(self, v, k, q, mask):
     batch_size = tf.shape(q)[0]
 
+
+
     q = self.wq(q)  # (batch_size, seq_len, d_model)
     k = self.wk(k)  # (batch_size, seq_len, d_model)
     v = self.wv(v)  # (batch_size, seq_len, d_model)
@@ -164,6 +170,10 @@ class MultiHeadAttention(tf.keras.layers.Layer):
     q = self.split_heads(q, batch_size)  # (batch_size, num_heads, seq_len_q, depth)
     k = self.split_heads(k, batch_size)  # (batch_size, num_heads, seq_len_k, depth)
     v = self.split_heads(v, batch_size)  # (batch_size, num_heads, seq_len_v, depth)
+
+    q = self.hq(tf.nn.leaky_relu(q))
+    k = self.hk(tf.nn.leaky_relu(k))
+    v = self.hv(tf.nn.leaky_relu(v))
 
     # print('q: ', q)
     # print('v: ', v)

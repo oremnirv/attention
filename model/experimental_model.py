@@ -20,20 +20,14 @@ class Decoder(tf.keras.Model):
         self.BN4 = tf.keras.layers.BatchNormalization(name = 'BN4') 
         self.BN5 = tf.keras.layers.BatchNormalization(name = 'BN5') 
         self.BN6 = tf.keras.layers.BatchNormalization(name = 'BN6') 
-        self.BN7 = tf.keras.layers.BatchNormalization(name = 'BN7') 
-
+        self.BN7 = tf.keras.layers.BatchNormalization(name = 'BN7')                
         
-        self.wq = tf.keras.layers.Dense(l, name = 'wq')
-        self.wk = tf.keras.layers.Dense(l, name = 'wk')
-        self.wv = tf.keras.layers.Dense(l, name = 'wv')                    
-        
-        self.hq = tf.keras.layers.Dense(l, name = 'hq')
-        self.hk = tf.keras.layers.Dense(l, name = 'hk')
-        self.hv = tf.keras.layers.Dense(l, name = 'hv')
 
 
-        self.A2 = tf.keras.layers.Dense(128, name = 'A2')
-        self.A3 = tf.keras.layers.Dense(128, name = 'A3')
+        self.A1 = tf.keras.layers.Dense(512, name = 'A1')
+
+        self.A2 = tf.keras.layers.Dense(512, name = 'A2')
+        self.A3 = tf.keras.layers.Dense(256, name = 'A3')
         self.A4 = tf.keras.layers.Dense(32, name = 'A4')
         self.A5 = tf.keras.layers.Dense(2, name = 'A5')
 
@@ -68,21 +62,22 @@ class Decoder(tf.keras.Model):
         tar_attn1, _ = self.mha(tar_inp, tar_position, tar_position, pos_mask)
 
 
+        tar_attn1 = (tf.nn.leaky_relu(tar_attn1))
         # print('tar_attn1: ', tar_attn1)
 
 
         
         current_position = tar_position[:, 1:, :]
         # print('current_position: ', current_position)
-        L2 = self.A2(tar_attn1) + self.A3(current_position) 
+        L2 = self.A1(tar_attn1) + self.A2(current_position) 
 
         
         L2 = tf.nn.leaky_relu(L2)
 
         # print('L2', L2)
-        L2 = tf.nn.leaky_relu(self.A4(L2)) 
+        L2 = tf.nn.leaky_relu(self.A3(L2)) 
+        L2 = tf.nn.leaky_relu(self.A4(L2))
         L2 = self.A5(L2)
-
 
 
         
