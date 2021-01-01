@@ -40,7 +40,7 @@ def dat_generator_for_gp_mimick(num_samples, obs_per_sample, tr_percent=0.8):
 
     return eng_tr.T.reshape(-1, cols - 1, 2), eng_te.T.reshape(-1, cols - 1, 2), fren_tr, fren_te, y_fren_tr.reshape(-1, 1), y_fren_te.reshape(-1, 1)
 
-def data_generator_for_gp_mimick_gpt(num_obs, tr_percent=0.8, seq_len=200, extarpo = False, extarpo_num = 19, ordered = False, rbf = True, same_x = False):
+def data_generator_for_gp_mimick_gpt(num_obs, tr_percent=0.8, seq_len=200, extarpo = False, extarpo_num = 19, ordered = False, kernel = 'rbf', same_x = False):
     '''
     Generator for training a GPT inspired netowrk.
     -----------------------
@@ -76,10 +76,10 @@ def data_generator_for_gp_mimick_gpt(num_obs, tr_percent=0.8, seq_len=200, extar
         if ordered:
             x = np.sort(x)
 
-        if rbf:
+        if kernel == 'rbf':
             k = gp_kernels.rbf_kernel(x.reshape(-1, 1))
             f_prior = gp_priors.generate_priors(k, seq_len, 1)
-        else:
+        elif kernel == 'periodic':
             # print(x.reshape(-1, 1).shape)
             k = 1.0 * ExpSineSquared(length_scale=1.0, periodicity=3.0, length_scale_bounds=(0.1, 10.0))
             gp = GaussianProcessRegressor(kernel=k)

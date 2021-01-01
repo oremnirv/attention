@@ -1,4 +1,5 @@
 import tensorflow as tf
+import csv
 import os
 
 
@@ -39,7 +40,11 @@ def print_progress(epoch, batch_n, train_loss_r, test_loss_r, tr_metric, te_metr
                                                                         train_loss_r, test_loss_r, tr_metric, te_metric))
 
 
-
+def write_speci(folder, names, shapes):
+    with open(folder + '_speci.csv', "w") as csv_file:
+        writer = csv.writer(csv_file, delimiter=',')
+        for name, shape in zip(names, shapes):
+            writer.writerow([str(name.numpy()).split('/')[-2], str(shape.numpy())]) 
 
 
 def quick_hist_counter(left, right, jump, arr):
