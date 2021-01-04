@@ -10,7 +10,8 @@ from data import data_generation
 def load_data(kernel='rbf', size=150000):
 
     folder = '/Users/omernivron/Downloads/GPT_' + kernel + '/data/'
-    if len(os.listdir(folder)) == 0:
+    folder_content = os.listdir(folder)
+    if len(folder_content) == 0:
         print("Directory is empty \n Generating data..")
         pad_pos_tr, pad_pos_te, pad_y_fren_tr, pad_y_fren_te, _, df_te = data_generation.data_generator_for_gp_mimick_gpt(
             size, ordered=False, same_x=True, kernel=kernel)
@@ -19,12 +20,9 @@ def load_data(kernel='rbf', size=150000):
         np.save(folder + 'pad_y_fren_tr.npy', pad_y_fren_tr)
         np.save(folder + 'pad_y_fren_te.npy', pad_y_fren_te)
 
-    x_tr = np.load(folder + 'pad_pos_tr.npy')
-    x_te = np.load(folder + 'pad_pos_te.npy')
-    y_tr = np.load(folder + 'pad_y_fren_tr.npy')
-    y_te = np.load(folder + 'pad_y_fren_te.npy')
+    data = [np.load(f) for f in folder_content ]
 
-    return x_tr, x_te, y_tr, y_te
+    return *data
 
 
 def main():

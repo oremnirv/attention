@@ -8,27 +8,27 @@ import tensorflow as tf
 
 
 class Decoder(tf.keras.Model):
-    def __init__(self, l, rate=0, num_heads = 1):
+    def __init__(self, e, l1 = 512, l2= 512, l3 = 256, l4=32, rate=0, num_heads = 1):
         super(Decoder, self).__init__()
         
-        self.l = l
-        self.mha = dot_prod_attention.MultiHeadAttention(l, num_heads)
+        self.e = e
+        self.mha = dot_prod_attention.MultiHeadAttention(e, num_heads)
 
-        self.BN1 = tf.keras.layers.BatchNormalization(name = 'BN1') 
-        self.BN2 = tf.keras.layers.BatchNormalization(name = 'BN2') 
-        self.BN3 = tf.keras.layers.BatchNormalization(name = 'BN3') 
-        self.BN4 = tf.keras.layers.BatchNormalization(name = 'BN4') 
-        self.BN5 = tf.keras.layers.BatchNormalization(name = 'BN5') 
-        self.BN6 = tf.keras.layers.BatchNormalization(name = 'BN6') 
-        self.BN7 = tf.keras.layers.BatchNormalization(name = 'BN7')                
+        # self.BN1 = tf.keras.layers.BatchNormalization(name = 'BN1') 
+        # self.BN2 = tf.keras.layers.BatchNormalization(name = 'BN2') 
+        # self.BN3 = tf.keras.layers.BatchNormalization(name = 'BN3') 
+        # self.BN4 = tf.keras.layers.BatchNormalization(name = 'BN4') 
+        # self.BN5 = tf.keras.layers.BatchNormalization(name = 'BN5') 
+        # self.BN6 = tf.keras.layers.BatchNormalization(name = 'BN6') 
+        # self.BN7 = tf.keras.layers.BatchNormalization(name = 'BN7')                
         
 
 
-        self.A1 = tf.keras.layers.Dense(512, name = 'A1')
+        self.A1 = tf.keras.layers.Dense(l1, name = 'A1')
 
-        self.A2 = tf.keras.layers.Dense(512, name = 'A2')
-        self.A3 = tf.keras.layers.Dense(256, name = 'A3')
-        self.A4 = tf.keras.layers.Dense(32, name = 'A4')
+        self.A2 = tf.keras.layers.Dense(l2, name = 'A2')
+        self.A3 = tf.keras.layers.Dense(l3, name = 'A3')
+        self.A4 = tf.keras.layers.Dense(l4, name = 'A4')
         self.A5 = tf.keras.layers.Dense(2, name = 'A5')
 
 

@@ -1,4 +1,5 @@
 import tensorflow as tf
+import pandas as pd
 import csv
 import os
 
@@ -45,6 +46,14 @@ def write_speci(folder, names, shapes):
         writer = csv.writer(csv_file, delimiter=',')
         for name, shape in zip(names, shapes):
             writer.writerow([str(name.numpy()).split('/')[-2], str(shape.numpy())]) 
+
+
+def load_spec(path):
+    df = np.array(pd.read_csv(path))
+    ls = []
+    for i in [0, 6, 14, 16, 18, 20]:
+        ls.append(int(df[i][1].split('[')[1].split(']')[0]))
+    return ls
 
 
 def quick_hist_counter(left, right, jump, arr):
