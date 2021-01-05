@@ -49,11 +49,15 @@ def write_speci(folder, names, shapes):
 
 
 def load_spec(path):
-    df = np.array(pd.read_csv(path))
-    ls = []
-    for i in [0, 6, 14, 16, 18, 20]:
-        ls.append(int(df[i][1].split('[')[1].split(']')[0]))
-    return ls
+    if os.path.exists(path):
+        print('Already exists')
+        pass
+    else:
+        df = np.array(pd.read_csv(path))
+        ls = []
+        for i in [0, 6, 14, 16, 18, 20]:
+            ls.append(int(df[i][1].split('[')[1].split(']')[0]))
+        return ls
 
 
 def quick_hist_counter(left, right, jump, arr):
