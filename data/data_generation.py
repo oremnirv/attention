@@ -1,46 +1,27 @@
 ###########################
 # Author: Omer Nivron
 ###########################
-from sklearn.gaussian_process.kernels import ExpSineSquared
+from sklearn.gaussian_process.kernels import ExpSineSquared, WhiteKernel
 from sklearn.gaussian_process import GaussianProcessRegressor
 import numpy as np
 from data import gp_priors
-from data import gp_kernels 
+from data import gp_kernels
 import pandas as pd
 
+def map_value_to_grid(grid, x):
+    idx = []
+    for i in x[0]:
+        if(i > max(grid)):
+            idx.append(len(grid) - 1)
+        elif(i < min(grid)):
+            idx.append(0)
+        else:
+            idx.append(np.where(i < grid)[0][0])
 
-def dat_generator_for_gp_mimick(num_samples, obs_per_sample, tr_percent=0.8):
-    '''
+    return np.array(idx)
 
 
-
-    '''
-    df = np.zeros((num_samples * 2, obs_per_sample))
-    for i in range(0, num_samples * 2, 2):
-        x = np.random.uniform(-5, 5, size=(1, obs_per_sample))
-        k = gp_kernels.rbf_kernel(x.reshape(-1, 1))
-        f_prior = gp_priors.generate_priors(k, obs_per_sample, 1)
-
-        df[i, :] = x
-        df[i + 1, :] = f_prior
-
-    rows = df.shape[0]
-    cols = df.shape[1]
-    tr_rows = int(tr_percent * rows)
-    tr_rows = tr_rows if tr_rows % 2 == 0 else tr_rows + 1
-    df_tr = df[:tr_rows, :]
-    df_te = df[tr_rows:, :]
-
-    eng_tr = df_tr[:tr_rows, :(cols - 1)]
-    eng_te = df_te[:, :(cols - 1)]
-    fren_tr = df_tr[::2, cols - 1]
-    fren_te = df_te[::2, cols - 1]
-    y_fren_tr = df_tr[1::2, cols - 1]
-    y_fren_te = df_te[1::2, cols - 1]
-
-    return eng_tr.T.reshape(-1, cols - 1, 2), eng_te.T.reshape(-1, cols - 1, 2), fren_tr, fren_te, y_fren_tr.reshape(-1, 1), y_fren_te.reshape(-1, 1)
-
-def data_generator_for_gp_mimick_gpt(num_obs, tr_percent=0.8, seq_len=200, extarpo = False, extarpo_num = 19, ordered = False, kernel = 'rbf', same_x = False):
+def data_generator_for_gp_mimick_gpt(num_obs, tr_percent=0.8, seq_len=200, extarpo=False, extarpo_num=19, ordered=False, kernel='rbf', noise = False, diff_x=False, grid_d = [1, 15.1, 0.1]):
     '''
     Generator for training a GPT inspired netowrk.
     -----------------------
@@ -59,41 +40,52 @@ def data_generator_for_gp_mimick_gpt(num_obs, tr_percent=0.8, seq_len=200, extar
     '''
     df = np.zeros((num_obs * 2, seq_len))
     em_indices = np.zeros((num_obs, seq_len))
-    rows = df.shape[0]
-    cols = df.shape[1]
+    rows = df.shape[0]; cols = df.shape[1]
     tr_rows = int(tr_percent * rows)
     tr_rows = tr_rows if tr_rows % 2 == 0 else tr_rows + 1
-    idx = np.arange(1, 201, 1)
+    grid = np.arange(*grid_d)
     for i in range(0, num_obs * 2, 2):
-        # if ((i >= tr_rows) & (extarpo) & ~(same_x)):
-        #     x = np.concatenate((np.random.uniform(5, 15, size=(1, seq_len - extarpo_num)), np.random.uniform(15.1, 20, size=(1, extarpo_num))), axis = 1)
+        if ((i >= tr_rows) & (extarpo) & (diff_x)):
+            x = np.concatenate((np.random.uniform(5, 15, size=(
+                1, seq_len - extarpo_num)), np.random.uniform(15.1, 20, size=(1, extarpo_num))), axis=1)
 
-        # elif(~same_x):
-        #     x = np.random.uniform(5, 15, size=(1, seq_len))
 
-        # else:
-        x = np.random.permutation(np.linspace(5, 15, seq_len))
-        idx = np.where((x)[:, None] == np.sort(x)[None, :])[1]
-        x = x.reshape(1, -1)
+        elif(diff_x):
+            x = np.random.uniform(5, 15, size=(1, seq_len))
 
-        if ordered:
-            x = np.sort(x)
+        else:
+            x = np.random.permutation(np.linspace(5, 15, seq_len))
+            # embedding for recurring specific values of x
+            # idx = np.where((x)[:, None] == np.sort(x)[None, :])[1]
+            x = x.reshape(1, -1)
+
+        idx = map_value_to_grid(grid, x)
+    
+        # if ordered:
+        #     x = np.sort(x)
 
         if kernel == 'rbf':
             k = gp_kernels.rbf_kernel(x.reshape(-1, 1))
             f_prior = gp_priors.generate_priors(k, seq_len, 1)
         elif kernel == 'periodic':
             # print(x.reshape(-1, 1).shape)
-            k = 1.0 * ExpSineSquared(length_scale=1.0, periodicity=3.0, length_scale_bounds=(0.1, 10.0))
+            k = 1.0 * ExpSineSquared(length_scale=1.0,
+                                     periodicity=3.0, length_scale_bounds=(0.1, 10.0))
             gp = GaussianProcessRegressor(kernel=k)
             f_prior = np.squeeze(gp.sample_y(x.reshape(-1, 1)))
 
-
+        if noise:
+            K = WhiteKernel(.1)
+            gp = GaussianProcessRegressor(kernel=K)
+            # print('before: ', (f_prior.shape))
+            f_prior = f_prior + gp.sample_y(x, seq_len)
+            # print('after: ', gp.sample_y(x, seq_len).shape)
+        else: 
+            pass
 
         df[i, :x.shape[1]] = x
         df[i + 1, :x.shape[1]] = f_prior
         em_indices[int(i / 2), :] = idx
-
 
     # print(((tr_rows) / 2))
     # print(int((tr_rows) / 2))
@@ -102,7 +94,7 @@ def data_generator_for_gp_mimick_gpt(num_obs, tr_percent=0.8, seq_len=200, extar
     df_te = df[tr_rows:, :]
     em_tr = em_indices[:int((tr_rows) / 2), :]
     em_te = em_indices[int((tr_rows) / 2):, :]
-    
+
     # get all even rows
     pad_pos_tr = df_tr[::2, :]
     pad_pos_te = df_te[::2, :]
@@ -112,13 +104,15 @@ def data_generator_for_gp_mimick_gpt(num_obs, tr_percent=0.8, seq_len=200, extar
 
     return pad_pos_tr, pad_pos_te, pad_y_fren_tr, pad_y_fren_te, df_tr, df_te, em_tr, em_te
 
+
 def data_generator_river_flow(df, basins, seq_len, num_seq):
     '''
     selected_basins = pd.read_csv('/Users/omernivron/Downloads/basin_list.txt', header=None)
     test_basins = df.basin.unique()[~np.isin(df.basin.unique(), selected_basins)]
-    
+
     '''
-    context_channels2 = ['prcp(mm/day)', 'srad(W/m2)',  'tmax(C)','tmin(C)', 'vp(Pa)'] 
+    context_channels2 = ['prcp(mm/day)', 'srad(W/m2)',
+                         'tmax(C)', 'tmin(C)', 'vp(Pa)']
     arr_pp = np.zeros((5 * num_seq, seq_len))
     m = int(seq_len / 2)
     for i in range(len(context_channels2)):
@@ -129,12 +123,16 @@ def data_generator_river_flow(df, basins, seq_len, num_seq):
 
             idx_i = np.random.choice(np.arange(0, df_temp.shape[0], 1), m)
             idx_riv = np.random.choice(np.arange(0, df_riv.shape[0], 1), m)
-            
-            arr_pp[row, :] = np.concatenate((df_temp.loc[idx_i, [context_channels2[i]]], df_riv.loc[idx_riv, ['OBS_RUN']]), axis = 0).reshape(-1)
-            arr_pp[row + 1, :] = np.concatenate((df_temp.loc[idx_i, ['doy_cos']], df_riv.loc[idx_riv, ['doy_cos']]), axis = 0).reshape(-1)
-            arr_pp[row + 2, :] = np.concatenate((df_temp.loc[idx_i, ['doy_sin']], df_riv.loc[idx_riv, ['doy_sin']]), axis = 0).reshape(-1)
-            arr_pp[row + 3, :] = np.concatenate((np.ones(m) * i, np.ones(m) * 9))
-            arr_pp[row + 4, :] = np.concatenate((df_temp.loc[idx_i, ['basin']], df_riv.loc[idx_riv, ['basin']]), axis = 0).reshape(-1)
 
-    return  arr_pp
+            arr_pp[row, :] = np.concatenate((df_temp.loc[idx_i, [
+                                            context_channels2[i]]], df_riv.loc[idx_riv, ['OBS_RUN']]), axis=0).reshape(-1)
+            arr_pp[row + 1, :] = np.concatenate(
+                (df_temp.loc[idx_i, ['doy_cos']], df_riv.loc[idx_riv, ['doy_cos']]), axis=0).reshape(-1)
+            arr_pp[row + 2, :] = np.concatenate(
+                (df_temp.loc[idx_i, ['doy_sin']], df_riv.loc[idx_riv, ['doy_sin']]), axis=0).reshape(-1)
+            arr_pp[row + 3,
+                   :] = np.concatenate((np.ones(m) * i, np.ones(m) * 9))
+            arr_pp[row + 4, :] = np.concatenate(
+                (df_temp.loc[idx_i, ['basin']], df_riv.loc[idx_riv, ['basin']]), axis=0).reshape(-1)
 
+    return arr_pp
