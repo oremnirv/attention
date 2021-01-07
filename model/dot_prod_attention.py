@@ -145,9 +145,9 @@ class MultiHeadAttention(tf.keras.layers.Layer):
     self.wk = tf.keras.layers.Dense(d_model, name = 'wk')
     self.wv = tf.keras.layers.Dense(d_model, name = 'wv')  
 
-    self.hq = tf.keras.layers.Dense(self.depth, name = 'hq')
-    self.hk = tf.keras.layers.Dense(self.depth, name = 'hk')
-    self.hv = tf.keras.layers.Dense(self.depth, name = 'hv')  
+    # self.hq = tf.keras.layers.Dense(self.depth, name = 'hq')
+    # self.hk = tf.keras.layers.Dense(self.depth, name = 'hk')
+    # self.hv = tf.keras.layers.Dense(self.depth, name = 'hv')  
 
     self.dense = tf.keras.layers.Dense(d_model)
 
@@ -171,9 +171,9 @@ class MultiHeadAttention(tf.keras.layers.Layer):
     k = self.split_heads(k, batch_size)  # (batch_size, num_heads, seq_len_k, depth)
     v = self.split_heads(v, batch_size)  # (batch_size, num_heads, seq_len_v, depth)
 
-    q = self.hq(tf.nn.leaky_relu(q))
-    k = self.hk(tf.nn.leaky_relu(k))
-    v = self.hv(tf.nn.leaky_relu(v))
+    # q = self.hq(tf.nn.leaky_relu(q))
+    # k = self.hk(tf.nn.leaky_relu(k))
+    # v = self.hv(tf.nn.leaky_relu(v))
 
     # print('q: ', q)
     # print('v: ', v)

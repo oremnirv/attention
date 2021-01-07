@@ -1,5 +1,6 @@
 import tensorflow as tf
 import pandas as pd
+import numpy as np
 import csv
 import os
 
@@ -48,14 +49,14 @@ def write_speci(folder, names, shapes):
             writer.writerow([str(name.numpy()).split('/')[-2], str(shape.numpy())]) 
 
 
-def load_spec(path):
-    if os.path.exists(path):
-        print('Already exists')
-        pass
+def load_spec(path, e, l):
+    if  not os.path.exists(path + '_speci.csv'):
+        print('Does not exists')
+        return (e, *l)
     else:
-        df = np.array(pd.read_csv(path))
+        df = np.array(pd.read_csv(path + '_speci.csv'))
         ls = []
-        for i in [0, 6, 14, 16, 18, 20]:
+        for i in [1, 9, 11, 13, 15]:
             ls.append(int(df[i][1].split('[')[1].split(']')[0]))
         return ls
 

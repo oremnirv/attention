@@ -18,17 +18,19 @@ def KUEE(y_true, μ_te, σ_te):
     else: 
         return 0
 
-def r_squared(y_true, y_pred, y_mean):
+def r_squared(mse_model, y_true, batch_s = 64):
 	'''
 	'''
-	return 1 - (mse(y_true, y_pred) / mse(y_true, y_mean))
+	n = y_true.shape[1]
+	y_mean = np.repeat(np.mean(y_true, 1), n).reshape(batch_s, -1)
+	return 1 - (mse_model / mse(y_true, y_mean))
 
 def mse(y_true, y_pred):
 	'''
 
 	'''
 
-	return np.sum((y_true - y_pred) ** 2)
+	return np.mean(np.mean((y_true - y_pred) ** 2, 1))
 
 
 def rmse(y_true, y_pred):

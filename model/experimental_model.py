@@ -8,10 +8,11 @@ import tensorflow as tf
 
 
 class Decoder(tf.keras.Model):
-    def __init__(self, e, l1 = 512, l2= 512, l3 = 256, l4=32, rate=0, num_heads = 1):
+    def __init__(self, e, l1 = 512, l2= 512, l3 = 256, l4=32, rate=0, num_heads = 1, input_vocab_size = 200):
         super(Decoder, self).__init__()
         
         self.e = e
+        self.embedding = tf.keras.layers.Embedding(input_vocab_size, e)
         self.mha = dot_prod_attention.MultiHeadAttention(e, num_heads)
 
         # self.BN1 = tf.keras.layers.BatchNormalization(name = 'BN1') 
@@ -43,10 +44,11 @@ class Decoder(tf.keras.Model):
 
         # print('pos_mask: ', pos_mask)
         # print('tar_position shape: ', tar_position.shape)
-        tar_position = tar_position[:, :, tf.newaxis]
+        # tar_position = tar_position[:, :, tf.newaxis]
         tar_inp = tar_inp[:, :, tf.newaxis]
                 # print('tar: ', tar)
 
+        tar_position = self.embedding(tar_position)
         # q = self.wq(tar_position)
         # k = self.wk(tar_position)
         # v = self.wv(tar_inp)

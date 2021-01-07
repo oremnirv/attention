@@ -58,20 +58,23 @@ def data_generator_for_gp_mimick_gpt(num_obs, tr_percent=0.8, seq_len=200, extar
     df_te (np array): positions and targets combined (testing) 
     '''
     df = np.zeros((num_obs * 2, seq_len))
+    em_indices = np.zeros((num_obs, seq_len))
     rows = df.shape[0]
     cols = df.shape[1]
     tr_rows = int(tr_percent * rows)
     tr_rows = tr_rows if tr_rows % 2 == 0 else tr_rows + 1
+    idx = np.arange(1, 201, 1)
     for i in range(0, num_obs * 2, 2):
-        if ((i >= tr_rows) & (extarpo) & ~(same_x)):
-            x = np.concatenate((np.random.uniform(5, 15, size=(1, seq_len - extarpo_num)), np.random.uniform(15.1, 20, size=(1, extarpo_num))), axis = 1)
+        # if ((i >= tr_rows) & (extarpo) & ~(same_x)):
+        #     x = np.concatenate((np.random.uniform(5, 15, size=(1, seq_len - extarpo_num)), np.random.uniform(15.1, 20, size=(1, extarpo_num))), axis = 1)
 
-        elif(~same_x):
-            x = np.random.uniform(5, 15, size=(1, seq_len))
+        # elif(~same_x):
+        #     x = np.random.uniform(5, 15, size=(1, seq_len))
 
-        else:
-            x = np.random.permutation(np.linspace(5, 15, 600))
-
+        # else:
+        x = np.random.permutation(np.linspace(5, 15, seq_len))
+        idx = np.where((x)[:, None] == np.sort(x)[None, :])[1]
+        x = x.reshape(1, -1)
 
         if ordered:
             x = np.sort(x)
@@ -86,12 +89,19 @@ def data_generator_for_gp_mimick_gpt(num_obs, tr_percent=0.8, seq_len=200, extar
             f_prior = np.squeeze(gp.sample_y(x.reshape(-1, 1)))
 
 
+
         df[i, :x.shape[1]] = x
         df[i + 1, :x.shape[1]] = f_prior
+        em_indices[int(i / 2), :] = idx
 
+
+    # print(((tr_rows) / 2))
+    # print(int((tr_rows) / 2))
 
     df_tr = df[:tr_rows, :]
     df_te = df[tr_rows:, :]
+    em_tr = em_indices[:int((tr_rows) / 2), :]
+    em_te = em_indices[int((tr_rows) / 2):, :]
     
     # get all even rows
     pad_pos_tr = df_tr[::2, :]
@@ -100,7 +110,7 @@ def data_generator_for_gp_mimick_gpt(num_obs, tr_percent=0.8, seq_len=200, extar
     pad_y_fren_tr = df_tr[1::2, :]
     pad_y_fren_te = df_te[1::2, :]
 
-    return pad_pos_tr, pad_pos_te, pad_y_fren_tr, pad_y_fren_te, df_tr, df_te
+    return pad_pos_tr, pad_pos_te, pad_y_fren_tr, pad_y_fren_te, df_tr, df_te, em_tr, em_te
 
 def data_generator_river_flow(df, basins, seq_len, num_seq):
     '''

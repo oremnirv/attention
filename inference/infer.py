@@ -29,7 +29,7 @@ def evaluate(model, pos, tar, sample = True):
 
 
 
-def inference(model, pos, tar, num_steps = 1, sample = True):
+def inference(model, em_te, tar, num_steps = 1, sample = True):
     '''
     how many steps to infer -- this could be used both for interpolation and extrapolation 
     ------------------
@@ -43,13 +43,13 @@ def inference(model, pos, tar, num_steps = 1, sample = True):
     pred_log_sig
     '''
     n = tar.shape[1]
-    temp_pos = pos[:, :(n + 1)]
+    temp_pos = em_te[:, :(n + 1)]
     pred, pred_log_sig, sample_y = evaluate(model, temp_pos, tar)
     tar = tf.concat((tar, tf.reshape(sample_y, [1, 1])), axis = 1)
     if num_steps > 1:
-        model, pos, tar = inference(model, pos, tar, num_steps - 1)
+        model, em_te, tar = inference(model, em_te, tar, num_steps - 1)
     
-    return model, pos, tar
+    return model, em_te, tar
 
 def main():
     samples = np.zeros((50, 600))
