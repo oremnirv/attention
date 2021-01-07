@@ -15,7 +15,7 @@ def build_graph():
 	m_te = tf.keras.metrics.Mean()
 
 	@tf.function
-	def train_step(decoder, optimizer_c, train_loss, m_tr, pos, tar):
+	def train_step(decoder, optimizer_c, train_loss, m_tr, pos, tar, context_p = 50):
 		'''
 		A typical train step function for TF2. Elements which we wish to track their gradient
 		has to be inside the GradientTape() clause. see (1) https://www.tensorflow.org/guide/migrate 
@@ -39,7 +39,7 @@ def build_graph():
 
 		with tf.GradientTape(persistent=True) as tape:
 			pred = decoder(pos, tar_inp, True, combined_mask_pos[:, 1:, :-1])
-			loss, mse, mask = losses.loss_function(tar_real[:, 50:], pred = pred[:, 50:, 0], pred_log_sig = pred[:, 50:, 1])
+			loss, mse, mask = losses.loss_function(tar_real[:, context_p:], pred = pred[:, context_p:, 0], pred_log_sig = pred[:, context_p:, 1])
 
 		gradients = tape.gradient(loss, decoder.trainable_variables)
 		optimizer_c.apply_gradients(zip(gradients, decoder.trainable_variables))
@@ -50,7 +50,7 @@ def build_graph():
 		return pred[:, :, 0], pred[:, :, 1], decoder.trainable_variables, names, shapes
 
 	@tf.function
-	def test_step(decoder, test_loss, m_te, pos_te, tar_te):
+	def test_step(decoder, test_loss, m_te, pos_te, tar_te, context_p = 50):
 		'''
 		---------------
 		Parameters:
@@ -67,7 +67,7 @@ def build_graph():
 		# behavior during training versus inference (e.g. Dropout).
 
 		pred_te = decoder(pos_te, tar_inp_te, False, combined_mask_pos_te[:, 1:, :-1])
-		t_loss, t_mse, t_mask = losses.loss_function(tar_real_te[:, 50:], pred = pred_te[:, 50:, 0], pred_log_sig = pred_te[:, 50:, 1])
+		t_loss, t_mse, t_mask = losses.loss_function(tar_real_te[:, context_p:], pred = pred_te[:, context_p:, 0], pred_log_sig = pred_te[:, context_p:, 1])
 
 		test_loss(t_loss); m_te.update_state(t_mse, t_mask)
 		return pred_te[:, :, 0], pred_te[:, :, 1]

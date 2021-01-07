@@ -75,7 +75,7 @@ def data_generator_for_gp_mimick_gpt(num_obs, tr_percent=0.8, seq_len=200, extar
             f_prior = np.squeeze(gp.sample_y(x.reshape(-1, 1)))
 
         if noise:
-            K = WhiteKernel(.1)
+            K = WhiteKernel(.05)
             gp = GaussianProcessRegressor(kernel=K)
             # print('before: ', (f_prior.shape))
             f_prior = f_prior + gp.sample_y(x, seq_len)
