@@ -197,3 +197,75 @@ class MultiHeadAttention(tf.keras.layers.Layer):
     output = self.dense(concat_attention)  # (batch_size, seq_len_q, d_model)
 
     return output, attention_weights
+
+
+class MultiHeadAttention2D(tf.keras.layers.Layer):
+  def __init__(self, d_model, num_heads):
+    super(MultiHeadAttention2D, self).__init__()
+    self.num_heads = num_heads
+    self.d_model = d_model
+
+    assert d_model % self.num_heads == 0
+
+    self.depth = d_model // self.num_heads
+
+    self.wq = tf.keras.layers.Dense(d_model, name = 'wq')
+    self.wq2 = tf.keras.layers.Dense(d_model, name = 'wq2')
+    self.wq3 = tf.keras.layers.Dense(d_model, name = 'wq3')
+    self.wk = tf.keras.layers.Dense(d_model, name = 'wk')
+    self.wk2 = tf.keras.layers.Dense(d_model, name = 'wk2')
+    self.wk3 = tf.keras.layers.Dense(d_model, name = 'wk3')
+    self.wv = tf.keras.layers.Dense(d_model, name = 'wv')  
+
+    # self.hq = tf.keras.layers.Dense(self.depth, name = 'hq')
+    # self.hk = tf.keras.layers.Dense(self.depth, name = 'hk')
+    # self.hv = tf.keras.layers.Dense(self.depth, name = 'hv')  
+
+    self.dense = tf.keras.layers.Dense(d_model)
+
+  def split_heads(self, x, batch_size):
+    """Split the last dimension into (num_heads, depth).
+    Transpose the result such that the shape is (batch_size, num_heads, seq_len, depth)
+    """
+    x = tf.reshape(x, (batch_size, -1, self.num_heads, self.depth))
+    return tf.transpose(x, perm=[0, 2, 1, 3])
+
+  def call(self, v, k, q, e, mask):
+    batch_size = tf.shape(q)[0]
+
+
+
+    q = self.wq3(tf.nn.leaky_relu(self.wq(q) + self.wq2(e)))  # (batch_size, seq_len, d_model)
+    k = self.wk3(tf.nn.leaky_relu(self.wk(k) + self.wk2(e)))  # (batch_size, seq_len, d_model)
+    v = self.wv(v)  # (batch_size, seq_len, d_model)
+
+    q = self.split_heads(q, batch_size)  # (batch_size, num_heads, seq_len_q, depth)
+    k = self.split_heads(k, batch_size)  # (batch_size, num_heads, seq_len_k, depth)
+    v = self.split_heads(v, batch_size)  # (batch_size, num_heads, seq_len_v, depth)
+
+    # q = self.hq(tf.nn.leaky_relu(q))
+    # k = self.hk(tf.nn.leaky_relu(k))
+    # v = self.hv(tf.nn.leaky_relu(v))
+
+    # print('q: ', q)
+    # print('v: ', v)
+
+    # scaled_attention.shape == (batch_size, num_heads, seq_len_q, depth)
+    # attention_weights.shape == (batch_size, num_heads, seq_len_q, seq_len_k)
+    scaled_attention, attention_weights, _ = dot_product_attention(
+        q, k, v, mask)
+
+    # print('scaled_attention: ', scaled_attention)
+
+    scaled_attention = tf.transpose(scaled_attention, perm=[0, 2, 1, 3])  # (batch_size, seq_len_q, num_heads, depth)
+
+    # print('scaled_attention after transpose: ', scaled_attention)
+
+    concat_attention = tf.reshape(scaled_attention, 
+                                  (batch_size, -1, self.d_model))  # (batch_size, seq_len_q, d_model)
+
+    # print('concat_attention: ', concat_attention)
+
+    output = self.dense(concat_attention)  # (batch_size, seq_len_q, d_model)
+
+    return output, attention_weights

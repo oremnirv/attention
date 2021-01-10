@@ -33,7 +33,7 @@ def create_batch_gp_mim(enc_tr, dec_tr, y_tr, batch_s=128):
     return batch_enc_tr, batch_dec_tr, batch_y_tr, batch_idx_tr
 
 
-def create_batch_gp_mim_2(em_pos, pos, tar, batch_s=128, chnge_context = True):
+def create_batch_gp_mim_2(em_pos, pos, tar, batch_s=128, chnge_context = True, d = False, em_2 = None):
     '''
     Get a batch of positions, targets and position mask from data generated 
     by data_generator_for_gp_mimick_gpt function and from position_mask function 
@@ -49,18 +49,26 @@ def create_batch_gp_mim_2(em_pos, pos, tar, batch_s=128, chnge_context = True):
     batch_idx_tr (1D np array): indices (=row numbers) chosen for current batch
 
     '''
+    b_data = []
     shape = tar.shape[0]
     cols = tar.shape[1]
     batch_idx_tr = np.random.choice(list(range(shape)), batch_s)
-    batch_tar_tr = tar[batch_idx_tr]
-    batch_pos_tr = pos[batch_idx_tr]
-    batch_em_tr = em_pos[batch_idx_tr]
-    if chnge_context:
+    
+    if not chnge_context:
+        b_data.append(tar[batch_idx_tr])
+        b_data.append(pos[batch_idx_tr])
+        b_data.append(em_pos[batch_idx_tr])
+        if d:
+             b_data.append(em_2[batch_idx_tr])
+    else:
         permute_idx = np.random.permutation(np.arange(cols))
-        batch_tar_tr = batch_tar_tr[:, permute_idx]
-        batch_pos_tr = batch_pos_tr[:, permute_idx]
-        batch_em_tr = batch_em_tr[:, permute_idx]
-    return batch_em_tr, batch_pos_tr, batch_tar_tr, batch_idx_tr
+        b_data.append(tar[batch_idx_tr][:, permute_idx])
+        b_data.append(pos[batch_idx_tr][:, permute_idx])
+        b_data.append(em_pos[batch_idx_tr][:, permute_idx])
+
+        if d:
+           b_data.append(em_2[batch_idx_tr][:, permute_idx])
+    return b_data
 
 def fake_batch(pos, tar, batch_s=1):
     '''

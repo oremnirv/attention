@@ -8,22 +8,13 @@ import tensorflow as tf
 
 
 class Decoder(tf.keras.Model):
-    def __init__(self, e, l1 = 512, l2 = 256, l3=32, rate=0, num_heads = 1, input_vocab_size = 200):
+    def __init__(self, e, l1 = 512, l2 = 256, l3=32, rate=0, num_heads = 1, input_vocab_size = 2000):
         super(Decoder, self).__init__()
         
         self.e = e
         self.embedding = tf.keras.layers.Embedding(input_vocab_size, e)
-        self.mha = dot_prod_attention.MultiHeadAttention(e, num_heads)
-
-        # self.BN1 = tf.keras.layers.BatchNormalization(name = 'BN1') 
-        # self.BN2 = tf.keras.layers.BatchNormalization(name = 'BN2') 
-        # self.BN3 = tf.keras.layers.BatchNormalization(name = 'BN3') 
-        # self.BN4 = tf.keras.layers.BatchNormalization(name = 'BN4') 
-        # self.BN5 = tf.keras.layers.BatchNormalization(name = 'BN5') 
-        # self.BN6 = tf.keras.layers.BatchNormalization(name = 'BN6') 
-        # self.BN7 = tf.keras.layers.BatchNormalization(name = 'BN7')                
+        self.mha = dot_prod_attention.MultiHeadAttention2D(e, num_heads)              
         
-
 
         self.A1 = tf.keras.layers.Dense(l1, name = 'A1')
 
@@ -37,7 +28,7 @@ class Decoder(tf.keras.Model):
 
 
     #a call method, the layer's forward pass
-    def call(self, tar_position, tar_inp, training, pos_mask):
+    def call(self, tar_position, tar_position_2, tar_inp, training, pos_mask):
         
         # Adding extra dimension to allow multiplication of 
         # a sequnce with itself. 
@@ -49,6 +40,7 @@ class Decoder(tf.keras.Model):
                 # print('tar: ', tar)
 
         tar_position = self.embedding(tar_position)
+        tar_position_2 = self.embedding(tar_position_2)
         # q = self.wq(tar_position)
         # k = self.wk(tar_position)
         # v = self.wv(tar_inp)
@@ -61,7 +53,7 @@ class Decoder(tf.keras.Model):
 
         # tar_attn1, _, _ = dot_prod_attention.dot_product_attention(q, k, v, pos_mask)
 
-        tar_attn1, _ = self.mha(tar_inp, tar_position, tar_position, pos_mask)
+        tar_attn1, _ = self.mha(tar_inp, tar_position, tar_position, tar_position_2, pos_mask)
 
 
         tar_attn1 = (tf.nn.leaky_relu(tar_attn1))
