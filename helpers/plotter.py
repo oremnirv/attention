@@ -74,10 +74,9 @@ def infer_plot(model, em_te, x_te, y_te, num_steps, sample_num, samples=10, mean
                 y_te[sample_num, :context_p][0], c='red')
 
     for inf in range(samples):
-        _, _, tar_inf = infer.inference(model, em_te[sample_num, :maxi].reshape(1, -1), 
-            y_te[sample_num, :context_p].reshape(1, -1), num_steps=num_steps)
-        axs.plot(pos_inf[sorted_idx].reshape(-1),
-                 tar_inf.numpy().reshape(-1)[sorted_idx][0], c='lightskyblue')
+        _, _, tar_inf = infer.inference(model, em_te[sample_num, :maxi].reshape(1, -1), y_te[sample_num, :context_p].reshape(1, -1), num_steps=num_steps)
+
+        axs.plot(pos_inf[sorted_idx].reshape(-1), tar_inf.numpy().reshape(-1)[sorted_idx][0], c='lightskyblue')
 
     if mean:
         _, _, tar_inf = infer.inference(model, em_te[sample_num, :maxi].reshape(1, -1), 
