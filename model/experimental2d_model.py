@@ -19,9 +19,10 @@ class Decoder(tf.keras.Model):
         self.A1 = tf.keras.layers.Dense(l1, name = 'A1')
 
         self.A2 = tf.keras.layers.Dense(l1, name = 'A2')
-        self.A3 = tf.keras.layers.Dense(l2, name = 'A3')
-        self.A4 = tf.keras.layers.Dense(l3, name = 'A4')
-        self.A5 = tf.keras.layers.Dense(2, name = 'A5')
+        self.A3 = tf.keras.layers.Dense(l1, name = 'A3')
+        self.A4 = tf.keras.layers.Dense(l2, name = 'A4')
+        self.A5 = tf.keras.layers.Dense(l3, name = 'A5')
+        self.A6 = tf.keras.layers.Dense(2, name = 'A6')
 
 
 
@@ -56,22 +57,23 @@ class Decoder(tf.keras.Model):
         tar_attn1, _ = self.mha(tar_inp, tar_position, tar_position, tar_position_2, pos_mask)
 
 
-        tar_attn1 = (tf.nn.leaky_relu(tar_attn1))
+        tar_attn1 = tf.nn.leaky_relu(tar_attn1)
         # print('tar_attn1: ', tar_attn1)
 
 
         
         current_position = tar_position[:, 1:, :]
+        current_series = tar_position_2[:, 1:, :]
         # print('current_position: ', current_position)
-        L2 = self.A1(tar_attn1) + self.A2(current_position) 
+        L2 = self.A1(tar_attn1) + self.A2(current_position) + self.A3(current_position) 
 
         
         L2 = tf.nn.leaky_relu(L2)
 
         # print('L2', L2)
-        L2 = tf.nn.leaky_relu(self.A3(L2)) 
-        L2 = tf.nn.leaky_relu(self.A4(L2))
-        L2 = self.A5(L2)
+        L2 = tf.nn.leaky_relu(self.A4(L2)) 
+        L2 = tf.nn.leaky_relu(self.A5(L2))
+        L2 = self.A6(L2)
 
 
         

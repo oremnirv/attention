@@ -3,7 +3,7 @@ import tensorflow as tf
 import numpy as np
 
 
-def evaluate(model, pos, tar, sample=True):
+def evaluate(model, pos, tar, sample=True, d = False, pos2 = None):
     '''
     Run a forward pass of the network
     ------------------
@@ -19,7 +19,10 @@ def evaluate(model, pos, tar, sample=True):
 
     '''
     combined_mask_pos = masks.create_masks(pos)
-    pred = model(pos, tar, False, combined_mask_pos[:, 1:, :-1])
+    if d:
+        pred = model(pos, pos2, tar, False, combined_mask_pos[:, 1:, :-1])
+    else:
+        pred = model(pos, tar, False, combined_mask_pos[:, 1:, :-1])
     if sample:
         sample_y = np.random.normal(pred[-1, 0], np.exp(pred[-1, 1]))
     else:
@@ -28,7 +31,7 @@ def evaluate(model, pos, tar, sample=True):
     return pred[:, 0], pred[:, 1], sample_y
 
 
-def inference(model, em_te, tar, num_steps=1, sample=True):
+def inference(model, em_te, tar, num_steps=1, sample=True, d = False, em_te_2 = None, series = 1):
     '''
     how many steps to infer -- this could be used both for interpolation and extrapolation 
     ------------------
@@ -41,12 +44,17 @@ def inference(model, em_te, tar, num_steps=1, sample=True):
     pred (tf.tensor float64): the predictions for all timestamps up to n + num_steps  
     pred_log_sig
     '''
+    
     n = tar.shape[1]
     temp_pos = em_te[:, :(n + 1)]
-    pred, pred_log_sig, sample_y = evaluate(model, temp_pos, tar)
+    if d:
+        temp_pos2 = em_te_2[:, :(n + 1)]
+        pred, pred_log_sig, sample_y = evaluate(model, temp_pos, tar, d = True, pos2 = temp_pos2)
+    else:
+        pred, pred_log_sig, sample_y = evaluate(model, temp_pos, tar)
     tar = tf.concat((tar, tf.reshape(sample_y, [1, 1])), axis=1)
     if num_steps > 1:
-        model, em_te, tar = inference(model, em_te, tar, num_steps - 1)
+        model, em_te, tar = inference(model, em_te, tar, num_steps - 1, d = d, em_te_2 = em_te_2, series = series)
 
     return model, em_te, tar
 

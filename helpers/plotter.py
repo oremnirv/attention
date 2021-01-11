@@ -213,7 +213,7 @@ def plot_subplot_training2d(params, x, x_te, y, y_te, pred_y, pred_y_2, pred_y_t
 
         params[row].plot(x[idx_tr[0], np.array(idx_f1)[0]], pred_y.reshape(-1), c='gray', label='reconstructed function')
 
-        params[row].plot(x[idx_tr[0], np.array(idx_f2)[0]], pred_y_2.reshape(-1), c='lightskyblue', label='reconstructed function')
+        params[row].plot(x[idx_tr[0], np.array(idx_f2)[0]], pred_y_2.reshape(-1), c='lightskyblue', label='reconstructed function II')
 
 
 
