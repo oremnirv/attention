@@ -24,9 +24,12 @@ def evaluate(model, pos, tar, sample=True, d = False, pos2 = None):
     else:
         pred = model(pos, tar, False, combined_mask_pos[:, 1:, :-1])
     if sample:
+        # print(np.exp(pred[-1, 1]))
+        # print(pred[-1, 1])
         sample_y = np.random.normal(pred[-1, 0], np.exp(pred[-1, 1]))
+        print(np.exp(pred[-1, 1]))
     else:
-        sample_y = pred[:, 0]
+        sample_y = pred[-1, 0]
 
     return pred[:, 0], pred[:, 1], sample_y
 
@@ -44,17 +47,18 @@ def inference(model, em_te, tar, num_steps=1, sample=True, d = False, em_te_2 = 
     pred (tf.tensor float64): the predictions for all timestamps up to n + num_steps  
     pred_log_sig
     '''
-    
+
     n = tar.shape[1]
     temp_pos = em_te[:, :(n + 1)]
     if d:
         temp_pos2 = em_te_2[:, :(n + 1)]
-        pred, pred_log_sig, sample_y = evaluate(model, temp_pos, tar, d = True, pos2 = temp_pos2)
+        pred, pred_log_sig, sample_y = evaluate(model, temp_pos, tar, d = True, pos2 = temp_pos2, sample = sample)
     else:
-        pred, pred_log_sig, sample_y = evaluate(model, temp_pos, tar)
+        pred, pred_log_sig, sample_y = evaluate(model, temp_pos, tar, sample = sample)
+    # print(sample_y)
     tar = tf.concat((tar, tf.reshape(sample_y, [1, 1])), axis=1)
     if num_steps > 1:
-        model, em_te, tar = inference(model, em_te, tar, num_steps - 1, d = d, em_te_2 = em_te_2, series = series)
+        model, em_te, tar = inference(model, em_te, tar, num_steps - 1, d = d, em_te_2 = em_te_2, series = series, sample = sample)
 
     return model, em_te, tar
 

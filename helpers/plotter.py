@@ -55,33 +55,39 @@ def plot_2d_examples(x, y, em_2):
     plt.show()
 
 
-def infer_plot(model, em_te, x_te, y_te, num_steps, sample_num, samples=10, mean=True, context_p=50):
+def infer_plot(model, em, x, y, num_steps, sample_num, samples=10, mean=True, context_p=50, order = False):
     fig, axs = plt.subplots(1, 1, figsize=(10, 6))
     custom_xlim = (4, 16)
     custom_ylim = (-10, 10)
     plt.setp(axs, xlim=custom_xlim, ylim=custom_ylim)
 
     maxi = num_steps + context_p
-    sorted_idx = np.array(pd.DataFrame(x_te[sample_num, :maxi]).apply(
-        lambda x: np.argsort(x), axis=1))
-    pos_inf = (x_te[sample_num, :]).reshape(-1)
+    sorted_idx = np.argsort(x)
+
+    if order:
+        x = x[sorted_idx]
+        sorted_idx = np.argsort(x)
+        y = y[sorted_idx]
+        em = em[sorted_idx]
 
     # true graph
-    axs.plot(x_te[sample_num, :maxi][0][sorted_idx][0], y_te[sample_num,
-                                                             :maxi][0][sorted_idx][0], c='black', zorder=1, linewidth=3)
+    axs.plot(x[ :maxi][0][sorted_idx][0], y[:maxi][0][sorted_idx][0], c='black', zorder=1, linewidth=3)
+    
     # context points:
-    axs.scatter(x_te[sample_num, :context_p][0],
-                y_te[sample_num, :context_p][0], c='red')
+    axs.scatter(x[ :context_p][0],
+                y[ :context_p][0], c='red')
 
     for inf in range(samples):
-        _, _, tar_inf = infer.inference(model, em_te[sample_num, :maxi].reshape(1, -1), y_te[sample_num, :context_p].reshape(1, -1), num_steps=num_steps)
+        _, _, tar_inf = infer.inference(model, em[ :maxi].reshape(1, -1), y[ :context_p].reshape(1, -1), num_steps=num_steps)
 
-        axs.plot(pos_inf[sorted_idx].reshape(-1), tar_inf.numpy().reshape(-1)[sorted_idx][0], c='lightskyblue')
+
+        axs.plot(x.reshape(-1)[sorted_idx], tar_inf.numpy().reshape(-1)[sorted_idx][0], c='lightskyblue')
 
     if mean:
-        _, _, tar_inf = infer.inference(model, em_te[sample_num, :maxi].reshape(1, -1), 
-            y_te[sample_num, :context_p].reshape(1, -1), num_steps=num_steps, sample=False)
-        axs.plot(pos_inf[sorted_idx].reshape(-1), tar_inf.numpy().reshape(-1)[sorted_idx][0], c='goldenrod', linewidth=2)
+
+        _, _, tar_inf = infer.inference(model, em[ :maxi].reshape(1, -1), y[ :context_p].reshape(1, -1), num_steps=num_steps, sample=False)
+
+        axs.plot(x.reshape(-1)[sorted_idx], tar_inf.numpy().reshape(-1)[sorted_idx], c='goldenrod')
 
     plt.show()
 
@@ -232,3 +238,82 @@ def plot_subplot_training2d(params, x, x_te, y, y_te, pred_y, pred_y_2, pred_y_t
             params[row].set_title('Test ex. I')
             
     return params
+
+def concat_n_rearange(x, y, em, em_2, cond_arr, context_p, series = 1):
+    cond_arr_pre = cond_arr[:context_p]
+    cond_arr_pos = cond_arr[context_p:]
+    cond = []
+    cond.append(np.where([cond_arr_pre == series])[1])
+    cond.append(np.where([cond_arr_pos == series])[1])
+    cond.append(np.where(~(cond_arr_pre == series)))
+    cond.append(np.where(~ (cond_arr_pos == series)))
+    
+    # create the two series that will be used as context points
+    y_pre = y[:context_p]; y_post = y[context_p:]
+    tar_1 = np.concatenate((y_pre[cond[0]], y_post[cond[1]])).reshape(1, -1)
+    tar_0 = y_pre[cond[2]]
+    
+    # generate rearanged target for inference
+    y_infer = np.concatenate((y_pre, y_post[cond[1]])).reshape(1, -1)
+    
+    
+    # generate rearanged input for infer
+    em_pre = em[:context_p]; em_post = em[context_p:]
+    em2_pre = em_2[:context_p]; em2_post = em_2[context_p:]
+    
+    em_infer = np.concatenate((em_pre, em_post[cond[1]]))
+    em_infer = np.concatenate((em_infer, em_post[cond[3]]))
+    em2_infer = np.concatenate((em2_pre, em2_post[cond[1]]))
+    em2_infer = np.concatenate((em2_infer, em2_post[cond[3]]))
+    
+    # rearange x
+    x_pre = x[:context_p]; x_post = x[context_p:]
+    x_1 = np.concatenate((x_pre[cond[0]], x_post[cond[1]]))
+    x_0_part = x_pre[cond[2]]
+    xx_0 = np.concatenate((x_pre, x_post[cond[1]]))
+    xx_0 = np.concatenate((xx_0, x_post[cond[3]]))
+    
+    
+    sorted_x_1 = np.argsort(x_1)
+    sorted_x_0_p = np.argsort(x_0_part)
+    sorted_xx_0 = np.argsort(xx_0)
+    sorted_x = np.argsort(x)
+    
+    # sort 1's and 0's according to sorted x's
+    sorted_em = em_2.reshape(-1)[sorted_x.reshape(-1)]
+
+    return sorted_xx_0[np.where(sorted_em == 0)], xx_0[sorted_xx_0[np.where(sorted_em == 0)]], x_1[sorted_x_1.reshape(-1)], tar_1[0][sorted_x_1.reshape(-1)], x_0_part[sorted_x_0_p.reshape(-1)], tar_0[sorted_x_0_p.reshape(-1)], em_infer, em2_infer, y_infer
+
+
+
+
+def infer_plot2D(decoder, x, y, em, em_2, samples = 10, order = True, context_p = 50, mean = True)
+    fig, axs = plt.subplots(1, 1, figsize=(10, 6))
+    custom_xlim = (4, 16)
+    custom_ylim = (-8, 8)
+    plt.setp(axs, xlim=custom_xlim, ylim=custom_ylim)
+
+    if order:
+        sorted_idx = np.argsort(x)
+        x = x[sorted_idx]
+        y = y[sorted_idx]
+        em = em[sorted_idx]
+        em_2 = em_2[sorted_idx]
+
+
+    sorted_infer, x_infer, x_1, tar_1, x_0_part, tar_0, em_infer, em2_infer, y_infer = concat_n_rearange(x, y, em, em_2, em_2, context_p)
+    steps = 400 - y_infer.shape[1]
+
+    
+    axs.scatter(x_0_part, tar_0, c = 'red')
+    axs.plot(x_1, tar_1, c = 'black')
+    for inf in range(samples): 
+        _, _, tar_inf = infer.inference(decoder, em_te = em_infer.reshape(1, -1), tar = y_infer, num_steps=steps, sample=True, d = True, em_te_2 = em2_infer.reshape(1, -1), series = 1)
+        axs.plot(x_infer, tar_inf.numpy().reshape(-1)[sorted_infer], c='lightskyblue')
+    if mean:
+        _, _, tar_inf = infer.inference(decoder, em_te = em_infer.reshape(1, -1), tar = y_infer, num_steps=steps, sample=False, d = True, em_te_2 = em2_infer.reshape(1, -1), series = 1)
+        axs.plot(x_infer, tar_inf.numpy().reshape(-1)[sorted_infer], c='goldenrod')
+
+    plt.show()
+
+
