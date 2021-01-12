@@ -55,7 +55,7 @@ def plot_2d_examples(x, y, em_2):
     plt.show()
 
 
-def infer_plot(model, em, x, y, num_steps, sample_num, samples=10, mean=True, context_p=50, order = False):
+def infer_plot(model, em, x, y, num_steps, samples=10, mean=True, context_p=50, order = False):
     fig, axs = plt.subplots(1, 1, figsize=(10, 6))
     custom_xlim = (4, 16)
     custom_ylim = (-10, 10)

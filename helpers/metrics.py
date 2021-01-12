@@ -25,6 +25,20 @@ def r_squared(mse_model, y_true, batch_s = 64):
 	y_mean = np.repeat(np.mean(y_true, 1), n).reshape(batch_s, -1)
 	return 1 - (mse_model / mse(y_true, y_mean))
 
+def r_sq_2d(y, pred_te, em_2, context_p):
+	n = Y.shape[0]
+
+    for row in range(n):
+        idx0 = np.where(em_2[row, (context_p + 1):] == 0)
+        idx1 = np.where(em_2[row, (context_p + 1):] == 1)
+        y = y[row, (context_p + 1):]
+        pred = pred_te[row, (context_p + 1):]
+        mse_ratio0 = np.sum((y[idx0] - pred[idx0]) ** 2) / np.sum((y[idx0] - np.mean(y)) ** 2)
+        mse_ratio1 = np.sum((y[idx1] - pred[idx1]) ** 2) / np.sum((y[idx1] - np.mean(y)) ** 2)
+        r_sq0.append(1 - mse_ratio0)
+        r_sq1.append(1 - mse_ratio1)
+    return np.mean(r_sq0), np.mean(r_sq1) 
+
 def mse(y_true, y_pred):
 	'''
 
