@@ -232,7 +232,7 @@ class MultiHeadAttention2D(tf.keras.layers.Layer):
 
   def call(self, v, k, q, e, mask):
     batch_size = tf.shape(q)[0]
-    print(batch_size)
+    # print(batch_size)
 
 
 

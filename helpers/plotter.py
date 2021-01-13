@@ -287,7 +287,7 @@ def concat_n_rearange(x, y, em, em_2, cond_arr, context_p, series = 1):
 
 
 
-def infer_plot2D(decoder, x, y, em, em_2, samples = 10, order = True, context_p = 50, mean = True)
+def infer_plot2D(decoder, x, y, em, em_2, samples = 10, order = True, context_p = 50, mean = True):
     fig, axs = plt.subplots(1, 1, figsize=(10, 6))
     custom_xlim = (4, 16)
     custom_ylim = (-8, 8)
