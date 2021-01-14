@@ -42,19 +42,19 @@ def print_progress(epoch, batch_n, train_loss_r, test_loss_r, tr_metric, te_metr
                                                                         train_loss_r, test_loss_r, tr_metric, te_metric))
 
 
-def write_speci(folder, names, shapes):
-    with open(folder + '_speci.csv', "w") as csv_file:
+def write_speci(folder, names, shapes, context_p):
+    with open(folder + '_context_' + str(context_p) +'_speci.csv', "w") as csv_file:
         writer = csv.writer(csv_file, delimiter=',')
         for name, shape in zip(names, shapes):
             writer.writerow([str(name.numpy()).split('/')[-2], str(shape.numpy())]) 
 
 
-def load_spec(path, e, l, d= False):
-    if  not os.path.exists(path + '_speci.csv'):
+def load_spec(path, e, l, context_p, d= False):
+    if  not os.path.exists(path + '_context_' + str(context_p) + '_speci.csv'):
         print('Does not exists')
         return (e, *l)
     else:
-        df = np.array(pd.read_csv(path + '_speci.csv'))
+        df = np.array(pd.read_csv(path + '_context_' + str(context_p)  + '_speci.csv'))
         ls = []
         if d: 
             for i in [1, 17, 19, 23, 25]:

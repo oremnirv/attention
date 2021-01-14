@@ -27,7 +27,7 @@ def evaluate(model, pos, tar, sample=True, d = False, pos2 = None):
         # print(np.exp(pred[-1, 1]))
         # print(pred[-1, 1])
         sample_y = np.random.normal(pred[-1, 0], np.exp(pred[-1, 1]))
-        print(np.exp(pred[-1, 1]))
+        # print(np.exp(pred[-1, 1]))
     else:
         sample_y = pred[-1, 0]
 

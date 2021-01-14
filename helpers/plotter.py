@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from inference import infer
+import glob
 plt.style.use('ggplot')
 
 
@@ -55,41 +56,47 @@ def plot_2d_examples(x, y, em_2):
     plt.show()
 
 
-def infer_plot(model, em, x, y, num_steps, samples=10, mean=True, context_p=50, order = False):
-    fig, axs = plt.subplots(1, 1, figsize=(10, 6))
-    custom_xlim = (4, 16)
-    custom_ylim = (-10, 10)
-    plt.setp(axs, xlim=custom_xlim, ylim=custom_ylim)
+def infer_plot(model, em, x, y, num_steps, samples=10, mean=True, context_p=50, order = False, axs = None, ins = False):
+    if axs:
+        pass
+    else: 
+        fig, axs = plt.subplots(1, 1, figsize=(10, 6))
+        custom_xlim = (4, 16)
+    # custom_ylim = (-3, 3)
+    # plt.setp(axs, xlim=custom_xlim, ylim=custom_ylim)
 
     maxi = num_steps + context_p
     sorted_idx = np.argsort(x)
 
     if order:
         x = x[sorted_idx]
-        sorted_idx = np.argsort(x)
         y = y[sorted_idx]
         em = em[sorted_idx]
+        sorted_idx = np.argsort(x)
 
     # true graph
-    axs.plot(x[ :maxi][0][sorted_idx][0], y[:maxi][0][sorted_idx][0], c='black', zorder=1, linewidth=3)
+    axs.plot(x[ :maxi][sorted_idx], y[:maxi][sorted_idx], c='black', zorder=1, linewidth=3)
     
     # context points:
-    axs.scatter(x[ :context_p][0],
-                y[ :context_p][0], c='red')
+    axs.scatter(x[ :context_p],
+                y[ :context_p], c='red')
 
     for inf in range(samples):
         _, _, tar_inf = infer.inference(model, em[ :maxi].reshape(1, -1), y[ :context_p].reshape(1, -1), num_steps=num_steps)
 
 
-        axs.plot(x.reshape(-1)[sorted_idx], tar_inf.numpy().reshape(-1)[sorted_idx][0], c='lightskyblue')
+        axs.plot(x[sorted_idx], tar_inf.numpy().reshape(-1)[sorted_idx], c='lightskyblue')
 
     if mean:
 
         _, _, tar_inf = infer.inference(model, em[ :maxi].reshape(1, -1), y[ :context_p].reshape(1, -1), num_steps=num_steps, sample=False)
 
-        axs.plot(x.reshape(-1)[sorted_idx], tar_inf.numpy().reshape(-1)[sorted_idx], c='goldenrod')
+        axs.plot(x[sorted_idx], tar_inf.numpy().reshape(-1)[sorted_idx], c='goldenrod')
 
-    plt.show()
+    if ins:
+        return axs
+    else:
+        plt.show()
 
 
 def choose_random_ex_n_sort(x, num_samples):
@@ -142,7 +149,7 @@ def plot_subplot_training(params, x, x_te, y, y_te, pred_y, pred_y_te, tr_idx, t
         for col in range(params.shape[1]):
 
             params[row, col].plot(x[tr_idx[col], sorted_idx_tr[col, :]],
-                                  y[tr_idx[col], sorted_idx_tr[col, :]], c='black', label='true function')
+                                  y[tr_idx[col], sorted_idx_tr[col, :]], c='black', label='obs. function')
             params[row, col].scatter(x[tr_idx[col], :num_context], y[tr_idx[col], :num_context],
                                      c='black', marker="o", zorder=1, s=25, label='context points')
             params[row, col].plot(x[tr_idx[col], sorted_idx_tr[col, :]], pred_y[col,
@@ -207,10 +214,10 @@ def plot_subplot_training2d(params, x, x_te, y, y_te, pred_y, pred_y_2, pred_y_t
             idx_f2 = idx_f2_te
             
         params[row].plot(x[idx_tr[0], np.array(idx_f1)[0]],
-                                          y[idx_tr[0], np.array(idx_f1)[0]], c='black', label='true function')
+                                          y[idx_tr[0], np.array(idx_f1)[0]], c='black', label='obs. function')
 
         params[row].plot(x[idx_tr[0], np.array(idx_f2)[0]],
-                                          y[idx_tr[0], np.array(idx_f2)[0]], c='blue', label='true function II')
+                                          y[idx_tr[0], np.array(idx_f2)[0]], c='blue', label='obs. function II')
 
         params[row].scatter(x[idx_tr[0], :50], y[idx_tr[0], :50],
                                              c='black', marker="o", zorder=1, s=25, label='context points')
@@ -315,5 +322,54 @@ def infer_plot2D(decoder, x, y, em, em_2, samples = 10, order = True, context_p 
         axs.plot(x_infer, tar_inf.numpy().reshape(-1)[sorted_infer], c='goldenrod')
 
     plt.show()
+
+
+def all_inference():
+    GPT_files = glob.glob('/Users/omernivron/Downloads/GPT_*')
+    fig, big_axes = plt.subplots( figsize=(15.0, 15.0) , nrows=4, ncols=1, sharey=True) 
+
+    for row, big_ax in enumerate(big_axes, start=1):
+        title = GPT_files[row - 1].split('GPT_')[-1].split('_')
+        if len(title) > 1:
+            big_ax.set_title("{} {} kernel".format(title[-2].upper(), title[-1]), fontsize=16)
+        else: 
+            big_ax.set_title("{} kernel".format(title[-1].upper()), fontsize=16)
+        # Turn off axis lines and ticks of the big subplot 
+        # obs alpha is 0 in RGBA string!
+        big_ax.tick_params(labelcolor=(1.,1.,1., 0.0), top='off', bottom='off', left='off', right='off')
+        # removes the white frame
+        big_ax._frameon = False
+
+    plt.subplots_adjust(top = 0.99, bottom=0.01, hspace=0.7, wspace=0.4)
+    custom_xlim = (4, 16)
+    custom_ylim = (-5, 5)
+    
+    for i, f in enumerate(GPT_files):
+        d = False
+        kernel = f.split('GPT_')[-1]
+        idx  = np.random.choice(range(30000), 1)
+        print(idx)
+        data = loader.load_data(kernel, size = 1, rewrite = 'False')
+        for j, order in enumerate([True, False]):
+            ax = fig.add_subplot(len(GPT_files), 2, i * 2 + j + 1)
+            plt.setp(ax, xlim=custom_xlim, ylim=custom_ylim)
+            folder = f + '/ckpt/check_run_1'
+            train_step, test_step, loss_object, train_loss, test_loss, m_tr, m_te = grapher.build_graph()
+            ℯ = 512; l = [256, 256, 64, 32];  heads = 32; context = 50;
+            if f.split('_')[-1] == '2D':
+                d = True
+            ℯ, l1, _, l2, l3 = helpers.load_spec(folder, ℯ, l, context_p = context, d = d) 
+            if f.split('_')[-1] == '2D':
+                continue
+            else:
+                decoder = experimental_model.Decoder(ℯ, l1, l2, l3, num_heads = heads); 
+            optimizer_c = tf.keras.optimizers.Adam(3e-4)
+            ckpt = tf.train.Checkpoint(step=tf.Variable(1), optimizer = optimizer_c, net = decoder)
+            manager = tf.train.CheckpointManager(ckpt, folder, max_to_keep=3)
+            ckpt.restore(manager.latest_checkpoint)
+            if f.split('_')[-1] == '2D':
+                continue
+            else:
+                plotter.infer_plot(decoder, em = data[2][idx, :].reshape(-1), x = data[1][idx, :].reshape(-1), y = data[-1][idx, :].reshape(-1), num_steps = 150, samples = 10, context_p = context, order = order, axs = ax, ins =True )
 
 
