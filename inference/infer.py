@@ -47,8 +47,8 @@ def inference(model, em_te, tar, num_steps=1, sample=True, d = False, em_te_2 = 
     pred (tf.tensor float64): the predictions for all timestamps up to n + num_steps  
     pred_log_sig
     '''
-
     n = tar.shape[1]
+    num_steps = em_te.shape[1] - n  if num_steps == 999 else num_steps
     temp_pos = em_te[:, :(n + 1)]
     if d:
         temp_pos2 = em_te_2[:, :(n + 1)]

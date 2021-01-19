@@ -78,6 +78,7 @@ def data_generator_for_gp_mimick_gpt(num_obs, tr_percent=0.8, seq_len=200, extar
 
         else:
             x = np.random.permutation(np.linspace(5, 15, seq_len))
+
             # embedding for recurring specific values of x
             # idx = np.where((x)[:, None] == np.sort(x)[None, :])[1]
             x = x.reshape(1, -1)
@@ -85,8 +86,9 @@ def data_generator_for_gp_mimick_gpt(num_obs, tr_percent=0.8, seq_len=200, extar
         idx = embder_map(1, [grid])
         idx.map_value_to_grid(x)
     
-        # if ordered:
-        #     x = np.sort(x)
+        
+        if ((ordered) & (np.random.binomial(1, 0.5) == 0)):
+            x = np.sort(x)
 
         if kernel == 'rbf':
             k = gp_kernels.rbf_kernel(x.reshape(-1, 1))
@@ -128,7 +130,7 @@ def data_generator_for_gp_mimick_gpt(num_obs, tr_percent=0.8, seq_len=200, extar
 
     return pad_pos_tr, pad_pos_te, pad_y_fren_tr, pad_y_fren_te, df_tr, df_te, em_tr, em_te
 
-def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias_only = True, kernel = 'rbf', grid_d = [1, 15.1, 0.1]):
+def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias = 'const', kernel = 'rbf', grid_d = [1, 15.1, 0.1], noise = False):
 
     df = np.zeros((num_obs * 2, seq_len * 2))
     em_indices = np.zeros((num_obs, seq_len * 2))
@@ -148,14 +150,24 @@ def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias_only = True, kernel = 
             k = RBF()
             gp = GaussianProcessRegressor(kernel=k)
 
-        if bias_only:
-            E = np.random.permutation(np.tile(np.random.normal(0, 2, 2), seq_len)).reshape(-1, 1)
-            idd = (E == np.unique(E)[0])
-            # print(idd)
-            # print(idd.shape)
-            σ = np.random.normal(0, 0.1, seq_len * 2).reshape(-1, 1)
-            y = gp.sample_y(x.reshape(-1, 1)) + E + σ
+            if (bias == 'const'):
+                E = np.random.permutation(np.tile(np.random.normal(0, 2, 2), seq_len)).reshape(-1, 1)
+                idd = (E == np.unique(E)[0])
+                y = gp.sample_y(x.reshape(-1, 1)) + E
 
+            elif (bias == 'rbf'):
+                E = np.random.choice([0, 1], seq_len * 2) 
+                idd = (E == np.unique(E)[0])
+                k1 = RBF(0.4)
+                gp1 = GaussianProcessRegressor(kernel = k1)
+                y = gp.sample_y(x.reshape(-1, 1)).reshape(-1)  + gp1.sample_y(x.reshape(-1, 1)).reshape(-1)  * E.reshape(-1) 
+
+            else: 
+                pass 
+        if noise: 
+            K = WhiteKernel(.1)
+            gp = GaussianProcessRegressor(kernel=K)
+            y = y + gp.sample_y(x, seq_len * 2)
 
 
         df[i, :x.shape[1]] = x
