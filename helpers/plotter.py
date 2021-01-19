@@ -408,10 +408,17 @@ def GP_compare_1D(x, y, kernel, noise = False, context_p = 50, order = True, con
     μ, σ = model.predict(x[context_p:].reshape(-1, 1), return_std=True)
     μ = np.concatenate((y[:context_p].squeeze(), μ.squeeze()))
     σ = np.concatenate((np.zeros(context_p).squeeze(), σ.squeeze()))
-    print(kernel, σ)
+    p_sort = np.argsort(x[context_p:])
+    y_samples = model.sample_y(x[context_p:][p_sort].reshape(-1, 1), 10).squeeze()
+    x_samples = np.tile(x[context_p:][p_sort].reshape(-1, 1), 10).reshape(len(x[context_p:]), -1)
+
+    # print(y_samples.shape)
+    # print(x_samples.shape)
+    # print(kernel, σ)
     
-    axs.fill_between(x.reshape(-1)[sorted_idx], μ.squeeze()[sorted_idx] -2 * σ[sorted_idx], μ.squeeze()[sorted_idx] + 2 * σ[sorted_idx], alpha=.4, color = 'lightskyblue')
-    
+    # axs.fill_between(x.reshape(-1)[sorted_idx], μ.squeeze()[sorted_idx] -2 * σ[sorted_idx], μ.squeeze()[sorted_idx] + 2 * σ[sorted_idx], alpha=.4, color = 'lightskyblue')
+    axs.plot(x_samples, y_samples, color = "lightskyblue")
+
     axs.plot(x.reshape(-1)[sorted_idx], μ.squeeze()[sorted_idx], color = "goldenrod")
     
     axs.plot(x[sorted_idx], y[sorted_idx], color='black')
