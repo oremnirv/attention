@@ -349,7 +349,7 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps = 100, samples = 10, order =
             num_steps = min(len(non_cosec_idx) - context_p, num_steps)
 
 
-    sorted_infer, x_infer, x_0, tar_0, x_1, tar_1, x_0_part, tar_0_part, em_infer, em2_infer, y_infer = concat_n_rearange(x.reshape(-1), y.reshape(-1), em.reshape(-1), em_2.reshape(-1), em_2.reshape(-1), context_p, num_steps = num_steps)
+    sorted_infer, x_infer, x_0, tar_0, x_1, tar_1, x_0_part, tar_0_part, em_infer, em2_infer, y_infer = concat_n_rearange(x.reshape(-1), y.reshape(-1), em.reshape(-1), em_2.reshape(-1), em_2.reshape(-1), context_p * 2, num_steps = num_steps)
     # if not num_steps:
     #     num_steps = 400 - y_infer.shape[1]
     
@@ -512,7 +512,7 @@ def all_inference(consec = True):
             ckpt.restore(manager.latest_checkpoint)
             if f.split('_')[-1] == '2D':
                 print('context: ', context)
-                infer_plot2D(decoder, data[2][idx, :], data[6][idx, :], data[3][idx, :], data[0][idx, :], samples = 10, num_steps = 999, consec = consec, order = order, axs = ax, ins =True, context_p = 50 )
+                infer_plot2D(decoder, data[2][idx, :], data[6][idx, :], data[3][idx, :], data[0][idx, :], samples = 10, num_steps = 999, consec = consec, order = order, axs = ax, ins =True, context_p = context * 2 )
             else:
                 infer_plot(decoder, em = data[2][idx, :].reshape(-1), x = data[1][idx, :].reshape(-1), y = data[-1][idx, :].reshape(-1), num_steps = 150, samples = 10, context_p = context, order = order, axs = ax, ins =True , consec = consec)
                 if (((i * 2 + j + 1) % 2) == 1):
