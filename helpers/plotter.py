@@ -511,7 +511,8 @@ def all_inference(consec = True):
             manager = tf.train.CheckpointManager(ckpt, folder, max_to_keep=3)
             ckpt.restore(manager.latest_checkpoint)
             if f.split('_')[-1] == '2D':
-                infer_plot2D(decoder, data[2][idx, :], data[6][idx, :], data[3][idx, :], data[0][idx, :], samples = 10, num_steps = 999, consec = consec, order = order, axs = ax, ins =True )
+                print('context: ', context)
+                infer_plot2D(decoder, data[2][idx, :], data[6][idx, :], data[3][idx, :], data[0][idx, :], samples = 10, num_steps = 999, consec = consec, order = order, axs = ax, ins =True, context_p = 50 )
             else:
                 infer_plot(decoder, em = data[2][idx, :].reshape(-1), x = data[1][idx, :].reshape(-1), y = data[-1][idx, :].reshape(-1), num_steps = 150, samples = 10, context_p = context, order = order, axs = ax, ins =True , consec = consec)
                 if (((i * 2 + j + 1) % 2) == 1):
