@@ -30,7 +30,7 @@ def r_squared(mse_model, y_true, batch_s=64):
 
 def r_sq_2d(y, pred_te, em_2, context_p):
     n = y.shape[0]
-    r_sq0 = [];
+    r_sq0 = []
     r_sq1 = []
     for row in range(n):
         idx0 = np.where(em_2[row, context_p:] == 0)
