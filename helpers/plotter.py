@@ -327,7 +327,6 @@ def concat_n_rearange(x, y, em, em_2, cond_arr, context_p, num_steps, series = 1
 
 
 def infer_plot2D(decoder, x, y, em, em_2, num_steps = 100, samples = 10, order = True, context_p = 50, mean = True, consec = False, axs = None, ins = False):
-
     if axs:
         pass
     else: 
@@ -354,7 +353,6 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps = 100, samples = 10, order =
     sorted_infer, x_infer, x_0, tar_0, x_1, tar_1, x_0_part, tar_0_part, em_infer, em2_infer, y_infer, yy_0 = concat_n_rearange(x.reshape(-1), y.reshape(-1), em.reshape(-1), em_2.reshape(-1), em_2.reshape(-1), context_p * 2, num_steps = num_steps)
     # if not num_steps:
     #     num_steps = 400 - y_infer.shape[1]
-    
     axs.scatter(x_0_part, tar_0_part, c = 'red')
     axs.plot(x_0, tar_0, c= 'lightcoral')
     axs.plot(x_1, tar_1, c = 'black')
@@ -362,9 +360,9 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps = 100, samples = 10, order =
         _, _, tar_inf = infer.inference(decoder, em_te = em_infer.reshape(1, -1), tar = y_infer , num_steps=num_steps, sample=True, d = True, em_te_2 = em2_infer.reshape(1, -1), series = 1)
         axs.plot(x_infer, tar_inf.numpy().reshape(-1)[sorted_infer], c='lightskyblue')
         mse_model = metrics.mse(yy_0.reshape(-1)[sorted_infer].reshape(1, -1), tar_inf.numpy().reshape(-1)[sorted_infer].reshape(1, -1))
-        n = num_steps
+        n = min(len(em_infer) - y_infer.shape[1], num_steps)
         y_mean = np.repeat(np.mean(yy_0.reshape(-1)[sorted_infer]), n).reshape(1, -1)
-        print('sample # {}, r squared: {}'.format(i, 1 - (mse_model / metrics.mse(yy_0.reshape(-1)[sorted_infer].reshape(1, -1), y_mean))))
+        print('sample # {}, r squared: {}'.format(i, 1 - (mse_model / metrics.mse(yy_0[-n:].reshape(1, -1), y_mean))))
     if mean:
         _, _, tar_inf = infer.inference(decoder, em_te = em_infer.reshape(1, -1), tar = y_infer, num_steps=num_steps, sample=False, d = True, em_te_2 = em2_infer.reshape(1, -1), series = 1)
         axs.plot(x_infer, tar_inf.numpy().reshape(-1)[sorted_infer], c='goldenrod')
