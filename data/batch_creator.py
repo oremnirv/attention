@@ -65,38 +65,3 @@ def fake_batch(pos, tar, batch_s=1):
     batch_tar_tr = np.tile(tar[batch_idx], 2).reshape(2, -1)
     batch_pos_tr = np.tile(pos[batch_idx], 2).reshape(2, -1)
     return batch_pos_tr, batch_tar_tr, batch_idx
-
-
-def create_batch_foxes(token_pos, time_pos, tar, batch_s=128):
-    """
-
-
-    """
-    shape = tar.shape[0]
-    batch_idx = np.random.choice(list(range(shape)), batch_s)
-    batch_tar_tr = tar[batch_idx, :]
-    batch_tok_pos_tr = token_pos[batch_idx, :]
-    batch_tim_pos_tr = time_pos[batch_idx, :]
-    return batch_tok_pos_tr, batch_tim_pos_tr, batch_tar_tr, batch_idx
-
-
-def create_batch_river(token_pos, time_pos1, time_pos2, x, att, tar, batch_s=128):
-    """
-    """
-    shape = tar.shape[0]
-    batch_idx = np.random.choice(list(range(shape)), batch_s)
-    batch_tar_tr = tar[batch_idx, :]
-    batch_tok_pos_tr = token_pos[batch_idx, :]
-    batch_tim_pos_tr = time_pos1[batch_idx, :]
-    batch_tim_pos_tr2 = time_pos2[batch_idx, :]
-    xx = x[batch_idx, :]
-    batch_pos_tr = np.zeros((batch_s, att.shape[1] - 1, tar.shape[1]))
-    for i in range(xx.shape[0]):
-        batch_pos_tr[i, :, :] = np.concatenate(((np.repeat(np.array(att.iloc[np.where
-                                                                             ([att['gauge_id'] == xx[i, 0]])[1][0],
-                                                                    1:]).reshape(1, -1), 25)).reshape(-1, 25),
-                                                (np.repeat(np.array(att.iloc[np.where
-                                                                             ([att['gauge_id'] == xx[i, -1]])[1][0],
-                                                                    1:]).reshape(1, -1), 25)).reshape(-1, 25)), axis=1)
-
-    return batch_tok_pos_tr, batch_tim_pos_tr, batch_tim_pos_tr2, batch_pos_tr, batch_tar_tr, batch_idx
