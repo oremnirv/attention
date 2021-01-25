@@ -358,7 +358,7 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps = 100, samples = 10, order =
     axs.scatter(x_0_part, tar_0_part, c = 'red')
     axs.plot(x_0, tar_0, c= 'lightcoral')
     axs.plot(x_1, tar_1, c = 'black')
-    for inf in range(samples): 
+    for i, inf in enumerate(range(samples)):
         _, _, tar_inf = infer.inference(decoder, em_te = em_infer.reshape(1, -1), tar = y_infer , num_steps=num_steps, sample=True, d = True, em_te_2 = em2_infer.reshape(1, -1), series = 1)
         axs.plot(x_infer, tar_inf.numpy().reshape(-1)[sorted_infer], c='lightskyblue')
         mse_model = metrics.mse(yy_0.reshape(-1)[sorted_infer].reshape(1, -1), tar_inf.numpy().reshape(-1)[sorted_infer].reshape(1, -1))
