@@ -124,25 +124,29 @@ def data_gen(num_obs, tr_percent=0.8, seq_len=200, extarpo=False, extarpo_num=19
     return x_tr, x_te, y_tr, y_te, df_tr, df_te, em_tr, em_te
 
 
-def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf', grid_d=[1, 15.1, 0.1], noise=False,
+def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf', grid_d=[[1, 15.1, 0.1], [30, 65.1, 0.1]], noise=False,
                ordered=False, inp_d=1):
     df = np.zeros((num_obs * 2, seq_len * 2))
     em = []
     em_idx = [np.zeros((num_obs, seq_len * 2)) for _ in range(inp_d + 1)]
+    print(len(em_idx))
     # em_idx = np.zeros((num_obs, seq_len * 2))
     # em_idx_2 = np.zeros((num_obs, seq_len * 2))
     rows = df.shape[0]
     tr_rows = int(tr_percent * rows)
     tr_rows = tr_rows if tr_rows % 2 == 0 else tr_rows + 1
-    grid = np.arange(*grid_d)
+    grid = [np.arange(*grid) for grid in grid_d]
 
     for i in range(0, num_obs * 2, 2):
         x = np.random.uniform(5, 15, size=(1, seq_len * 2))
         if ordered:
             x = np.sort(x)
 
-        idx = EmbderMap(inp_d, [grid])
+        idx = EmbderMap(len(grid_d), grid)
         idx.map_value_to_grid(x)
+        # if inp_d > 1:
+        #     z = np.random.uniform(30, 65, size=(1, seq_len * 2))
+        #     idx.map_value_to_grid(z)
 
         if kernel == 'rbf':
             k = RBF()
@@ -168,7 +172,7 @@ def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf',
         df[i, :x.shape[1]] = x
         df[i + 1, :x.shape[1]] = y.reshape(-1)
         for j in range(inp_d):
-            em_idx[i][int(i / 2), :] = idx.idxs[i]
+            em_idx[j][int(i / 2), :] = idx.idxs[j]
         em_idx[-1][int(i / 2), idd.reshape(-1)] = 1
 
     df_tr = df[:tr_rows, :]
@@ -219,10 +223,12 @@ def data_generator_river_flow(df, basins, seq_len, num_seq):
 
 
 def main():
-    a = EmbderMap(2, [np.arange(5, 15, 0.1), np.arange(70, 74, 0.05)])
-    a.map_value_to_grid(np.array([5, 7, 74, 77]).reshape(1, -1))
-    print(a.idxs[0])
-    print(a.idxs[1])
+    # a = EmbderMap(2, [np.arange(5, 15, 0.1), np.arange(70, 74, 0.05)])
+    # a.map_value_to_grid(np.array([5, 7]).reshape(1, -1))
+    # a.map_value_to_grid(np.array([74, 77]).reshape(1, -1))
+    # print(a.idxs[0])
+    # print(a.idxs[1])
+    data_gen2d(10)
 
 
 if __name__ == '__main__':
