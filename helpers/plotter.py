@@ -361,10 +361,10 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps = 100, samples = 10, order =
     for inf in range(samples): 
         _, _, tar_inf = infer.inference(decoder, em_te = em_infer.reshape(1, -1), tar = y_infer , num_steps=num_steps, sample=True, d = True, em_te_2 = em2_infer.reshape(1, -1), series = 1)
         axs.plot(x_infer, tar_inf.numpy().reshape(-1)[sorted_infer], c='lightskyblue')
-        mse_model = metrics.mse(yy_0[sorted_infer], tar_inf.numpy().reshape(-1)[sorted_infer])
+        mse_model = metrics.mse(yy_0.reshape(-1)[sorted_infer], tar_inf.numpy().reshape(-1)[sorted_infer])
         n = num_steps
-        y_mean = np.repeat(np.mean(yy_0[sorted_infer]), n).reshape(1, -1)
-        print('sample # {}, r squared: {}'.format(i, 1 - (mse_model / metrics.mse(y[sorted_infer], y_mean))))
+        y_mean = np.repeat(np.mean(yy_0.reshape(-1)[sorted_infer]), n).reshape(1, -1)
+        print('sample # {}, r squared: {}'.format(i, 1 - (mse_model / metrics.mse(yy_0.reshape(-1)[sorted_infer], y_mean))))
     if mean:
         _, _, tar_inf = infer.inference(decoder, em_te = em_infer.reshape(1, -1), tar = y_infer, num_steps=num_steps, sample=False, d = True, em_te_2 = em2_infer.reshape(1, -1), series = 1)
         axs.plot(x_infer, tar_inf.numpy().reshape(-1)[sorted_infer], c='goldenrod')
