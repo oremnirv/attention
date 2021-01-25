@@ -6,7 +6,6 @@ from sklearn.gaussian_process import GaussianProcessRegressor
 import numpy as np
 from data import gp_priors
 from data import gp_kernels
-import pandas as pd
 
 
 class EmbderMap:
@@ -46,7 +45,8 @@ class EmbderMap:
         return self.idxs.append(np.array(idx))
 
 
-def data_generator_for_gp_mimick_gpt(num_obs, tr_percent=0.8, seq_len=200, extarpo=False, extarpo_num=19, ordered=False,
+def data_generator_for_gp_mimick_gpt(num_obs, tr_percent=0.8, seq_len=200, extarpo=False, extarpo_num=19, p_order=0.5,
+                                     ordered=False,
                                      kernel='rbf', noise=False, diff_x=False,
                                      grid_d=None):
     """
@@ -70,7 +70,6 @@ def data_generator_for_gp_mimick_gpt(num_obs, tr_percent=0.8, seq_len=200, extar
     df = np.zeros((num_obs * 2, seq_len))
     em_indices = np.zeros((num_obs, seq_len))
     rows = df.shape[0]
-    df.shape[1]
     tr_rows = int(tr_percent * rows)
     tr_rows = tr_rows if tr_rows % 2 == 0 else tr_rows + 1
     grid = np.arange(*grid_d)
@@ -80,25 +79,23 @@ def data_generator_for_gp_mimick_gpt(num_obs, tr_percent=0.8, seq_len=200, extar
                 1, seq_len - extarpo_num)), np.random.uniform(15.1, 20, size=(1, extarpo_num))), axis=1)
         elif diff_x:
             x = np.random.uniform(5, 15, size=(1, seq_len))
-
         else:
             x = np.random.permutation(np.linspace(5, 15, seq_len))
-
-            # embedding for recurring specific values of x
-            # idx = np.where((x)[:, None] == np.sort(x)[None, :])[1]
             x = x.reshape(1, -1)
 
         idx = EmbderMap(1, [grid])
         idx.map_value_to_grid(x)
 
-        if ordered & (np.random.binomial(1, 0.5) == 0):
+        if (p_order > 0) & (np.random.binomial(1, p_order) == 0):
             x = np.sort(x)
+            ordered = False
 
+        if ordered:
+            x = np.sort(x)
         if kernel == 'rbf':
             k = gp_kernels.rbf_kernel(x.reshape(-1, 1))
             f_prior = gp_priors.generate_priors(k, seq_len, 1)
         elif kernel == 'periodic':
-            # print(x.reshape(-1, 1).shape)
             k = 1.0 * ExpSineSquared(length_scale=1.0,
                                      periodicity=3.0, length_scale_bounds=(0.1, 10.0))
             gp = GaussianProcessRegressor(kernel=k)
@@ -107,24 +104,17 @@ def data_generator_for_gp_mimick_gpt(num_obs, tr_percent=0.8, seq_len=200, extar
         if noise:
             k = WhiteKernel(.05)
             gp = GaussianProcessRegressor(kernel=k)
-            # print('before: ', (f_prior.shape))
             f_prior = f_prior + gp.sample_y(x, seq_len)
-            # print('after: ', gp.sample_y(x, seq_len).shape)
         else:
             pass
-
         df[i, :x.shape[1]] = x
         df[i + 1, :x.shape[1]] = f_prior
         em_indices[int(i / 2), :] = idx.idxs[0]
-
-    # print(((tr_rows) / 2))
-    # print(int((tr_rows) / 2))
 
     df_tr = df[:tr_rows, :]
     df_te = df[tr_rows:, :]
     em_tr = em_indices[:int(tr_rows / 2), :]
     em_te = em_indices[int(tr_rows / 2):, :]
-
     # get all even rows
     pad_pos_tr = df_tr[::2, :]
     pad_pos_te = df_te[::2, :]
@@ -146,19 +136,16 @@ def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf',
 
     for i in range(0, num_obs * 2, 2):
         x = np.random.uniform(5, 15, size=(1, seq_len * 2))
-
         idx = EmbderMap(1, [grid])
         idx.map_value_to_grid(x)
 
         if kernel == 'rbf':
             k = RBF()
             gp = GaussianProcessRegressor(kernel=k)
-
             if bias == 'const':
                 e = np.random.permutation(np.tile(np.random.normal(0, 2, 2), seq_len)).reshape(-1, 1)
                 idd = (e == np.unique(e)[0])
                 y = gp.sample_y(x.reshape(-1, 1)) + e
-
             elif bias == 'rbf':
                 e = np.random.choice([0, 1], seq_len * 2)
                 idd = (e == np.unique(e)[0])
@@ -166,7 +153,6 @@ def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf',
                 gp1 = GaussianProcessRegressor(kernel=k1)
                 y = gp.sample_y(x.reshape(-1, 1)).reshape(-1) + gp1.sample_y(x.reshape(-1, 1)).reshape(-1) * e.reshape(
                     -1)
-
             else:
                 pass
         if noise:
@@ -185,7 +171,6 @@ def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf',
     em_te = em_indices[int(tr_rows / 2):, :]
     em_tr_2 = em_indices_2[:int(tr_rows / 2), :]
     em_te_2 = em_indices_2[int(tr_rows / 2):, :]
-
     # get all even rows
     pad_pos_tr = df_tr[::2, :]
     pad_pos_te = df_te[::2, :]
