@@ -308,6 +308,8 @@ def concat_n_rearange(x, y, em, em_2, cond_arr, context_p, num_steps, series = 1
     x_0_part = x_pre[cond[2]]
     xx_0 = np.concatenate((x_pre, x_post[cond[1]]))
     xx_0 = np.concatenate((xx_0, x_post[cond[3]]))
+    yy_0 = np.concatenate((y_pre, y_post[cond[1]]))
+    yy_0 = np.concatenate((yy_0, y_post[cond[3]]))
     xx_0 = xx_0[ :maxi]
     
     sorted_x_1 = np.argsort(x_1)
@@ -320,7 +322,7 @@ def concat_n_rearange(x, y, em, em_2, cond_arr, context_p, num_steps, series = 1
     # sort 1's and 0's according to sorted x's
     sorted_em = em2_infer.reshape(-1)[sorted_xx_0.reshape(-1)]
 
-    return sorted_xx_0[np.where(sorted_em == 0)], xx_0[sorted_xx_0[np.where(sorted_em == 0)]], x_0[sorted_x_0.reshape(-1)], tar_0[0][sorted_x_0.reshape(-1)], x_1[sorted_x_1.reshape(-1)], tar_1[0][sorted_x_1.reshape(-1)], x_0_part[sorted_x_0_p.reshape(-1)], tar_0_par[sorted_x_0_p.reshape(-1)], em_infer, em2_infer, y_infer
+    return sorted_xx_0[np.where(sorted_em == 0)], xx_0[sorted_xx_0[np.where(sorted_em == 0)]], x_0[sorted_x_0.reshape(-1)], tar_0[0][sorted_x_0.reshape(-1)], x_1[sorted_x_1.reshape(-1)], tar_1[0][sorted_x_1.reshape(-1)], x_0_part[sorted_x_0_p.reshape(-1)], tar_0_par[sorted_x_0_p.reshape(-1)], em_infer, em2_infer, y_infer, yy_0
 
 
 
@@ -349,7 +351,7 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps = 100, samples = 10, order =
             num_steps = min(len(non_cosec_idx) - context_p, num_steps)
 
 
-    sorted_infer, x_infer, x_0, tar_0, x_1, tar_1, x_0_part, tar_0_part, em_infer, em2_infer, y_infer = concat_n_rearange(x.reshape(-1), y.reshape(-1), em.reshape(-1), em_2.reshape(-1), em_2.reshape(-1), context_p * 2, num_steps = num_steps)
+    sorted_infer, x_infer, x_0, tar_0, x_1, tar_1, x_0_part, tar_0_part, em_infer, em2_infer, y_infer, yy_0 = concat_n_rearange(x.reshape(-1), y.reshape(-1), em.reshape(-1), em_2.reshape(-1), em_2.reshape(-1), context_p * 2, num_steps = num_steps)
     # if not num_steps:
     #     num_steps = 400 - y_infer.shape[1]
     
@@ -359,6 +361,10 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps = 100, samples = 10, order =
     for inf in range(samples): 
         _, _, tar_inf = infer.inference(decoder, em_te = em_infer.reshape(1, -1), tar = y_infer , num_steps=num_steps, sample=True, d = True, em_te_2 = em2_infer.reshape(1, -1), series = 1)
         axs.plot(x_infer, tar_inf.numpy().reshape(-1)[sorted_infer], c='lightskyblue')
+        mse_model = metrics.mse(yy_0[sorted_infer], tar_inf.numpy().reshape(-1)[sorted_infer])
+        n = num_steps
+        y_mean = np.repeat(np.mean(yy_0[sorted_infer]), n).reshape(1, -1)
+        print('sample # {}, r squared: {}'.format(i, 1 - (mse_model / metrics.mse(y[sorted_infer], y_mean))))
     if mean:
         _, _, tar_inf = infer.inference(decoder, em_te = em_infer.reshape(1, -1), tar = y_infer, num_steps=num_steps, sample=False, d = True, em_te_2 = em2_infer.reshape(1, -1), series = 1)
         axs.plot(x_infer, tar_inf.numpy().reshape(-1)[sorted_infer], c='goldenrod')
@@ -489,7 +495,6 @@ def all_inference(consec = True):
     for i, f in enumerate(GPT_files):
         d = False
         kernel = f.split('GPT_')[-1]
-        print(kernel)
         idx  = np.random.choice(range(30000), 1)
         data = loader.load_data(kernel, size = 1, rewrite = 'False')
         for j, order in enumerate([True, False]):
