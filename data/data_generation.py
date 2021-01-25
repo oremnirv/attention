@@ -89,7 +89,6 @@ def data_gen(num_obs, tr_percent=0.8, seq_len=200, extarpo=False, extarpo_num=19
         if (p_order > 0) & (np.random.binomial(1, p_order) == 0):
             x = np.sort(x)
             ordered = False
-
         if ordered:
             x = np.sort(x)
         if kernel == 'rbf':
@@ -125,10 +124,13 @@ def data_gen(num_obs, tr_percent=0.8, seq_len=200, extarpo=False, extarpo_num=19
     return x_tr, x_te, y_tr, y_te, df_tr, df_te, em_tr, em_te
 
 
-def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf', grid_d=[1, 15.1, 0.1], noise=False):
+def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf', grid_d=[1, 15.1, 0.1], noise=False,
+               ordered=False, inp_d=1):
     df = np.zeros((num_obs * 2, seq_len * 2))
-    em_idx = np.zeros((num_obs, seq_len * 2))
-    em_idx_2 = np.zeros((num_obs, seq_len * 2))
+    em = []
+    em_idx = [np.zeros((num_obs, seq_len * 2)) for _ in range(inp_d + 1)]
+    # em_idx = np.zeros((num_obs, seq_len * 2))
+    # em_idx_2 = np.zeros((num_obs, seq_len * 2))
     rows = df.shape[0]
     tr_rows = int(tr_percent * rows)
     tr_rows = tr_rows if tr_rows % 2 == 0 else tr_rows + 1
@@ -136,7 +138,10 @@ def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf',
 
     for i in range(0, num_obs * 2, 2):
         x = np.random.uniform(5, 15, size=(1, seq_len * 2))
-        idx = EmbderMap(1, [grid])
+        if ordered:
+            x = np.sort(x)
+
+        idx = EmbderMap(inp_d, [grid])
         idx.map_value_to_grid(x)
 
         if kernel == 'rbf':
@@ -162,15 +167,17 @@ def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf',
 
         df[i, :x.shape[1]] = x
         df[i + 1, :x.shape[1]] = y.reshape(-1)
-        em_idx[int(i / 2), :] = idx.idxs[0]
-        em_idx_2[int(i / 2), idd.reshape(-1)] = 1
+        for j in range(inp_d):
+            em_idx[i][int(i / 2), :] = idx.idxs[i]
+        em_idx[-1][int(i / 2), idd.reshape(-1)] = 1
 
     df_tr = df[:tr_rows, :]
     df_te = df[tr_rows:, :]
-    em_tr = em_idx[:int(tr_rows / 2), :]
-    em_te = em_idx[int(tr_rows / 2):, :]
-    em_tr_2 = em_idx_2[:int(tr_rows / 2), :]
-    em_te_2 = em_idx_2[int(tr_rows / 2):, :]
+
+    for i in range(inp_d + 1):
+        em.append(em_idx[i][:int(tr_rows / 2), :])
+        em.append(em_idx[i][int(tr_rows / 2):, :])
+
     # get all even rows
     x_tr = df_tr[::2, :]
     x_te = df_te[::2, :]
@@ -178,7 +185,7 @@ def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf',
     y_tr = df_tr[1::2, :]
     y_te = df_te[1::2, :]
 
-    return x_tr, x_te, y_tr, y_te, df_tr, df_te, em_tr, em_te, em_tr_2, em_te_2
+    return x_tr, x_te, y_tr, y_te, df_tr, df_te, em
 
 
 def data_generator_river_flow(df, basins, seq_len, num_seq):
@@ -196,10 +203,8 @@ def data_generator_river_flow(df, basins, seq_len, num_seq):
             basin = np.random.choice(basins, 2)
             df_temp = (df[df['basin'] == basin[0]]).reset_index()
             df_riv = (df[df['basin'] == basin[1]]).reset_index()
-
             idx_i = np.random.choice(np.arange(0, df_temp.shape[0], 1), m)
             idx_riv = np.random.choice(np.arange(0, df_riv.shape[0], 1), m)
-
             arr_pp[row, :] = np.concatenate((df_temp.loc[idx_i, [
                 context_channels2[i]]], df_riv.loc[idx_riv, ['OBS_RUN']]), axis=0).reshape(-1)
             arr_pp[row + 1, :] = np.concatenate(
@@ -214,7 +219,10 @@ def data_generator_river_flow(df, basins, seq_len, num_seq):
 
 
 def main():
-    EmbderMap(2, [np.arange(5, 15, 0.1), np.arange(70, 74, 0.05)])
+    a = EmbderMap(2, [np.arange(5, 15, 0.1), np.arange(70, 74, 0.05)])
+    a.map_value_to_grid(np.array([5, 7, 74, 77]).reshape(1, -1))
+    print(a.idxs[0])
+    print(a.idxs[1])
 
 
 if __name__ == '__main__':
