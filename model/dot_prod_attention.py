@@ -53,12 +53,18 @@ def dot_product_attention(q, k, v, mask):
 
 
 class MultiHeadAttention(tf.keras.layers.Layer):
-  def __init__(self, d_model, num_heads):
+  def __init__(self, d_model, num_heads, num_inp = 1):
     super(MultiHeadAttention, self).__init__()
     self.num_heads = num_heads
     self.d_model = d_model
     assert d_model % self.num_heads == 0
     self.depth = d_model // self.num_heads
+
+    self.q_layers = [tf.keras.layers.Dense(d_model, name='q' + str(z))
+                       for z in range(num_inp)]
+    self.k_layers = [tf.keras.layers.Dense(d_model, name='k' + str(z))
+                       for z in range(num_inp)]
+
     self.wq = tf.keras.layers.Dense(d_model, name = 'wq')
     self.wk = tf.keras.layers.Dense(d_model, name = 'wk')
     self.wv = tf.keras.layers.Dense(d_model, name = 'wv')
@@ -74,16 +80,18 @@ class MultiHeadAttention(tf.keras.layers.Layer):
   def call(self, v, k, q, mask):
     batch_size = tf.shape(q)[0]
     if len(q.shape) > 3:
-        print('hi q')
-        for d in range(q.shape[-1]):
-            q += tf.keras.layers.Dense(d_model, name = 'q_' + str(d))(q[:, :, :, d])
-            k += tf.keras.layers.Dense(d_model, name = 'k_' + str(d))(k[:, :, :, d])
-    # q = self.wq(q)   # (batch_size, seq_len, d_model)
-    # k = self.wk(k)
+        for d in range(q.shape[2]):
+            if d ==0:
+                qq = self.q_layers[0](q[:, :, d, :])
+                kk = self.k_layers[0](k[:, :, d, :])
+
+            else:
+                qq += self.q_layers[d](q[:, :, d, :])
+                kk += self.k_layers[d](k[:, :, d, :])
     v = self.wv(v)
 
-    q = self.split_heads(q, batch_size)  # (batch_size, num_heads, seq_len_q, depth)
-    k = self.split_heads(k, batch_size)
+    q = self.split_heads(qq, batch_size)  # (batch_size, num_heads, seq_len_q, depth)
+    k = self.split_heads(kk, batch_size)
     v = self.split_heads(v, batch_size)
     scaled_att, att_weights, _ = dot_product_attention(
         q, k, v, mask)

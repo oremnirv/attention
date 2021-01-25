@@ -26,7 +26,10 @@ def build_graph():
         """
         y_inp = y[:, :-1]
         y_real = y[:, 1:]
-        combined_mask_x = masks.create_masks(x)
+        xx = x
+        if len(x.shape) > 2:
+            xx = x[:, 0, :]
+        combined_mask_x = masks.create_masks(xx)
         with tf.GradientTape(persistent=True) as tape:
             if d:
                 pred = decoder(x, x2, y_inp, True, combined_mask_x[:, 1:, :-1])
