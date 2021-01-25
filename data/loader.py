@@ -1,10 +1,8 @@
-
 import sys
 sys.path.append("..")
 import os
 import numpy as np
 from data import data_generation
-
 
 
 def load_data(kernel='rbf', size=150000, rewrite = 'False', diff_x = False, noise = False, d = False, ordered = False):
@@ -17,18 +15,18 @@ def load_data(kernel='rbf', size=150000, rewrite = 'False', diff_x = False, nois
         if d:
             bias = kernel.split('_')[1]
             print(bias)
-            pad_pos_tr, pad_pos_te, pad_y_fren_tr, pad_y_fren_te, df_tr, df_te, em_tr, em_te, em_tr_2, em_te_2 = data_generation.data_gen2d(int(size), bias = bias, kernel = kernel1, noise = noise)
+            x_tr, x_te, y_tr, y_te, df_tr, df_te, em_tr, em_te, em_tr_2, em_te_2 = data_generation.data_gen2d(int(size), bias = bias, kernel = kernel1, noise = noise)
             np.save(folder + 'em_tr_2.npy', em_tr_2)
             np.save(folder + 'em_te_2.npy', em_te_2)
         else:
-            pad_pos_tr, pad_pos_te, pad_y_fren_tr, pad_y_fren_te, _, df_te, em_tr, em_te = data_generation.data_generator_for_gp_mimick_gpt(
+            x_tr, x_te, y_tr, y_te, _, df_te, em_tr, em_te = data_generation.data_gen(
             int(size), ordered=ordered, diff_x=diff_x, kernel=kernel1, noise = noise)
         
 
-        np.save(folder + 'pad_pos_tr.npy', pad_pos_tr)
-        np.save(folder + 'pad_pos_te.npy', pad_pos_te)
-        np.save(folder + 'pad_y_fren_tr.npy', pad_y_fren_tr)
-        np.save(folder + 'pad_y_fren_te.npy', pad_y_fren_te)
+        np.save(folder + 'x_tr.npy', x_tr)
+        np.save(folder + 'x_te.npy', x_te)
+        np.save(folder + 'y_tr.npy', y_tr)
+        np.save(folder + 'y_te.npy', y_te)
         np.save(folder + 'em_tr.npy', em_tr)
         np.save(folder + 'em_te.npy', em_te)
 

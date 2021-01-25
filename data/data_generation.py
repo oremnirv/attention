@@ -45,10 +45,10 @@ class EmbderMap:
         return self.idxs.append(np.array(idx))
 
 
-def data_generator_for_gp_mimick_gpt(num_obs, tr_percent=0.8, seq_len=200, extarpo=False, extarpo_num=19, p_order=0.5,
-                                     ordered=False,
-                                     kernel='rbf', noise=False, diff_x=False,
-                                     grid_d=None):
+def data_gen(num_obs, tr_percent=0.8, seq_len=200, extarpo=False, extarpo_num=19, p_order=0.5,
+             ordered=False,
+             kernel='rbf', noise=False, diff_x=False,
+             grid_d=None):
     """
     Generator for training a GPT inspired netowrk.
     -----------------------
@@ -60,15 +60,15 @@ def data_generator_for_gp_mimick_gpt(num_obs, tr_percent=0.8, seq_len=200, extar
     Returns:
     pad_pos_tr (np array): the first rows * tr_percent from the x generated values 
     pad_pos_te (np array): all rows of x not chosen for training 
-    pad_y_fren_tr (np array): the first rows * tr_percent from the f_prior generated values 
-    pad_y_fren_te (np array): all rows of f_prior not chosen for training
+    y_tr (np array): the first rows * tr_percent from the f_prior generated values
+    y_te (np array): all rows of f_prior not chosen for training
     df_tr (np array): positions and targets combined (training) 
     df_te (np array): positions and targets combined (testing) 
     """
     if grid_d is None:
         grid_d = [1, 15.1, 0.1]
     df = np.zeros((num_obs * 2, seq_len))
-    em_indices = np.zeros((num_obs, seq_len))
+    em_idx = np.zeros((num_obs, seq_len))
     rows = df.shape[0]
     tr_rows = int(tr_percent * rows)
     tr_rows = tr_rows if tr_rows % 2 == 0 else tr_rows + 1
@@ -109,26 +109,26 @@ def data_generator_for_gp_mimick_gpt(num_obs, tr_percent=0.8, seq_len=200, extar
             pass
         df[i, :x.shape[1]] = x
         df[i + 1, :x.shape[1]] = f_prior
-        em_indices[int(i / 2), :] = idx.idxs[0]
+        em_idx[int(i / 2), :] = idx.idxs[0]
 
     df_tr = df[:tr_rows, :]
     df_te = df[tr_rows:, :]
-    em_tr = em_indices[:int(tr_rows / 2), :]
-    em_te = em_indices[int(tr_rows / 2):, :]
+    em_tr = em_idx[:int(tr_rows / 2), :]
+    em_te = em_idx[int(tr_rows / 2):, :]
     # get all even rows
-    pad_pos_tr = df_tr[::2, :]
-    pad_pos_te = df_te[::2, :]
+    x_tr = df_tr[::2, :]
+    x_te = df_te[::2, :]
     # get all odd rows
-    pad_y_fren_tr = df_tr[1::2, :]
-    pad_y_fren_te = df_te[1::2, :]
+    y_tr = df_tr[1::2, :]
+    y_te = df_te[1::2, :]
 
-    return pad_pos_tr, pad_pos_te, pad_y_fren_tr, pad_y_fren_te, df_tr, df_te, em_tr, em_te
+    return x_tr, x_te, y_tr, y_te, df_tr, df_te, em_tr, em_te
 
 
 def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf', grid_d=[1, 15.1, 0.1], noise=False):
     df = np.zeros((num_obs * 2, seq_len * 2))
-    em_indices = np.zeros((num_obs, seq_len * 2))
-    em_indices_2 = np.zeros((num_obs, seq_len * 2))
+    em_idx = np.zeros((num_obs, seq_len * 2))
+    em_idx_2 = np.zeros((num_obs, seq_len * 2))
     rows = df.shape[0]
     tr_rows = int(tr_percent * rows)
     tr_rows = tr_rows if tr_rows % 2 == 0 else tr_rows + 1
@@ -162,23 +162,23 @@ def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf',
 
         df[i, :x.shape[1]] = x
         df[i + 1, :x.shape[1]] = y.reshape(-1)
-        em_indices[int(i / 2), :] = idx.idxs[0]
-        em_indices_2[int(i / 2), idd.reshape(-1)] = 1
+        em_idx[int(i / 2), :] = idx.idxs[0]
+        em_idx_2[int(i / 2), idd.reshape(-1)] = 1
 
     df_tr = df[:tr_rows, :]
     df_te = df[tr_rows:, :]
-    em_tr = em_indices[:int(tr_rows / 2), :]
-    em_te = em_indices[int(tr_rows / 2):, :]
-    em_tr_2 = em_indices_2[:int(tr_rows / 2), :]
-    em_te_2 = em_indices_2[int(tr_rows / 2):, :]
+    em_tr = em_idx[:int(tr_rows / 2), :]
+    em_te = em_idx[int(tr_rows / 2):, :]
+    em_tr_2 = em_idx_2[:int(tr_rows / 2), :]
+    em_te_2 = em_idx_2[int(tr_rows / 2):, :]
     # get all even rows
-    pad_pos_tr = df_tr[::2, :]
-    pad_pos_te = df_te[::2, :]
+    x_tr = df_tr[::2, :]
+    x_te = df_te[::2, :]
     # get all odd rows
-    pad_y_fren_tr = df_tr[1::2, :]
-    pad_y_fren_te = df_te[1::2, :]
+    y_tr = df_tr[1::2, :]
+    y_te = df_te[1::2, :]
 
-    return pad_pos_tr, pad_pos_te, pad_y_fren_tr, pad_y_fren_te, df_tr, df_te, em_tr, em_te, em_tr_2, em_te_2
+    return x_tr, x_te, y_tr, y_te, df_tr, df_te, em_tr, em_te, em_tr_2, em_te_2
 
 
 def data_generator_river_flow(df, basins, seq_len, num_seq):
