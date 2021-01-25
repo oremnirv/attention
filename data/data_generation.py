@@ -129,19 +129,14 @@ def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf',
     df = np.zeros((num_obs * 2, seq_len * 2))
     em = []
     em_idx = [np.zeros((num_obs, seq_len * 2)) for _ in range(inp_d + 1)]
-    print(len(em_idx))
-    # em_idx = np.zeros((num_obs, seq_len * 2))
-    # em_idx_2 = np.zeros((num_obs, seq_len * 2))
     rows = df.shape[0]
     tr_rows = int(tr_percent * rows)
     tr_rows = tr_rows if tr_rows % 2 == 0 else tr_rows + 1
     grid = [np.arange(*grid) for grid in grid_d]
-
     for i in range(0, num_obs * 2, 2):
         x = np.random.uniform(5, 15, size=(1, seq_len * 2))
         if ordered:
             x = np.sort(x)
-
         idx = EmbderMap(len(grid_d), grid)
         idx.map_value_to_grid(x)
         # if inp_d > 1:
@@ -177,7 +172,6 @@ def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf',
 
     df_tr = df[:tr_rows, :]
     df_te = df[tr_rows:, :]
-
     for i in range(inp_d + 1):
         em.append(em_idx[i][:int(tr_rows / 2), :])
         em.append(em_idx[i][int(tr_rows / 2):, :])

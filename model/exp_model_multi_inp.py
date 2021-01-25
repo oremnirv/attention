@@ -4,6 +4,7 @@
 import tensorflow as tf
 from model import dot_prod_attention
 
+
 class Decoder(tf.keras.Model):
     def __init__(self, e, l1=512, l2=256, l3=32, rate=0, num_heads=1, input_vocab_size=400):
         super(Decoder, self).__init__()
@@ -19,10 +20,16 @@ class Decoder(tf.keras.Model):
 
     # a call method, the layer's forward pass
     def call(self, x, y, training, x_mask):
-        # Adding extra dimension to allow multiplication of 
+        # x is [batch_s, dim, seq_len]
+        # Adding extra dimension to allow multiplication of
         # a sequnce with itself.
         y = y[:, :, tf.newaxis]
-        x = self.embedding(x)
+        if len(x.shape) > 2:
+            print('hi x')
+            x = tf.stack([self.embedding(x[:, i, :] for i in range(x.shape[1]))])
+        else:
+            x = self.embedding(x)
+        print(x.shape)
         attn, _ = self.mha(y, x, x, x_mask)
         attn = (tf.nn.leaky_relu(attn))
         curr_x = x[:, 1:, :]
