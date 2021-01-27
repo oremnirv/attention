@@ -83,6 +83,9 @@ class MultiHeadAttention(tf.keras.layers.Layer):
                 else:
                     qq += self.q_layers[d](q[:, :, d, :])
                     kk += self.k_layers[d](k[:, :, d, :])
+        else:
+            qq = q
+            kk = k        	
         v = self.wv(v)
 
         q = self.split_heads(qq, batch_size)  # (batch_size, num_heads, seq_len_q, depth)
