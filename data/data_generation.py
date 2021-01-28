@@ -1,11 +1,12 @@
 ###########################
 # Author: Omer Nivron
 ###########################
-from sklearn.gaussian_process.kernels import ExpSineSquared, WhiteKernel, RBF
-from sklearn.gaussian_process import GaussianProcessRegressor
 import numpy as np
-from data import gp_priors
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process.kernels import ExpSineSquared, WhiteKernel, RBF
+
 from data import gp_kernels
+from data import gp_priors
 
 
 class EmbderMap:
@@ -124,7 +125,8 @@ def data_gen(num_obs, tr_percent=0.8, seq_len=200, extarpo=False, extarpo_num=19
     return x_tr, x_te, y_tr, y_te, df_tr, df_te, em_tr, em_te
 
 
-def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf', grid_d=[[1, 15.1, 0.05], [30, 65.1, 0.05]], noise=False,
+def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf',
+               grid_d=[[1, 15.1, 0.05], [30, 65.1, 0.05]], noise=False,
                ordered=False, inp_d=1, p_order=0.5):
     df = np.zeros((num_obs * 2, seq_len * 2))
     em = []

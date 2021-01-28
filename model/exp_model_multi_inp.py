@@ -2,11 +2,12 @@
 # Author: Omer Nivron
 ###########################
 import tensorflow as tf
+
 from model import dot_prod_attention
 
 
 class Decoder(tf.keras.Model):
-    def __init__(self, e, l1=512, l2=256, l3=32, rate=0, num_heads=1, input_vocab_size=800, num_inp = 2):
+    def __init__(self, e, l1=512, l2=256, l3=32, rate=0, num_heads=1, input_vocab_size=800, num_inp=2):
         super(Decoder, self).__init__()
         self.rate = rate
         self.e = e
@@ -28,9 +29,9 @@ class Decoder(tf.keras.Model):
         if len(x.shape) > 2:
             for i in range(x.shape[1]):
                 if (i > 0):
-                    xx = tf.concat((xx, self.embedding(x[:, i, :, tf.newaxis] )), axis=-2)
+                    xx = tf.concat((xx, self.embedding(x[:, i, :, tf.newaxis])), axis=-2)
                 else:
-                    xx = self.embedding(x[:, i, :, tf.newaxis] )
+                    xx = self.embedding(x[:, i, :, tf.newaxis])
         else:
             xx = self.embedding(x)
         attn, _ = self.mha(y, xx, xx, x_mask)

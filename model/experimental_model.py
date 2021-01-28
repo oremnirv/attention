@@ -2,7 +2,9 @@
 # Author: Omer Nivron
 ###########################
 import tensorflow as tf
+
 from model import dot_prod_attention
+
 
 class Decoder(tf.keras.Model):
     def __init__(self, e, l1=512, l2=256, l3=32, rate=0, num_heads=1, input_vocab_size=400):
