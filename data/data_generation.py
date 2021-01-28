@@ -125,7 +125,7 @@ def data_gen(num_obs, tr_percent=0.8, seq_len=200, extarpo=False, extarpo_num=19
 
 
 def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf', grid_d=[[1, 15.1, 0.05], [30, 65.1, 0.05]], noise=False,
-               ordered=False, inp_d=1):
+               ordered=False, inp_d=1, p_order=0.5):
     df = np.zeros((num_obs * 2, seq_len * 2))
     em = []
     em_idx = [np.zeros((num_obs, seq_len * 2)) for _ in range(inp_d + 1)]
@@ -135,6 +135,9 @@ def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf',
     grid = [np.arange(*grid) for grid in grid_d]
     for i in range(0, num_obs * 2, 2):
         x = np.random.uniform(5, 15, size=(1, seq_len * 2))
+        if (p_order > 0) & (np.random.binomial(1, p_order) == 0):
+            x = np.sort(x)
+            ordered = False
         if ordered:
             x = np.sort(x)
         idx = EmbderMap(len(grid_d), grid)

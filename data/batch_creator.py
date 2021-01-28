@@ -22,6 +22,33 @@ def create_batch(em_x, x, y, batch_s=128, chnge_context=True, d=False, em_2=None
     cols = y.shape[1]
     batch_idx = np.random.choice(list(range(shape)), batch_s)
 
+    p = np.random.random()
+    if p <= 0.25:
+        em_2_pre = em_2[:context_p]
+        em_2_pos = em_2[context_p:]
+        cond = []
+        cond.append(np.where([em_2_pre == 1])[1])
+        cond.append(np.where([em_2_pos == 1])[1])
+        cond.append(np.where(~(em_2_pre == 1)))
+        cond.append(np.where(~(em_2_pos == 1)))
+        y_pre = y[batch_idx, :context_p]; y_post = y[batch_idx, context_p:]
+        y_infer = np.concatenate((y_pre, y_post[cond[1]])).reshape(1, -1)
+        y_infer = np.concatenate((y_infer, y_post[cond[3]]))
+
+
+        em_pre = em[batch_idx, :context_p]; em_post = em[batch_idx, context_p:]
+        em2_pre = em_2[batch_idx, :context_p]; em2_post = em_2[batch_idx, context_p:]
+        em_infer = np.concatenate((em_pre, em_post[cond[1]]))
+        em_infer = np.concatenate((em_infer, em_post[cond[3]]))
+
+        em2_infer = np.concatenate((em2_pre, em2_post[cond[1]]))
+        em2_infer = np.concatenate((em2_infer, em2_post[cond[3]]))
+
+        x_pre = x[:context_p]; x_post = x[context_p:]
+        xx_0 = np.concatenate((x_pre, x_post[cond[1]]))
+        xx_0 = np.concatenate((xx_0, x_post[cond[3]]))
+        y[batch_idx]
+
     if not chnge_context:
         b_data.append(y[batch_idx])
         b_data.append(x[batch_idx])
