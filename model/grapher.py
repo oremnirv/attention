@@ -1,5 +1,4 @@
 import sys
-
 sys.path.append("..")
 import tensorflow as tf
 from helpers import masks

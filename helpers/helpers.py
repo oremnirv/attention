@@ -39,7 +39,8 @@ def print_progress(epoch, batch_n, train_loss_r, test_loss_r, tr_metric, te_metr
 
     """
     print(
-        'Epoch {} batch {} train Loss {:.4f} test Loss {:.4f} with training MSE metric {:.4f} and testing MSE metric {:.4f}'.format(
+        'Epoch {} batch {} train Loss {:.4f} test Loss {:.4f} with training MSE metric {:.4f} and testing MSE metric '
+        '{:.4f}'.format(
             epoch, batch_n,
             train_loss_r, test_loss_r, tr_metric, te_metric))
 

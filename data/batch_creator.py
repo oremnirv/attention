@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def create_batch(em_x, x, y, batch_s=128, chnge_context=True, d=False, em_2=None, time = False, context_p = 50):
+def create_batch(em_x, x, y, batch_s=128, chnge_context=True, d=False, em_2=None, time=False, context_p=50):
     """
     Get a batch of xitions, ygets and xition mask from data generated
     by data_generator_for_gp_mimick_gpt function and from xition_mask function
@@ -31,7 +31,7 @@ def create_batch(em_x, x, y, batch_s=128, chnge_context=True, d=False, em_2=None
     else:
 
         if time:
-                permute_idx = np.concatenate(
+            permute_idx = np.concatenate(
                 (np.sort(np.random.choice(range(120), context_p, replace=False)), range(120, cols, 1)))
 
         else:
