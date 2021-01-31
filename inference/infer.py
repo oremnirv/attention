@@ -59,54 +59,13 @@ def inference(model, em_te, y, num_steps=1, sample=True, d=False, em_te_2=None, 
     y = tf.concat((y, tf.reshape(sample_y, [1, 1])), axis=1)
     if num_steps > 1:
         model, em_te, y = inference(model, em_te, y, num_steps - 1, d=d, em_te_2=em_te_2, series=series,
-                                      sample=sample)
+                                    sample=sample)
 
     return model, em_te, y
 
 
 def main():
-    samples = np.zeros((50, 600))
-    for sample in range(50):
-        _, _, samples[sample, :] = infer.inference(decoder, x=batch_x_tr[1, :600].reshape(
-            1, -1), y=batch_y_tr[1, :50].reshape(1, -1), num_steps=550)
-
-    samples[:, :50] = batch_y_tr[1, :50]
-    plt.style.use('ggplot')
-    sorted_arr = np.argsort(batch_x_tr[1, :])
-    for i in range(4, 5):
-        plt.plot(batch_x_tr[1, sorted_arr], samples[i,
-                                                      sorted_arr], 'lightsteelblue', alpha=0.6, zorder=-1)
-    plt.plot(batch_x_tr[1, sorted_arr], batch_y_tr[1, sorted_arr], 'black')
-    plt.scatter(batch_x_tr[1, :50], batch_y_tr[1, :50],
-                c='black', marker="o", zorder=1, s=25)
-    plt.show()
-
-    extrapo = True
-    if extrapo:
-        x = np.load(
-            '/Users/omernivron/Downloads/GPT_data_goldstandard/x_extra.npy')
-        y = np.load(
-            '/Users/omernivron/Downloads/GPT_data_goldstandard/y_extra.npy')
-    else:
-        x = np.load(
-            '/Users/omernivron/Downloads/GPT_data_goldstandard/x_interpol.npy')
-        y = np.load(
-            '/Users/omernivron/Downloads/GPT_data_goldstandard/y_interpol.npy')
-
-    μ = []
-    []
-    m = int(x.shape[0] / 10)
-    y_mean = np.mean(y[:m, :40])
-    y_te = y[:m, 40]
-    for j in range(0, m):
-        x_tr = x[j, :41].reshape(1, -1)
-        y_tr = y[j, :40].reshape(1, -1)
-        μ_te = infer.inference(decoder, x_tr, y_tr)
-        #     μ_te, log_σ_te = infer.inference(decoder, x_tr, y_tr, mh=True)
-        μ.append(μ_te[0][-1].numpy())
-    mse_metric = metrics.mse(y_te, μ)
-    metrics.r_squared(y_te, μ, y_mean)
-    mse_metric *= (1 / m)
+    pass
 
 
 if __name__ == '__main__':

@@ -13,7 +13,7 @@ def build_graph():
     m_te = tf.keras.metrics.Mean()
 
     @tf.function
-    def train_step(decoder, optimizer_c, train_loss, m_tr, x, y, context_p=50, d=False, x2=None):
+    def train_step(decoder, optimizer_c, train_loss, m_tr, x, y, context_p=50, d=False, x2=None, to_gather=None):
         """
         A typical train step function for TF2. Elements which we wish to track their gradient has to be inside the
         GradientTape() clause. see (1) https://www.tensorflow.org/guide/migrate (2)
@@ -34,16 +34,20 @@ def build_graph():
                 pred = decoder(x, x2, y_inp, True, combined_mask_x[:, 1:, :-1])
             else:
                 pred = decoder(x, y_inp, True, combined_mask_x[:, 1:, :-1])
-            loss, mse, mask = losses.loss_function(y_real[:, context_p:], pred=pred[:, context_p:, 0],
+            if type(context_p) is list:
+                pred0 = tf.squeeze(pred[:, :, 0])
+                pred1 = tf.squeeze(pred[:, :, 1])
+                loss, mse, mask = losses.loss_function(tf.gather_nd(y_real, to_gather, name='real'), pred= tf.gather_nd(pred0, to_gather, name='mean'),
+                                                       pred_log_sig=tf.gather_nd(pred1, to_gather, name='log_sig'))
+            else:
+                loss, mse, mask = losses.loss_function(y_real[:, context_p:], pred=pred[:, context_p:, 0],
                                                    pred_log_sig=pred[:, context_p:, 1])
-
         gradients = tape.gradient(loss, decoder.trainable_variables)
         optimizer_c.apply_gradients(zip(gradients, decoder.trainable_variables))
         train_loss(loss)
-        m_tr.update_state(mse, mask)
+        # m_tr.update_state(mse, mask)
         names = [v.name for v in decoder.trainable_variables]
         shapes = [v.shape for v in decoder.trainable_variables]
-
         return pred[:, :, 0], pred[:, :, 1], decoder.trainable_variables, names, shapes
 
     @tf.function

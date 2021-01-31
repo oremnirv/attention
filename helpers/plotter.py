@@ -373,7 +373,7 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps=100, samples=10, order=True,
         y_mean = np.repeat(np.mean(yy_0.reshape(-1)[sorted_infer]), n).reshape(1, -1)
         print('sample # {}, r squared: {}'.format(i, 1 - (mse_model / metrics.mse(yy_0[-n:].reshape(1, -1), y_mean))))
     if mean:
-        _, _, tar_inf = infer.inference(decoder, em_te=em_infer.reshape(1, -1), tar=y_infer, num_steps=num_steps,
+        _, _, tar_inf = infer.inference(decoder, em_te=em_infer.reshape(1, -1), y=y_infer, num_steps=num_steps,
                                         sample=False, d=True, em_te_2=em2_infer.reshape(1, -1), series=1)
         axs.plot(x_infer, tar_inf.numpy().reshape(-1)[sorted_infer], c='goldenrod')
 

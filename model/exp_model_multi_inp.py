@@ -2,7 +2,6 @@
 # Author: Omer Nivron
 ###########################
 import tensorflow as tf
-
 from model import dot_prod_attention
 
 
@@ -19,11 +18,7 @@ class Decoder(tf.keras.Model):
         self.A4 = tf.keras.layers.Dense(l3, name='A4')
         self.A5 = tf.keras.layers.Dense(2, name='A5')
 
-    # a call method, the layer's forward pass
     def call(self, x, y, training, x_mask):
-        # x is [batch_s, dim, seq_len]
-        # Adding extra dimension to allow multiplication of
-        # a sequnce with itself.
         y = y[:, :, tf.newaxis]
         xx = x
         if len(x.shape) > 2:

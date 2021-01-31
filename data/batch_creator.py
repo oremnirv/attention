@@ -33,29 +33,28 @@ def rearange_tr_2d(x, y, em, em_2, context_p=50, s=1):
     xx, yy, eem, eem2 = [], [], [], []
 
     for row in range(x.shape[0]):
-        em_2_pre = em_2[row, :context_p * 2]
+        em_2_pre = em_2[row, :context_p * 2].reshape(-1)
         em_2_pos = em_2[row, context_p * 2:]
         cond = [np.where([em_2_pre == s])[1], np.where([em_2_pos == s])[1], np.where(~(em_2_pre == s)),
                 np.where(~(em_2_pos == s))]
-        y_pre = y[row, :context_p * 2]
-        y_post = y[row, context_p * 2:]
-        y_infer = np.concatenate((y_pre, y_post[cond[1]])).reshape(1, -1)
-        c_p = y_infer.shape[1]
+        y_pre = y[row, :context_p * 2].reshape(-1)
+        y_post = y[row, context_p * 2:].reshape(-1)
+        y_infer = np.concatenate((y_pre, y_post[cond[1]])).reshape(-1)
+        c_p = len(y_infer)
         c.append(c_p)
         y_infer = np.concatenate((y_infer, y_post[cond[3]]))
         yy.append(y_infer)
-        em_pre = em[row, :context_p * 2]
-        em_post = em[row, context_p * 2:]
-        em2_pre = em_2[row, :context_p * 2]
-        em2_post = em_2[row, context_p * 2:]
+        em_pre = em[row, :context_p * 2].reshape(-1)
+        em_post = em[row, context_p * 2:].reshape(-1)
+        em2_pre = em_2[row, :context_p * 2].reshape(-1)
+        em2_post = em_2[row, context_p * 2:].reshape(-1)
         em_infer = np.concatenate((em_pre, em_post[cond[1]]))
         em_infer = np.concatenate((em_infer, em_post[cond[3]]))
         eem.append(em_infer)
         em2_infer = np.concatenate((em2_pre, em2_post[cond[1]]))
         em2_infer = np.concatenate((em2_infer, em2_post[cond[3]]))
         eem2.append(em2_infer)
-        x_pre = x[row, :context_p * 2]
-        x_post = x[row, context_p * 2:]
+        x_pre = x[row, :context_p * 2].reshape(-1); x_post = x[row, context_p * 2:].reshape(-1)
         xx_0 = np.concatenate((x_pre, x_post[cond[1]]))
         xx_0 = np.concatenate((xx_0, x_post[cond[3]]))
         xx.append(xx_0)
@@ -74,6 +73,7 @@ def create_batch_2d(em_x, x, y, em_2, batch_s=128, context_p=50):
     em_2 = em_2[batch_idx]
     c = context_p
     p = np.random.random()
+    # print('p: ', p)
     if p <= 0.25:
         x, y, em_x, em_2, c = rearange_tr_2d(x, y, em_x, em_2, context_p)
     elif p <= 0.5:

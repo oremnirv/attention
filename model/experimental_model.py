@@ -19,10 +19,7 @@ class Decoder(tf.keras.Model):
         self.A4 = tf.keras.layers.Dense(l3, name='A4')
         self.A5 = tf.keras.layers.Dense(2, name='A5')
 
-    # a call method, the layer's forward pass
     def call(self, x, y, training, x_mask):
-        # Adding extra dimension to allow multiplication of 
-        # a sequnce with itself.
         y = y[:, :, tf.newaxis]
         x = self.embedding(x)
         attn, _ = self.mha(y, x, x, x_mask)
