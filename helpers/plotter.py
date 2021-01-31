@@ -1,21 +1,28 @@
 import glob
-
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import tensorflow as tf;
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import ExpSineSquared, WhiteKernel, RBF
-
 from data import loader
 from helpers import metrics, helpers
 from inference import infer
 from model import experimental_model, experimental2d_model, grapher
-
 plt.style.use('ggplot')
 
 
 def sample_plot_w_training(positions, targets, predictions, num_context=50, num_samples=1, title=''):
+    """
+
+    :param positions:
+    :param targets:
+    :param predictions:
+    :param num_context:
+    :param num_samples:
+    :param title:
+    :return:
+    """
     real_x = positions
     real_y = targets
     samples = np.zeros((num_samples, len(real_x)))
@@ -31,10 +38,13 @@ def sample_plot_w_training(positions, targets, predictions, num_context=50, num_
     plt.show()
 
 
-# Show few graphs of how the data looks like
-
-
 def plot_examples(x, y):
+    """
+    Show few graphs of how the data looks like
+    :param x:
+    :param y:
+    :return:
+    """
     idx = np.random.choice(np.arange(0, len(x)), 5, replace=False)
     for i in idx:
         sorted_idx = np.argsort(x[i, :])
@@ -44,6 +54,13 @@ def plot_examples(x, y):
 
 
 def plot_2d_examples(x, y, em_2):
+    """
+
+    :param x:
+    :param y:
+    :param em_2:
+    :return:
+    """
     fig, axs = plt.subplots(2, 2, figsize=(12, 8))
     custom_xlim = (4, 16)
     custom_ylim = (-8, 8)
@@ -125,6 +142,12 @@ def infer_plot(model, em, x, y, num_steps, samples=10, mean=True, context_p=50, 
 
 
 def choose_random_ex_n_sort(x, num_samples):
+    """
+
+    :param x:
+    :param num_samples:
+    :return:
+    """
     idx = np.random.choice(np.arange(0, len(x)), num_samples, replace=False)
     samples = np.zeros((num_samples, x.shape[1]))
     sorted_idx_samples = pd.DataFrame(x[idx, :]).apply(
@@ -134,6 +157,15 @@ def choose_random_ex_n_sort(x, num_samples):
 
 
 def assign_context_points_to_preds(idx, samples, y, pred, num_context):
+    """
+
+    :param idx:
+    :param samples:
+    :param y:
+    :param pred:
+    :param num_context:
+    :return:
+    """
     samples[:, :num_context] = y[idx, :num_context]
     samples[:, num_context:] = pred.numpy()[idx, (num_context - 1):]
     return samples
@@ -141,6 +173,18 @@ def assign_context_points_to_preds(idx, samples, y, pred, num_context):
 
 def follow_training_plot(x_tr, y_tr, pred,
                          x_te, y_te, pred_te, num_context=50, num_samples=2):
+    """
+
+    :param x_tr:
+    :param y_tr:
+    :param pred:
+    :param x_te:
+    :param y_te:
+    :param pred_te:
+    :param num_context:
+    :param num_samples:
+    :return:
+    """
     fig, axs = plt.subplots(2, 2, figsize=(10, 6))
     custom_xlim = (4, 16)
     custom_ylim = (-4, 4)
@@ -163,6 +207,22 @@ def follow_training_plot(x_tr, y_tr, pred,
 
 def plot_subplot_training(params, x, x_te, y, y_te, pred_y, pred_y_te, tr_idx, te_idx, sorted_idx_tr, sorted_idx_te,
                           num_context):
+    """
+
+    :param params:
+    :param x:
+    :param x_te:
+    :param y:
+    :param y_te:
+    :param pred_y:
+    :param pred_y_te:
+    :param tr_idx:
+    :param te_idx:
+    :param sorted_idx_tr:
+    :param sorted_idx_te:
+    :param num_context:
+    :return:
+    """
     for row in range(params.shape[0]):
         if (row == 1):
             x = x_te
@@ -190,6 +250,19 @@ def plot_subplot_training(params, x, x_te, y, y_te, pred_y, pred_y_te, tr_idx, t
 
 def follow_training_plot2d(x_tr, y_tr, em_2_tr, pred,
                            x_te, y_te, em_2_te, pred_te, num_context=50):
+    """
+
+    :param x_tr:
+    :param y_tr:
+    :param em_2_tr:
+    :param pred:
+    :param x_te:
+    :param y_te:
+    :param em_2_te:
+    :param pred_te:
+    :param num_context:
+    :return:
+    """
     fig, axs = plt.subplots(2, 1, figsize=(10, 6))
     custom_xlim = (4, 16)
     custom_ylim = (-8, 8)
@@ -227,6 +300,26 @@ def follow_training_plot2d(x_tr, y_tr, em_2_tr, pred,
 
 def plot_subplot_training2d(params, x, x_te, y, y_te, pred_y, pred_y_2, pred_y_te, pred_y_te_2, idx_tr, idx_te, idx_f1,
                             idx_f2, idx_f1_te, idx_f2_te, num_context):
+    """
+
+    :param params:
+    :param x:
+    :param x_te:
+    :param y:
+    :param y_te:
+    :param pred_y:
+    :param pred_y_2:
+    :param pred_y_te:
+    :param pred_y_te_2:
+    :param idx_tr:
+    :param idx_te:
+    :param idx_f1:
+    :param idx_f2:
+    :param idx_f1_te:
+    :param idx_f2_te:
+    :param num_context:
+    :return:
+    """
     for row in range(params.shape[0]):
         if (row == 1):
             x = x_te
@@ -268,70 +361,152 @@ def plot_subplot_training2d(params, x, x_te, y, y_te, pred_y, pred_y_2, pred_y_t
 
     return params
 
+def create_condition_list(cond_arr, series = 1):
+    """
 
-def concat_n_rearange(x, y, em, em_2, cond_arr, context_p, num_steps, series=1):
+    :param cond_arr:
+    :param series:
+    :return:
+    """
+    cond = []
     cond_arr_pre = cond_arr[:context_p]
     cond_arr_pos = cond_arr[context_p:]
-    cond = []
     cond.append(np.where([cond_arr_pre == series])[1])
     cond.append(np.where([cond_arr_pos == series])[1])
     cond.append(np.where(~(cond_arr_pre == series)))
     cond.append(np.where(~ (cond_arr_pos == series)))
+    return cond
 
-    # create the two series that will be used as context points
-    y_pre = y[:context_p];
-    y_post = y[context_p:]
-    tar_1 = np.concatenate((y_pre[cond[0]], y_post[cond[1]])).reshape(1, -1)
-    tar_0_par = y_pre[cond[2]]
-    tar_0 = np.concatenate((y_pre[cond[2]], y_post[cond[3]])).reshape(1, -1)
-    # generate rearanged target for inference
-    y_infer = np.concatenate((y_pre, y_post[cond[1]])).reshape(1, -1)
+def concat_context_to_infer(df, cond, context_p):
+    """
+
+    :param df:
+    :param cond:
+    :param context_p:
+    :return:
+    """
+    df_pre = df[:context_p]; # this includes context_p points, some from series 0 and some from series 1
+    df_post = df[context_p:] # thia includes all points that were not picked as context
+    df_infer = np.concatenate((df_pre, df_post[cond[1]])) # this includes context points and all the rest of series 0/1
+    df_infer = np.concatenate((df_infer, df_post[cond[3]])) # this completes the rest of the series to infer
+    return df_infer
+
+def get_series_separately(df, cond, context_p, series = 1):
+    """
+
+    :param df:
+    :param cond:
+    :param context_p:
+    :param series:
+    :return:
+    """
+    df_pre = df[:context_p]
+    df_post = df[context_p:]
+    df_1 = np.concatenate((df_pre[cond[0]], df_post[cond[1]]))
+    df_0 = np.concatenate((df_pre[cond[2]], df_post[cond[3]]))
+    return df_1, df_0
+
+def get_context_points(df, cond):
+    """
+
+    :param df:
+    :param cond:
+    :return:
+    """
+    df_pre = df[:context_p];
+    context_points = df_pre[cond[2]]
+    return context_points
+
+def y_infer_constructor(df, cond):
+    """
+
+    :param df:
+    :param cond:
+    :return:
+    """
+    df_pre = df[:context_p]
+    df_post = df[context_p:]
+    df_infer = np.concatenate((df_pre, df_post[cond[1]])).reshape(1, -1)
+    return df_infer
+
+def arg_sorter(*l):
+    """
+
+    :param l:
+    :return:
+    """
+    for idx, element in enumerate(*l):
+        l[idx] = np.argsort(element)
+    return l
+
+
+def concat_n_rearange(x, y, em, em_2, context_p, num_steps, series=1):
+    """
+
+    :param x:
+    :param y:
+    :param em:
+    :param em_2:
+    :param context_p:
+    :param num_steps:
+    :param series:
+    :return:
+    """
+    cond = create_condition_list(em_2)
+    y1, y0 = get_series_separately(y, cond, context_p)
+    y0_p = get_context_points(y, cond)
+    x0_p = get_context_points(x, cond)
+    y_infer = y_infer_constructor(y, cond)
+    em_infer = concat_context_to_infer(em, cond, context_p)
+    em2_infer = concat_context_to_infer(em_2, cond, context_p)
+    yy  = concat_context_to_infer(y, cond, context_p)
+    xx = concat_context_to_infer(x, cond, context_p)
+    x1, x0 = get_series_separately(x, cond, context_p)
+
     maxi = num_steps + y_infer.shape[1]
-
-    # generate rearanged input for infer
-    em_pre = em[:context_p];
-    em_post = em[context_p:]
-    em2_pre = em_2[:context_p];
-    em2_post = em_2[context_p:]
-
-    em_infer = np.concatenate((em_pre, em_post[cond[1]]))
-    em_infer = np.concatenate((em_infer, em_post[cond[3]]))
     em_infer = em_infer[:maxi]
-
-    em2_infer = np.concatenate((em2_pre, em2_post[cond[1]]))
-    em2_infer = np.concatenate((em2_infer, em2_post[cond[3]]))
     em2_infer = em2_infer[:maxi]
+    xx = xx[:maxi]
+    print('hi yo')
 
-    # rearange x
-    x_pre = x[:context_p];
-    x_post = x[context_p:]
-    x_1 = np.concatenate((x_pre[cond[0]], x_post[cond[1]]))
-    x_0 = np.concatenate((x_pre[cond[2]], x_post[cond[3]]))
-    x_0_part = x_pre[cond[2]]
-    xx_0 = np.concatenate((x_pre, x_post[cond[1]]))
-    xx_0 = np.concatenate((xx_0, x_post[cond[3]]))
-    yy_0 = np.concatenate((y_pre, y_post[cond[1]]))
-    yy_0 = np.concatenate((yy_0, y_post[cond[3]]))
-    xx_0 = xx_0[:maxi]
-
-    sorted_x_1 = np.argsort(x_1)
-    sorted_x_0 = np.argsort(x_0)
-    sorted_x_0_p = np.argsort(x_0_part)
-    sorted_xx_0 = np.argsort(xx_0)
-    sorted_x = np.argsort(x)
-    sorted_x = sorted_x[np.where(sorted_x < maxi)]
-
+    s_x1, s_x0, s_x0p, s_xx = arg_sorter([x_1, x_0, x_0_p, xx])
     # sort 1's and 0's according to sorted x's
-    sorted_em = em2_infer.reshape(-1)[sorted_xx_0.reshape(-1)]
+    s_vals_em2 = em2_infer.reshape(-1)[s_xx.reshape(-1)]
+    series_cond = np.where(s_vals_em2 == 0)
+    s_idx_xx_ser0 = s_xx[series_cond]
+    s_vals_xx_ser0 = xx[s_idx_xx_ser0]
+    s_vals_x0 = x0[s_x0.reshape(-1)]
+    s_vals_y0 = y0[0][s_x0.reshape(-1)]
+    s_vals_x1 = x1[s_x1.reshape(-1)]
+    s_vals_y1 = y1[0][s_x1.reshape(-1)]
+    s_context_x = x0_p[s_x0p.reshape(-1)]
+    s_context_y = y_0_p[s_x0p.reshape(-1)]
 
-    return sorted_xx_0[np.where(sorted_em == 0)], xx_0[sorted_xx_0[np.where(sorted_em == 0)]], x_0[
-        sorted_x_0.reshape(-1)], tar_0[0][sorted_x_0.reshape(-1)], x_1[sorted_x_1.reshape(-1)], tar_1[0][
-               sorted_x_1.reshape(-1)], x_0_part[sorted_x_0_p.reshape(-1)], tar_0_par[
-               sorted_x_0_p.reshape(-1)], em_infer, em2_infer, y_infer, yy_0
+    return s_idx_xx_ser0, s_vals_xx_ser0, s_vals_x0 \
+           ,s_vals_y0, s_vals_x1, s_vals_y1 \
+           ,s_context_x, s_context_y, \
+           em_infer, em2_infer, y_infer, yy
 
 
 def infer_plot2D(decoder, x, y, em, em_2, num_steps=100, samples=10, order=True, context_p=50, mean=True, consec=False,
                  axs=None, ins=False):
+    """
+
+    :param decoder:
+    :param x:
+    :param y:
+    :param em:
+    :param em_2:
+    :param num_steps:
+    :param samples:
+    :param order:
+    :param context_p:
+    :param mean:
+    :param consec:
+    :param axs:
+    :param ins:
+    :return:
+    """
     if axs:
         pass
     else:
@@ -355,27 +530,26 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps=100, samples=10, order=True,
             em_2 = em_2.reshape(-1)[non_cosec_idx]
             num_steps = min(len(non_cosec_idx) - context_p, num_steps)
 
-    sorted_infer, x_infer, x_0, tar_0, x_1, tar_1, x_0_part, tar_0_part, em_infer, em2_infer, y_infer, yy_0 = concat_n_rearange(
+
+    sorted_infer, x_infer, x0, y0, x1, y1, x0_p, y0_p, em_infer, em2_infer, y_infer, yy_0 = concat_n_rearange(
         x.reshape(-1), y.reshape(-1), em.reshape(-1), em_2.reshape(-1), em_2.reshape(-1), context_p * 2,
         num_steps=num_steps)
-    # if not num_steps:
-    #     num_steps = 400 - y_infer.shape[1]
-    axs.scatter(x_0_part, tar_0_part, c='red')
-    axs.plot(x_0, tar_0, c='lightcoral')
-    axs.plot(x_1, tar_1, c='black')
+    axs.scatter(x0_p, y0_p, c='red')
+    axs.plot(x_0, y_0, c='lightcoral')
+    axs.plot(x_1, y_1, c='black')
     for i, inf in enumerate(range(samples)):
-        _, _, tar_inf = infer.inference(decoder, em_te=em_infer.reshape(1, -1), y=y_infer, num_steps=num_steps,
+        _, _, y_inf = infer.inference(decoder, em_te=em_infer.reshape(1, -1), y=y_infer, num_steps=num_steps,
                                         sample=True, d=True, em_te_2=em2_infer.reshape(1, -1), series=1)
-        axs.plot(x_infer, tar_inf.numpy().reshape(-1)[sorted_infer], c='lightskyblue')
+        axs.plot(x_infer, y_inf.numpy().reshape(-1)[sorted_infer], c='lightskyblue')
         mse_model = metrics.mse(yy_0.reshape(-1)[sorted_infer].reshape(1, -1),
-                                tar_inf.numpy().reshape(-1)[sorted_infer].reshape(1, -1))
+                                y_inf.numpy().reshape(-1)[sorted_infer].reshape(1, -1))
         n = min(len(em_infer) - y_infer.shape[1], num_steps)
         y_mean = np.repeat(np.mean(yy_0.reshape(-1)[sorted_infer]), n).reshape(1, -1)
         print('sample # {}, r squared: {}'.format(i, 1 - (mse_model / metrics.mse(yy_0[-n:].reshape(1, -1), y_mean))))
     if mean:
-        _, _, tar_inf = infer.inference(decoder, em_te=em_infer.reshape(1, -1), y=y_infer, num_steps=num_steps,
+        _, _, y_inf = infer.inference(decoder, em_te=em_infer.reshape(1, -1), y=y_infer, num_steps=num_steps,
                                         sample=False, d=True, em_te_2=em2_infer.reshape(1, -1), series=1)
-        axs.plot(x_infer, tar_inf.numpy().reshape(-1)[sorted_infer], c='goldenrod')
+        axs.plot(x_infer, y_inf.numpy().reshape(-1)[sorted_infer], c='goldenrod')
 
     if ins:
         return axs
