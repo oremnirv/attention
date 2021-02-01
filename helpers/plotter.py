@@ -1,14 +1,17 @@
 import glob
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import tensorflow as tf;
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import ExpSineSquared, WhiteKernel, RBF
+
 from data import loader
 from helpers import metrics, helpers
 from inference import infer
 from model import experimental_model, experimental2d_model, grapher
+
 plt.style.use('ggplot')
 
 
@@ -361,7 +364,8 @@ def plot_subplot_training2d(params, x, x_te, y, y_te, pred_y, pred_y_2, pred_y_t
 
     return params
 
-def create_condition_list(cond_arr, series = 1):
+
+def create_condition_list(cond_arr, context_p, series=1):
     """
 
     :param cond_arr:
@@ -377,6 +381,7 @@ def create_condition_list(cond_arr, series = 1):
     cond.append(np.where(~ (cond_arr_pos == series)))
     return cond
 
+
 def concat_context_to_infer(df, cond, context_p):
     """
 
@@ -385,13 +390,14 @@ def concat_context_to_infer(df, cond, context_p):
     :param context_p:
     :return:
     """
-    df_pre = df[:context_p]; # this includes context_p points, some from series 0 and some from series 1
-    df_post = df[context_p:] # thia includes all points that were not picked as context
-    df_infer = np.concatenate((df_pre, df_post[cond[1]])) # this includes context points and all the rest of series 0/1
-    df_infer = np.concatenate((df_infer, df_post[cond[3]])) # this completes the rest of the series to infer
+    df_pre = df[:context_p];  # this includes context_p points, some from series 0 and some from series 1
+    df_post = df[context_p:]  # thia includes all points that were not picked as context
+    df_infer = np.concatenate((df_pre, df_post[cond[1]]))  # this includes context points and all the rest of series 0/1
+    df_infer = np.concatenate((df_infer, df_post[cond[3]]))  # this completes the rest of the series to infer
     return df_infer
 
-def get_series_separately(df, cond, context_p, series = 1):
+
+def get_series_separately(df, cond, context_p, series=1):
     """
 
     :param df:
@@ -406,7 +412,8 @@ def get_series_separately(df, cond, context_p, series = 1):
     df_0 = np.concatenate((df_pre[cond[2]], df_post[cond[3]]))
     return df_1, df_0
 
-def get_context_points(df, cond):
+
+def get_context_points(df, cond, context_p):
     """
 
     :param df:
@@ -416,6 +423,7 @@ def get_context_points(df, cond):
     df_pre = df[:context_p];
     context_points = df_pre[cond[2]]
     return context_points
+
 
 def y_infer_constructor(df, cond):
     """
@@ -428,6 +436,7 @@ def y_infer_constructor(df, cond):
     df_post = df[context_p:]
     df_infer = np.concatenate((df_pre, df_post[cond[1]])).reshape(1, -1)
     return df_infer
+
 
 def arg_sorter(*l):
     """
@@ -452,14 +461,14 @@ def concat_n_rearange(x, y, em, em_2, context_p, num_steps, series=1):
     :param series:
     :return:
     """
-    cond = create_condition_list(em_2)
+    cond = create_condition_list(em_2, context_p)
     y1, y0 = get_series_separately(y, cond, context_p)
-    y0_p = get_context_points(y, cond)
-    x0_p = get_context_points(x, cond)
+    y0_p = get_context_points(y, cond, context_p)
+    x0_p = get_context_points(x, cond, context_p)
     y_infer = y_infer_constructor(y, cond)
     em_infer = concat_context_to_infer(em, cond, context_p)
     em2_infer = concat_context_to_infer(em_2, cond, context_p)
-    yy  = concat_context_to_infer(y, cond, context_p)
+    yy = concat_context_to_infer(y, cond, context_p)
     xx = concat_context_to_infer(x, cond, context_p)
     x1, x0 = get_series_separately(x, cond, context_p)
 
@@ -472,19 +481,29 @@ def concat_n_rearange(x, y, em, em_2, context_p, num_steps, series=1):
     s_x1, s_x0, s_x0p, s_xx = arg_sorter([x_1, x_0, x_0_p, xx])
     # sort 1's and 0's according to sorted x's
     s_vals_em2 = em2_infer.reshape(-1)[s_xx.reshape(-1)]
+    print('1')
     series_cond = np.where(s_vals_em2 == 0)
+    print('2')
     s_idx_xx_ser0 = s_xx[series_cond]
+    print('3')
     s_vals_xx_ser0 = xx[s_idx_xx_ser0]
+    print('4')
     s_vals_x0 = x0[s_x0.reshape(-1)]
+    print('5')
     s_vals_y0 = y0[0][s_x0.reshape(-1)]
+    print('6')
     s_vals_x1 = x1[s_x1.reshape(-1)]
+    print('7')
     s_vals_y1 = y1[0][s_x1.reshape(-1)]
+    print('8')
     s_context_x = x0_p[s_x0p.reshape(-1)]
+    print('9')
     s_context_y = y_0_p[s_x0p.reshape(-1)]
+    print('10')
 
     return s_idx_xx_ser0, s_vals_xx_ser0, s_vals_x0 \
-           ,s_vals_y0, s_vals_x1, s_vals_y1 \
-           ,s_context_x, s_context_y, \
+        , s_vals_y0, s_vals_x1, s_vals_y1 \
+        , s_context_x, s_context_y, \
            em_infer, em2_infer, y_infer, yy
 
 
@@ -529,17 +548,17 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps=100, samples=10, order=True,
             em = em.reshape(-1)[non_cosec_idx]
             em_2 = em_2.reshape(-1)[non_cosec_idx]
             num_steps = min(len(non_cosec_idx) - context_p, num_steps)
+            print('num_steps: ', num_steps)
 
-
+    print('context_p: ', context_p)
     sorted_infer, x_infer, x0, y0, x1, y1, x0_p, y0_p, em_infer, em2_infer, y_infer, yy_0 = concat_n_rearange(
-        x.reshape(-1), y.reshape(-1), em.reshape(-1), em_2.reshape(-1), em_2.reshape(-1), context_p * 2,
-        num_steps=num_steps)
+        x, y, em, em_2, context_p * 2, num_steps)
     axs.scatter(x0_p, y0_p, c='red')
-    axs.plot(x_0, y_0, c='lightcoral')
-    axs.plot(x_1, y_1, c='black')
+    axs.plot(x0, y0, c='lightcoral')
+    axs.plot(x1, y1, c='black')
     for i, inf in enumerate(range(samples)):
         _, _, y_inf = infer.inference(decoder, em_te=em_infer.reshape(1, -1), y=y_infer, num_steps=num_steps,
-                                        sample=True, d=True, em_te_2=em2_infer.reshape(1, -1), series=1)
+                                      sample=True, d=True, em_te_2=em2_infer.reshape(1, -1), series=1)
         axs.plot(x_infer, y_inf.numpy().reshape(-1)[sorted_infer], c='lightskyblue')
         mse_model = metrics.mse(yy_0.reshape(-1)[sorted_infer].reshape(1, -1),
                                 y_inf.numpy().reshape(-1)[sorted_infer].reshape(1, -1))
@@ -548,7 +567,7 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps=100, samples=10, order=True,
         print('sample # {}, r squared: {}'.format(i, 1 - (mse_model / metrics.mse(yy_0[-n:].reshape(1, -1), y_mean))))
     if mean:
         _, _, y_inf = infer.inference(decoder, em_te=em_infer.reshape(1, -1), y=y_infer, num_steps=num_steps,
-                                        sample=False, d=True, em_te_2=em2_infer.reshape(1, -1), series=1)
+                                      sample=False, d=True, em_te_2=em2_infer.reshape(1, -1), series=1)
         axs.plot(x_infer, y_inf.numpy().reshape(-1)[sorted_infer], c='goldenrod')
 
     if ins:
