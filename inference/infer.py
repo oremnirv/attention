@@ -3,65 +3,77 @@ import tensorflow as tf
 import numpy as np
 
 
-def evaluate(model, x, y, sample=True, d=False, x2=None):
+def evaluate(model, x, y, sample=True, d=False, x2=None, xx=None, yy=None, c_step=0, infer=False, x0=None, y0=None, x1=None, y1=None):
     """
-    Run a forward pass of the network
-    ------------------
-    Parameters:
-    model: trained instace of GPT decoder class
-    x: xition tensor with at least len(y) + 1 values
-    y: ygets tensor
-    x_mask: xition mask tensor to hide unseen xitions from current prediction
-    ------------------
-    Returns:
-    pred (tf tensor float64): the prediction of the next location in the sequence
-    pred_log_sig (tf tensor float64)
 
+    :param y1:
+    :param x1:
+    :param y0:
+    :param x0:
+    :param infer:
+    :param c_step:
+    :param yy:
+    :param xx:
+    :param model:
+    :param x:
+    :param y:
+    :param sample:
+    :param d:
+    :param x2:
+    :return:
     """
     combined_mask_x = masks.create_masks(x)
     if d:
-        pred = model(x, x2, y, False, combined_mask_x[:, 1:, :-1])
+        pred = model(x, x2, y, False, combined_mask_x[:, 1:, :-1], infer=infer, ix=xx, iy=yy, n=c_step, x0=x0, y0=y0, x1=x1, y1=y1)
     else:
         pred = model(x, y, False, combined_mask_x[:, 1:, :-1])
     if sample:
-        # print(np.exp(pred[-1, 1]))
-        # print(pred[-1, 1])
         sample_y = np.random.normal(pred[-1, 0], np.exp(pred[-1, 1]))
-        # print(np.exp(pred[-1, 1]))
     else:
         sample_y = pred[-1, 0]
 
     return pred[:, 0], pred[:, 1], sample_y
 
 
-def inference(model, em_te, y, num_steps=1, sample=True, d=False, em_te_2=None, series=1):
+def inference(model, em_te, y, num_steps=1, sample=True, d=False, em_te_2=None, series=1, infer=False, xx=None, yy=None, x0=None, y0=None, x1=None, y1=None):
     """
-    how many steps to infer -- this could be used both for interpolation and extrapolation
-    ------------------
-    Parameters:
-    x (2D np array): (n + num_steps) xitions
-    y (2D np array): n ygets
-    num_steps (int): how many inference steps are required
-    ------------------
-    Returns:
-    pred (tf.tensor float64): the predictions for all timestamps up to n + num_steps
-    pred_log_sig
+
+    :param y1:
+    :param x1:
+    :param y0:
+    :param x0:
+    :param xx:
+    :param yy:
+    :param infer:
+    :param model:
+    :param em_te:
+    :param y:
+    :param num_steps:
+    :param sample:
+    :param d:
+    :param em_te_2:
+    :param series:
+    :return:
     """
     n = y.shape[1]
-    num_steps = em_te.shape[1] - n if num_steps == 999 else num_steps
+    print('current step: ', n)
+    if xx is not None:
+        print('current_position to infer: ', xx[n])
+        print('current target: ', yy[n])
+    num_steps = em_te.shape[1] - n if num_steps == 999 else min(num_steps, em_te.shape[1] - n)
     temp_x = em_te[:, :(n + 1)]
     if d:
         temp_x2 = em_te_2[:, :(n + 1)]
-        pred, pred_log_sig, sample_y = evaluate(model, temp_x, y, d=True, x2=temp_x2, sample=sample)
+        print('series: ', temp_x2[:, -1])
+        pred, pred_log_sig, sample_y = evaluate(model, temp_x, y, d=True, x2=temp_x2, sample=sample, infer=infer, xx=xx, yy=yy, c_step=n, x0=x0, y0=y0, x1=x1, y1=y1)
     else:
         pred, pred_log_sig, sample_y = evaluate(model, temp_x, y, sample=sample)
-    # print(sample_y)
     y = tf.concat((y, tf.reshape(sample_y, [1, 1])), axis=1)
     if num_steps > 1:
-        model, em_te, y = inference(model, em_te, y, num_steps - 1, d=d, em_te_2=em_te_2, series=series,
-                                    sample=sample)
+        model, em_te, y, num_steps = inference(model, em_te, y, num_steps - 1, d=d, em_te_2=em_te_2, series=series,
+                                               sample=sample, xx=xx, yy=yy, infer=infer, x0=x0, y0=y0, x1=x1, y1=y1)
 
-    return model, em_te, y
+    return model, em_te, y, num_steps
 
 
 def main():

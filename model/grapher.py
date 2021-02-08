@@ -15,13 +15,18 @@ def build_graph():
     @tf.function
     def train_step(decoder, optimizer_c, train_loss, m_tr, x, y, context_p=50, d=False, x2=None, to_gather=None):
         """
-        A typical train step function for TF2. Elements which we wish to track their gradient has to be inside the
-        GradientTape() clause. see (1) https://www.tensorflow.org/guide/migrate (2)
-        https://www.tensorflow.org/tutorials/quicksyt/advanced ------------------ Parameters: x (np array): array of
-        xitions (x values) - the 1st/2nd output from data_generator_for_gp_mimick_gpt y (np array): array of ygets.
-        Notice that if dealing with sequnces, we typically want to have the ygets go from 0 to n-1. The 3rd/4th
-        output from data_generator_for_gp_mimick_gpt x_mask (np array): see description in xition_mask function
-        ------------------
+
+        :param decoder:
+        :param optimizer_c:
+        :param train_loss:
+        :param m_tr:
+        :param x:
+        :param y:
+        :param context_p:
+        :param d:
+        :param x2:
+        :param to_gather:
+        :return:
         """
         y_inp = y[:, :-1]
         y_real = y[:, 1:]
@@ -39,14 +44,14 @@ def build_graph():
                 pred1 = tf.squeeze(pred[:, :, 1])
                 loss, mse, mask = losses.loss_function(tf.gather_nd(y_real, to_gather, name='real'), pred= tf.gather_nd(pred0, to_gather, name='mean'),
                                                        pred_log_sig=tf.gather_nd(pred1, to_gather, name='log_sig'))
+
+            else:
                 loss, mse, mask = losses.loss_function(y_real[:, context_p:], pred=pred[:, context_p:, 0],
                                                        pred_log_sig=pred[:, context_p:, 1])
-            else:
-                pass
             gradients = tape.gradient(loss, decoder.trainable_variables)
             optimizer_c.apply_gradients(zip(gradients, decoder.trainable_variables))
             train_loss(loss)
-            # m_tr.update_state(mse, mask)
+            m_tr.update_state(mse, mask)
             names = [v.name for v in decoder.trainable_variables]
             shapes = [v.shape for v in decoder.trainable_variables]
             return pred[:, :, 0], pred[:, :, 1], decoder.trainable_variables, names, shapes
@@ -54,10 +59,16 @@ def build_graph():
     @tf.function
     def test_step(decoder, test_loss, m_te, x_te, y_te, context_p=50, d=False, x2_te=None):
         """
-        --------------- Parameters: x (np array): array of xitions (x values) - the 1st/2nd output from
-        data_generator_for_gp_mimick_gpt y (np array): array of ygets. Notice that if dealing with sequnces,
-        we typically want to have the ygets go from 0 to n-1. The 3rd/4th output from
-        data_generator_for_gp_mimick_gpt x_mask_te (np array): see description in xition_mask function ---------------
+
+        :param decoder:
+        :param test_loss:
+        :param m_te:
+        :param x_te:
+        :param y_te:
+        :param context_p:
+        :param d:
+        :param x2_te:
+        :return:
         """
         y_inp_te = y_te[:, :-1]
         y_real_te = y_te[:, 1:]

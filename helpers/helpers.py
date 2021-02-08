@@ -29,9 +29,6 @@ def tf_summaries(run, string, train_loss_r, test_loss_r, tr_metric, te_metric, w
     tf.summary.scalar('train metric', tr_metric, step=string)
     tf.summary.scalar('test metric', te_metric, step=string)
     for idx, var in enumerate(weights):
-        # print(names[idx])
-        # print('#############')
-        # print (names[idx].numpy().decode('utf-8'))
         tf.summary.histogram(names[idx].numpy().decode('utf-8'), var, step=string)
 
 
@@ -53,7 +50,7 @@ def write_speci(folder, names, shapes, context_p):
             writer.writerow([str(name.numpy()).split('/')[-2], str(shape.numpy())])
 
 
-def load_spec(path, e, l, context_p, d=False):
+def load_spec(path, e, l, context_p, d=False, old=False):
     if not os.path.exists(path + '_context_' + str(context_p) + '_speci.csv'):
         print('Does not exists')
         return (e, *l)
@@ -61,8 +58,12 @@ def load_spec(path, e, l, context_p, d=False):
         df = np.array(pd.read_csv(path + '_context_' + str(context_p) + '_speci.csv'))
         ls = []
         if d:
-            for i in [1, 17, 19, 23, 25]:
-                ls.append(int(df[i][1].split('[')[1].split(']')[0]))
+            if old:
+                for i in [1, 17, 19, 23, 25]:
+                    ls.append(int(df[i][1].split('[')[1].split(']')[0]))
+            else:
+                for i in [1, 11, 13, 15, 17]:
+                    ls.append(int(df[i][1].split('[')[1].split(']')[0]))
         else:
             for i in [1, 9, 11, 13, 15]:
                 ls.append(int(df[i][1].split('[')[1].split(']')[0]))

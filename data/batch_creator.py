@@ -24,6 +24,16 @@ def pick_diff_cols_from_each_row(arr, cols):
 
 
 def rearange_tr_2d(x, y, em, em_2, context_p=50, s=1):
+    """
+
+    :param x:
+    :param y:
+    :param em:
+    :param em_2:
+    :param context_p:
+    :param s:
+    :return:
+    """
     sorted_idx = np.argsort(x, 1)
     x = pick_diff_cols_from_each_row(x, sorted_idx)
     y = pick_diff_cols_from_each_row(y, sorted_idx)
@@ -63,6 +73,16 @@ def rearange_tr_2d(x, y, em, em_2, context_p=50, s=1):
 
 
 def create_batch_2d(em_x, x, y, em_2, batch_s=128, context_p=50):
+    """
+
+    :param em_x:
+    :param x:
+    :param y:
+    :param em_2:
+    :param batch_s:
+    :param context_p:
+    :return:
+    """
     b_data = []
     shape = y.shape[0]
     cols = y.shape[1]
@@ -97,19 +117,17 @@ def create_batch_2d(em_x, x, y, em_2, batch_s=128, context_p=50):
 
 def create_batch(em_x, x, y, batch_s=128, chnge_context=True, d=False, em_2=None, time=False, context_p=50):
     """
-    Get a batch of xitions, ygets and xition mask from data generated
-    by data_generator_for_gp_mimick_gpt function and from xition_mask function
-    -------------------------
-    Parameters:
-    x (2D np array): 1st/2nd output from data_generator_for_gp_mimick_gpt function
-    y (2D np array): 3rd/4th output from data_generator_for_gp_mimick_gpt function
-    batch_s (int): deafult 128
-    -------------------------
-    Returns:
-    batch_x_tr (2D np array)
-    batch_y_tr (2D np array)
-    batch_idx (1D np array): indices (=row numbers) chosen for current batch
 
+    :param em_x:
+    :param x:
+    :param y:
+    :param batch_s:
+    :param chnge_context:
+    :param d:
+    :param em_2:
+    :param time:
+    :param context_p:
+    :return:
     """
     b_data = []
     shape = y.shape[0]
@@ -140,19 +158,11 @@ def create_batch(em_x, x, y, batch_s=128, chnge_context=True, d=False, em_2=None
 
 def fake_batch(x, y, batch_s=1):
     """
-    Get a batch of xitions, ygets and xition mask from data generated
-    by data_generator_for_gp_mimick_gpt function and from xition_mask function
-    -------------------------
-    Parameters:
-    x (2D np array): 1st/2nd output from data_generator_for_gp_mimick_gpt function
-    y (2D np array): 3rd/4th output from data_generator_for_gp_mimick_gpt function
-    batch_s (int): deafult 128
-    -------------------------
-    Returns:
-    batch_x_tr (2D np array)
-    batch_y_tr (2D np array)
-    batch_idx (1D np array): indices (=row numbers) chosen for current batch
 
+    :param x:
+    :param y:
+    :param batch_s:
+    :return:
     """
     shape = y.shape[0]
     batch_idx = np.random.choice(list(range(shape)), batch_s)
