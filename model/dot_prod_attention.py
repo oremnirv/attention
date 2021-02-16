@@ -34,8 +34,8 @@ def dot_product_attention(q, k, v, mask, infer=False, x=None, y=None, n=0, x0=No
         nl_qk += ((tf.cast(mask, tf.float64)) * -1e9)
     att_weights = tf.nn.softmax(nl_qk, axis=-1, name='att_weights')  # batch_size X d_model X seq_len X seq_len
     if infer:
-        k_vals, k_ind = tf.math.top_k(att_weights[0, -1, -1, :], k=10, sorted=True, name=None)
-        print('k_ind: ', k_ind)
+        k_vals, k_ind = tf.math.top_k(att_weights[0, -1, -1, :], k=5, sorted=True, name=None)
+        # k_vals_agg, k_ind_agg = tf.math.top_k(k_ind.reshape(-1), k=10, sorted=True, name=None)
         plt.figure(n)
         # print('x0: ', x0)
         plt.plot(x0, y0, c='lightcoral')
@@ -129,11 +129,11 @@ class MultiHeadAttention2D(tf.keras.layers.Layer):
         assert d_model % self.num_heads == 0
         self.depth = d_model // self.num_heads
         self.wq = tf.keras.layers.Dense(d_model, name='wq')
-        self.wq2 = tf.keras.layers.Dense(d_model, name='wq2')
-        self.wq3 = tf.keras.layers.Dense(d_model, name='wq3')
+        # self.wq2 = tf.keras.layers.Dense(d_model, name='wq2')
+        # self.wq3 = tf.keras.layers.Dense(d_model, name='wq3')
         self.wk = tf.keras.layers.Dense(d_model, name='wk')
-        self.wk2 = tf.keras.layers.Dense(d_model, name='wk2')
-        self.wk3 = tf.keras.layers.Dense(d_model, name='wk3')
+        # self.wk2 = tf.keras.layers.Dense(d_model, name='wk2')
+        # self.wk3 = tf.keras.layers.Dense(d_model, name='wk3')
         self.wv = tf.keras.layers.Dense(d_model, name='wv')
         self.dense = tf.keras.layers.Dense(d_model)
 
