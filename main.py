@@ -9,7 +9,7 @@ import time
 import numpy as np
 
 
-kernel = 'rbf_const_2D'
+kernel = 'rbf_rbf_2D'
 save_dir = '~/Downloads/GPT_' + kernel
 data = loader.load_data(kernel, size = dataset_size, rewrite = False, diff_x= True, noise = False, d = True, ordered = True)
 train_step, test_step, loss_object, train_loss, test_loss, m_tr, m_te = grapher.build_graph()
