@@ -1,6 +1,6 @@
 numpy~=1.19.2
 matplotlib~=3.3.3
 scikit-learn~=0.24.1
-pandas~=1.2.1
 Keras~=2.4.3
 tensorflow~=2.0.0
+pandas~=1.2.1
