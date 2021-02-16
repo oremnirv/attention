@@ -7,7 +7,7 @@ from model import dot_prod_attention
 
 
 class Decoder(tf.keras.Model):
-    def __init__(self, e, l1=512, l2=256, l3=32, num_heads=1, input_vocab_size=2000):
+    def __init__(self, e, l1=256, l2=128, l3=32, num_heads=1, input_vocab_size=2000):
         super(Decoder, self).__init__()
         self.e = e
         self.embedding = tf.keras.layers.Embedding(input_vocab_size, e)
@@ -26,7 +26,7 @@ class Decoder(tf.keras.Model):
         # print(tf.divide(x, norm))
         x_2 = self.embedding(x_2)
         y_attn, _ = self.mha(y, x, x, x_2, x_mask, infer=infer, x=ix, y=iy, n=n, x0=x0, y0=y0, x1=x1, y1=y1)
-        y_attn = tf.nn.leaky_relu(y_attn)
+        # y_attn = tf.nn.leaky_relu(y_attn)
         current_position = x[:, 1:, :]
         current_series = x_2[:, 1:, :]
         # print(current_series.shape)

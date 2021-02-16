@@ -23,18 +23,18 @@ def dot_product_attention(q, k, v, mask, infer=False, x=None, y=None, n=0, x0=No
     :return:
     """
     # q = tf.divide(q, tf.norm(q, axis=))
-    print(q.shape)
     mask = mask[:, tf.newaxis, :, :]
     matmul_qk = tf.matmul(q, k, transpose_b=True, name='qk')
     matmul_qk = matmul_qk[:, :, 1:, :-1]
     # print(matmul_qk.shape)
     dk = tf.cast(tf.shape(k)[-1], tf.float64)
-    nl_qk = tf.cast(tf.nn.relu(matmul_qk / tf.math.sqrt(dk), name='nl_qk'), tf.float64)
+    # nl_qk = tf.cast(tf.nn.relu(matmul_qk / tf.math.sqrt(dk), name='nl_qk'), tf.float64)
+    nl_qk = tf.cast(matmul_qk / tf.math.sqrt(dk), tf.float64)
     if mask is not None:
         nl_qk += ((tf.cast(mask, tf.float64)) * -1e9)
     att_weights = tf.nn.softmax(nl_qk, axis=-1, name='att_weights')  # batch_size X d_model X seq_len X seq_len
     if infer:
-        k_vals, k_ind = tf.math.top_k(att_weights[0, -1, -1, :], k=5, sorted=True, name=None)
+        k_vals, k_ind = tf.math.top_k(att_weights[0, :, -1, :], k=5, sorted=True, name=None)
         # k_vals_agg, k_ind_agg = tf.math.top_k(k_ind.reshape(-1), k=10, sorted=True, name=None)
         plt.figure(n)
         # print('x0: ', x0)

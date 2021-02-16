@@ -36,9 +36,9 @@ def build_graph():
         combined_mask_x = masks.create_masks(xx)
         with tf.GradientTape(persistent=True) as tape:
             if d:
-                pred = decoder(x, x2, y_inp, True, combined_mask_x[:, 1:, :-1])
+                pred = decoder(x, x2, y_inp, True, combined_mask_x[:, :-1, :-1])
             else:
-                pred = decoder(x, y_inp, True, combined_mask_x[:, 1:, :-1])
+                pred = decoder(x, y_inp, True, combined_mask_x[:, :-1, :-1])
             if type(context_p) is list:
                 pred0 = tf.squeeze(pred[:, :, 0])
                 pred1 = tf.squeeze(pred[:, :, 1])

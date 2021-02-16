@@ -11,7 +11,7 @@ import numpy as np
 
 kernel = input()
 d = True
-save_dir = '/home/azureuser/Downloads/GPT_' + kernel
+save_dir = os.path.expanduser('/home/azureuser/Downloads/GPT_' + kernel)
 data = loader.load_data(kernel, size = 1, rewrite = False, diff_x= True, noise = False, d = True, ordered = True)
 train_step, test_step, loss_object, train_loss, test_loss, m_tr, m_te = grapher.build_graph()
 EPOCHS = 75; batch_s  = 64; run = 515; step = 0; train_steps = 35000; heads = 32; ℯ = 512; context = 10
@@ -37,7 +37,6 @@ if manager.latest_checkpoint:
     print("Restored from {}".format(manager.latest_checkpoint))
 else:
     print("Initializing from scratch.")
-#     optimizer_c = tf.keras.optimizers.Adam(3e-4)
 with writer.as_default():
     for epoch in range(EPOCHS):
         
@@ -68,10 +67,8 @@ with writer.as_default():
                 if d:
                     pass
                     # pred_te, pred_log_te = test_step(decoder, test_loss, m_te, x_te = data[3][:500, :], y_te = data[6][:500, :], d = True, x2_te = data[0][:500, :])
-                    # plotter.follow_training_plot2d(x_tr = b_data[1], y_tr = b_data[0], em_2_tr = b_data[3] , pred = pred, x_te = data[2][:500], y_te = data[-2][:500], em_2_te = data[0][:500] ,pred_te = pred_te, num_context = context)
                 else:
                     pred_te, pred_log_te = test_step(decoder, test_loss, m_te, x_te = data[2][:500, :], y_te = data[5][:500, :], context_p = context)
-                    plotter.follow_training_plot(x_tr = b_data[1], y_tr = b_data[0], pred = pred, x_te = data[1][:500, :], y_te = data[5][:500, :], pred_te = pred_te, num_context = context)
                 helpers.print_progress(epoch, batch_n, train_loss.result(), test_loss.result(), m_tr.result(), m_te.result())
                 helpers.tf_summaries(run, step, train_loss.result(), test_loss.result(), m_tr.result(), m_te.result(), weights, names)
                 print('learning rate is {}'.format(optimizer_c._decayed_lr('float32').numpy()))
