@@ -7,7 +7,7 @@ from data import data_generation
 
 
 def load_data(kernel='rbf', size=150000, rewrite='False', diff_x=False, noise=False, d=False, ordered=False):
-    folder = '../Downloads/GPT_' + kernel + '/data/'
+    folder = '~/Downloads/GPT_' + kernel + '/data/'
     folder_content = os.listdir(folder)
     if (len(folder_content) == 0) or (rewrite == 'True'):
         print("Directory is empty \n Generating data..")
