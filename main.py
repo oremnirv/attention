@@ -66,8 +66,9 @@ with writer.as_default():
             if batch_n % 300 == 0:
                 m_te.reset_states(); test_loss.reset_states()
                 if d:
-                    pred_te, pred_log_te = test_step(decoder, test_loss, m_te, x_te = data[3][:500, :], y_te = data[6][:500, :], d = True, x2_te = data[0][:500, :])
-                    plotter.follow_training_plot2d(x_tr = b_data[1], y_tr = b_data[0], em_2_tr = b_data[3] , pred = pred, x_te = data[2][:500], y_te = data[-2][:500], em_2_te = data[0][:500] ,pred_te = pred_te, num_context = context)
+                    pass
+                    # pred_te, pred_log_te = test_step(decoder, test_loss, m_te, x_te = data[3][:500, :], y_te = data[6][:500, :], d = True, x2_te = data[0][:500, :])
+                    # plotter.follow_training_plot2d(x_tr = b_data[1], y_tr = b_data[0], em_2_tr = b_data[3] , pred = pred, x_te = data[2][:500], y_te = data[-2][:500], em_2_te = data[0][:500] ,pred_te = pred_te, num_context = context)
                 else:
                     pred_te, pred_log_te = test_step(decoder, test_loss, m_te, x_te = data[2][:500, :], y_te = data[5][:500, :], context_p = context)
                     plotter.follow_training_plot(x_tr = b_data[1], y_tr = b_data[0], pred = pred, x_te = data[1][:500, :], y_te = data[5][:500, :], pred_te = pred_te, num_context = context)
