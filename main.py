@@ -9,7 +9,7 @@ import time
 import numpy as np
 
 
-kernel = 'rbf_const_2D'
+kernel = input()
 d = True
 save_dir = '/home/azureuser/Downloads/GPT_' + kernel
 data = loader.load_data(kernel, size = 1, rewrite = False, diff_x= True, noise = False, d = True, ordered = True)
