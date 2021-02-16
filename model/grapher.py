@@ -37,24 +37,19 @@ def build_graph():
         with tf.GradientTape(persistent=True) as tape:
             if d:
                 pred = decoder(x, x2, y_inp, True, combined_mask_x[:, 1:, :-1])
-                print('hi 0')
             else:
                 pred = decoder(x, y_inp, True, combined_mask_x[:, 1:, :-1])
             if type(context_p) is list:
                 pred0 = tf.squeeze(pred[:, :, 0])
-                print('hi 1')
                 pred1 = tf.squeeze(pred[:, :, 1])
                 loss, mse, mask = losses.loss_function(tf.gather_nd(y_real, to_gather, name='real'), pred= tf.gather_nd(pred0, to_gather, name='mean'),
                                                        pred_log_sig=tf.gather_nd(pred1, to_gather, name='log_sig'))
-                print('hi 2')
             else:
                 loss, mse, mask = losses.loss_function(y_real[:, context_p:], pred=pred[:, context_p:, 0],
                                                        pred_log_sig=pred[:, context_p:, 1])
             gradients = tape.gradient(loss, decoder.trainable_variables)
             optimizer_c.apply_gradients(zip(gradients, decoder.trainable_variables))
             train_loss(loss)
-            print('mse: ', mse)
-            print('mask: ', mask.shape)
             # m_tr.update_state(mse, mask)
             names = [v.name for v in decoder.trainable_variables]
             shapes = [v.shape for v in decoder.trainable_variables]
