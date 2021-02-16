@@ -51,6 +51,7 @@ def rearange_tr_2d(x, y, em, em_2, context_p=50, s=1):
         y_post = y[row, context_p * 2:].reshape(-1)
         y_infer = np.concatenate((y_pre, y_post[cond[1]])).reshape(-1)
         c_p = len(y_infer)
+        print(c_p)
         c.append(c_p)
         y_infer = np.concatenate((y_infer, y_post[cond[3]]))
         yy.append(y_infer)
