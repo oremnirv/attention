@@ -47,7 +47,7 @@ with writer.as_default():
             m_tr.reset_states(); train_loss.reset_states()
             if d:
 #                     b_data = batch_creator.create_batch(em_x = data[-4], x = data[1], y = data[-3],  em_2 = data[-1], batch_s=64, d=d)
-                b_data, c = batch_creator.create_batch_2d(em_x = data[-4], x = data[1], y = data[-3],  em_2 = data[-1], batch_s=64)
+                b_data, c = batch_creator.create_batch_2d(em_x = data[-1], x = data[2], y = data[0],  em_2 = data[3], batch_s=64)
                 print('c: ', c)
                 if type(c) is list:
                     cols = [np.arange(c[i], b_data[2].shape[1] -1, 1) for i in range(len(c))]
