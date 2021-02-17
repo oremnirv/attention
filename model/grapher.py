@@ -6,7 +6,7 @@ from model import losses
 
 
 def build_graph():
-    loss_object = tf.keras.losses.MeanSquaredError()
+    loss_object = tf.keras.losses.MeanSquaredError(reduction=tf.keras.losses.Reduction.NONE)
     train_loss = tf.keras.metrics.Mean(name='train_loss')
     test_loss = tf.keras.metrics.Mean(name='test_loss')
     m_tr = tf.keras.metrics.Mean()
