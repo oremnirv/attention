@@ -1,7 +1,6 @@
 yes Y | command-that-asks-for-input
 cp -r ~/Downloads/Downloads/GPT_rbf_const_2D ~/Downloads/
 cd 
-git clone https://github.com/oremnirv/attention.git
 cd attention
 git checkout omer
 sudo add-apt-repository universe
