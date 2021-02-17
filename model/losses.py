@@ -3,7 +3,7 @@
 ###########################
 import tensorflow as tf
 
-loss_object = tf.keras.losses.MeanSquaredError()
+loss_object = tf.keras.losses.MeanSquaredError(reduction=tf.keras.losses.Reduction.NONE)
 
 
 def loss_function(real, pred, pred_log_sig=None, epsilon=0.001):
