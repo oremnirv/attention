@@ -25,4 +25,5 @@ def loss_function(real, pred, pred_log_sig=None, epsilon=0.001):
     loss_ = 1 / 2 * (tf.math.divide(mse, tf.math.square(tf.math.exp(pred_log_sig)) + epsilon) + pred_log_sig)
     mask = tf.cast(mask, dtype=loss_.dtype)
     loss_ *= mask
+    tf.print(tf.reduce_sum(loss_))
     return tf.reduce_sum(loss_) / tf.reduce_sum(mask), mse, mask
