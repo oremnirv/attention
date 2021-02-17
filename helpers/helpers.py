@@ -44,7 +44,7 @@ def print_progress(epoch, batch_n, train_loss_r, test_loss_r, tr_metric, te_metr
 
 
 def write_speci(folder, names, shapes, context_p):
-    with open(folder + '_context_' + str(context_p) + '_speci.csv', "w") as csv_file:
+    with open(os.path.extanduser(folder + '_context_' + str(context_p) + '_speci.csv', "w")) as csv_file:
         writer = csv.writer(csv_file, delimiter=',')
         for name, shape in zip(names, shapes):
             writer.writerow([str(name.numpy()).split('/')[-2], str(shape.numpy())])
