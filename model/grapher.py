@@ -56,7 +56,7 @@ def build_graph():
             return pred[:, :, 0], pred[:, :, 1], decoder.trainable_variables, names, shapes
 
     @tf.function
-    def test_step(decoder, test_loss, m_te, x_te, y_te, context_p=50, d=False, x2_te=None):
+    def test_step(decoder, test_loss, m_te, x_te, y_te, context_p=50, d=False, x2_te=None, to_gather=None):
         """
 
         :param decoder:
@@ -71,18 +71,29 @@ def build_graph():
         """
         y_inp_te = y_te[:, :-1]
         y_real_te = y_te[:, 1:]
-        combined_mask_x_te = masks.create_masks(x_te)
+        xx = x_te
+        if len(x_te.shape) > 2:
+            xx = x_te[:, 0, :]
+        combined_mask_x_te = masks.create_masks(xx)
         # training=False is only needed if there are layers with different
         # behavior during training versus inference (e.g. Dropout).
         if d:
-            pred_te = decoder(x_te, x2_te, y_inp_te, False, combined_mask_x_te[:, 1:, :-1])
+            pred_te = decoder(x_te, x2_te, y_inp_te, False, combined_mask_x_te[:, :-1, :-1])
         else:
-            pred_te = decoder(x_te, y_inp_te, False, combined_mask_x_te[:, 1:, :-1])
-        t_loss, t_mse, t_mask = losses.loss_function(y_real_te[:, context_p:], pred=pred_te[:, context_p:, 0],
-                                                     pred_log_sig=pred_te[:, context_p:, 1])
+            pred_te = decoder(x_te, y_inp_te, False, combined_mask_x_te[:, :-1, :-1])
+
+        if type(context_p) is list:
+            pred0_te = tf.squeeze(pred_te[:, :, 0])
+            pred1_te = tf.squeeze(pred_te[:, :, 1])
+            t_loss, t_mse, t_mask = losses.loss_function(tf.gather_nd(y_real_te, to_gather, name='real_te'), pred= tf.gather_nd(pred0_te, to_gather, name='mean_te'),
+                                                       pred_log_sig=tf.gather_nd(pred1_te, to_gather, name='log_sig_te'))
+        else:
+            t_loss, t_mse, t_mask = losses.loss_function(y_real_te[:, context_p:], pred=pred_te[:, context_p:, 0],
+                                                       pred_log_sig=pred_te[:, context_p:, 1])
+
 
         test_loss(t_loss)
-        m_te.update_state(t_mse, t_mask)
+        # m_te.update_state(t_mse, t_mask)
         return pred_te[:, :, 0], pred_te[:, :, 1]
 
     tf.keras.backend.set_floatx('float64')

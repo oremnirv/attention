@@ -14,7 +14,7 @@ d = True
 save_dir = os.path.expanduser('~/Downloads/GPT_' + kernel)
 data = loader.load_data(kernel, size = 1, rewrite = False, diff_x= True, noise = False, d = True, ordered = True)
 train_step, test_step, loss_object, train_loss, test_loss, m_tr, m_te = grapher.build_graph()
-EPOCHS = 75; batch_s  = 64; run = 515; step = 0; train_steps = 35000; heads = 32; ℯ = 512; context = 10
+EPOCHS = 75; batch_s  = 64; run = 516; step = 0; train_steps = 35000; heads = 32; ℯ = 512; context = 10
 l = [256, 256, 64, 32]
 name_comp = 'run_' + str(run) 
 logdir = save_dir + '/logs/' + name_comp
@@ -29,7 +29,7 @@ if d:
 else:
     decoder = experimental_model.Decoder(ℯ, l1, l2, l3, num_heads = heads)
 tf.random.set_seed(443)  
-num_batches = int(data[5].shape[0] / batch_s) if d else int(data[4].shape[0] / batch_s)
+num_batches = int(data[0].shape[0] / batch_s) if d else int(data[4].shape[0] / batch_s)
 ckpt = tf.train.Checkpoint(step=tf.Variable(1), optimizer = optimizer_c, net = decoder)
 manager = tf.train.CheckpointManager(ckpt, folder, max_to_keep=3)
 ckpt.restore(manager.latest_checkpoint)
@@ -72,15 +72,15 @@ with writer.as_default():
                 helpers.print_progress(epoch, batch_n, train_loss.result(), test_loss.result(), m_tr.result(), m_te.result())
                 helpers.tf_summaries(run, step, train_loss.result(), test_loss.result(), m_tr.result(), m_te.result(), weights, names)
                 print('learning rate is {}'.format(optimizer_c._decayed_lr('float32').numpy()))
-                if d:
-                    m0, m1 = metrics.r_sq_2d(b_data[0][:, 1:], pred.numpy(), b_data[3][:, 1:], context_p = context)
-                    # m0_te, m1_te = metrics.r_sq_2d(data[-2][:500, 1:], pred_te.numpy(), data[0][:500, 1:], context_p = context)
-                    print('r squared training, series 0: {}, series 1: {}'.format(m0, m1))
-                    # print('r squared testing, series 0: {}, series 1: {}'.format(m0_te, m1_te))
+                # if d:
+                #     m0, m1 = metrics.r_sq_2d(b_data[0][:, 1:], pred.numpy(), b_data[3][:, 1:], context_p = context)
+                #     # m0_te, m1_te = metrics.r_sq_2d(data[-2][:500, 1:], pred_te.numpy(), data[0][:500, 1:], context_p = context)
+                #     print('r squared training, series 0: {}, series 1: {}'.format(m0, m1))
+                #     # print('r squared testing, series 0: {}, series 1: {}'.format(m0_te, m1_te))
 
-                else: 
-                    print('r squared training: ', metrics.r_squared(m_tr.result(), b_data[0][:, (context + 1):]))
-                    print('r squared testing: ', metrics.r_squared(m_te.result(), data[5][:500, (context + 1):], batch_s = 500))
+                # else: 
+                #     print('r squared training: ', metrics.r_squared(m_tr.result(), b_data[0][:, (context + 1):]))
+                #     print('r squared testing: ', metrics.r_squared(m_te.result(), data[5][:500, (context + 1):], batch_s = 500))
 
 
                 manager.save()
