@@ -95,8 +95,8 @@ with writer.as_default():
                     seq_l = to_gather[to_gather[:, 0] == idd][0, 1]
                     plt.scatter(b_data[1][idd, :seq_l], b_data[0][idd, :seq_l] , c = 'blue')
                     plt.scatter(b_data[1][idd, seq_l:], pred[idd][(seq_l - 1):])
-                    plt.savefig('foo{}.png'.format((batch_n / num_batches) + (epoch + 1))
-                    plt.show()
+                    plt.savefig('foo{}.png'.format((batch_n / num_batches) + (epoch + 1)))
+                    
                         
 #                         plotter.follow_training_plot2d(x_tr = b_data[1], y_tr = b_data[0], em_2_tr = b_data[3] , pred = pred, x_te = data[2][:500], y_te = data[-2][:500], em_2_te = data[0][:500] ,pred_te = pred_te, num_context = context)
                 else:
