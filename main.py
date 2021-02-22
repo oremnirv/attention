@@ -6,6 +6,7 @@ from data import batch_creator, loader
 from model import experimental_model, experimental2d_model, grapher
 import os
 import sys
+import matplotlib.pyplot as plt
 sys.path.append("..")
 
 
