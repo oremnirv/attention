@@ -103,7 +103,8 @@ with writer.as_default():
 
 
                 else:
-                    pred_te, pred_log_te=test_step(decoder, test_loss, m_te, x_te=data[2][:500, :], y_te=data[5][:500, :], context_p=context)
+                    pass
+                    # pred_te, pred_log_te=test_step(decoder, test_loss, m_te, x_te=data[2][:500, :], y_te=data[5][:500, :], context_p=context)
 
                 helpers.print_progress(epoch, batch_n, train_loss.result(), test_loss.result(), m_tr.result(), m_te.result())
                 helpers.tf_summaries(run, step, train_loss.result(), test_loss.result(), m_tr.result(), m_te.result(), weights, names)
