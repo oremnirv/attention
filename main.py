@@ -119,7 +119,7 @@ with writer.as_default():
 
 
                 # else:
-                #     print('r squared training: ', metriS~s.r_squared(m_tr.result(), b_data[0][:, (context + 1):]))
+                #     print('r squared training: ', metrics.r_squared(m_tr.result(), b_data[0][:, (context + 1):]))
                 #     print('r squared testing: ', metrics.r_squared(m_te.result(), data[5][:500, (context + 1):], batch_s = 500))
 
 
