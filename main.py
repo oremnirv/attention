@@ -94,6 +94,7 @@ with writer.as_default():
                         
                     idd = np.random.choice(np.arange(0, 64))
                     seq_l = to_gather[to_gather[:, 0] == idd][0, 1]
+                    plt.figure()
                     plt.scatter(b_data[1][idd, :seq_l], b_data[0][idd, :seq_l] , c = 'blue')
                     plt.scatter(b_data[1][idd, seq_l:], pred[idd][(seq_l - 1):])
                     plt.savefig('foo{}.png'.format((batch_n / num_batches) + (epoch + 1)))
