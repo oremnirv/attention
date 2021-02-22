@@ -76,8 +76,7 @@ with writer.as_default():
                 m_te.reset_states(); test_loss.reset_states()
                 if d:
 
-                    b_data_te, c_te = batch_creator.create_batch_2d(
-                        em_x=data[3], x=data[2], y=data[6],  em_2=data[0], batch_s=64)
+                    b_data_te, c_te = batch_creator.create_batch_2d(em_x=data[3], x=data[2], y=data[6],  em_2=data[0], batch_s=64)
                     if type(c_te) is list:
                         cols = [np.arange(c_te[i], b_data_te[2].shape[1] - 1, 1)
                                           for i in range(len(c_te))]
@@ -90,8 +89,7 @@ with writer.as_default():
                     else:
                         to_gather_te = None
 
-                    pred_te, pred_log_te = test_step(
-                        decoder, test_loss, m_te, x_te=b_data_te[2], y_te=b_data_te[0], x2_te=b_data_te[3], to_gather=to_gather_te, context_p=context, d=True)
+                    pred_te, pred_log_te = test_step(decoder, test_loss, m_te, x_te=b_data_te[2], y_te=b_data_te[0], x2_te=b_data_te[3], to_gather=to_gather_te, context_p=context, d=True)
 
                     idd = np.random.choice(np.arange(0, 64))
                     seq_l = to_gather[to_gather[:, 0] == idd][0, 1]
