@@ -99,7 +99,7 @@ with writer.as_default():
                                 b_data[0][idd, :seq_l], c='blue')
                     plt.scatter(b_data[1][idd, seq_l:],
                                 pred[idd][(seq_l - 1):])
-                    plt.savefig('foo{}.png'.format((batch_n / num_batches) + (epoch + 1))
+                    plt.savefig('foo{}.png'.format((batch_n / num_batches) + (epoch + 1)))
 
 
                 else:
@@ -110,10 +110,8 @@ with writer.as_default():
                 helpers.tf_summaries(run, step, train_loss.result(), test_loss.result(), m_tr.result(), m_te.result(), weights, names)
                 print('learning rate is {}'.format(optimizer_c._decayed_lr('float32').numpy()))
                 if d:
-                    m0, m1=metrics.r_sq_2d(
-                        b_data[0][:, 1:], pred.numpy(), b_data[3][:, 1:], context_p=context)
-                    m0_te, m1_te=metrics.r_sq_2d(
-                        b_data_te[0][:, 1:], pred_te.numpy(), b_data_te[3][:, 1:], context_p=context)
+                    m0, m1=metrics.r_sq_2d(b_data[0][:, 1:], pred.numpy(), b_data[3][:, 1:], context_p=context)
+                    m0_te, m1_te=metrics.r_sq_2d(b_data_te[0][:, 1:], pred_te.numpy(), b_data_te[3][:, 1:], context_p=context)
                     print('r squared training, series 0: {}, series 1: {}'.format(m0, m1))
                     print('r squared testing, series 0: {}, series 1: {}'.format(m0_te, m1_te))
 
