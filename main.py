@@ -90,37 +90,34 @@ with writer.as_default():
                         to_gather_te = None
 
                     pred_te, pred_log_te = test_step(decoder, test_loss, m_te, x_te=b_data_te[2], y_te=b_data_te[0], x2_te=b_data_te[3], to_gather=to_gather_te, context_p=context, d=True)
-
-                    idd = np.random.choice(np.arange(0, 64))
-                    seq_l = to_gather[to_gather[:, 0] == idd][0, 1]
-                    plt.scatter(b_data[1][idd, :seq_l],
-                                b_data[0][idd, :seq_l], c='blue')
-                    plt.scatter(b_data[1][idd, seq_l:],
-                                pred[idd][(seq_l - 1):])
-                    plt.savefig('foo{}.png'.format((batch_n / num_batches) + (epoch + 1)))
-
-
+                        
+                        idd = np.random.choice(np.arange(0, 64))
+                        seq_l = to_gather[to_gather[:, 0] == idd][0, 1]
+                        plt.scatter(b_data[1][idd, :seq_l], b_data[0][idd, :seq_l] , c = 'blue')
+                        plt.scatter(b_data[1][idd, seq_l:], pred[idd][(seq_l - 1):])
+                        plt.savefig('foo{}.png'.format((batch_n / num_batches) + (epoch + 1))
+                        plt.show()
+                        
+#                         plotter.follow_training_plot2d(x_tr = b_data[1], y_tr = b_data[0], em_2_tr = b_data[3] , pred = pred, x_te = data[2][:500], y_te = data[-2][:500], em_2_te = data[0][:500] ,pred_te = pred_te, num_context = context)
                 else:
-                    pass
-                    # pred_te, pred_log_te=test_step(decoder, test_loss, m_te, x_te=data[2][:500, :], y_te=data[5][:500, :], context_p=context)
-
+                    pred_te, pred_log_te = test_step(decoder, test_loss, m_te, x_te = data[2][:500, :], y_te = data[5][:500, :], context_p = context)
+                    plotter.follow_training_plot(x_tr = b_data[1], y_tr = b_data[0], pred = pred, x_te = data[1][:500, :], y_te = data[5][:500, :], pred_te = pred_te, num_context = context)
                 helpers.print_progress(epoch, batch_n, train_loss.result(), test_loss.result(), m_tr.result(), m_te.result())
                 helpers.tf_summaries(run, step, train_loss.result(), test_loss.result(), m_tr.result(), m_te.result(), weights, names)
                 print('learning rate is {}'.format(optimizer_c._decayed_lr('float32').numpy()))
                 if d:
-                    m0, m1=metrics.r_sq_2d(b_data[0][:, 1:], pred.numpy(), b_data[3][:, 1:], context_p=context)
-                    m0_te, m1_te=metrics.r_sq_2d(b_data_te[0][:, 1:], pred_te.numpy(), b_data_te[3][:, 1:], context_p=context)
+                    m0, m1 = metrics.r_sq_2d(b_data[0][:, 1:], pred.numpy(), b_data[3][:, 1:], context_p = context)
+                    m0_te, m1_te = metrics.r_sq_2d(b_data_te[0][:, 1:], pred_te.numpy(), b_data_te[3][:, 1:], context_p = context)
                     print('r squared training, series 0: {}, series 1: {}'.format(m0, m1))
                     print('r squared testing, series 0: {}, series 1: {}'.format(m0_te, m1_te))
 
-
-                # else:
-                #     print('r squared training: ', metrics.r_squared(m_tr.result(), b_data[0][:, (context + 1):]))
-                #     print('r squared testing: ', metrics.r_squared(m_te.result(), data[5][:500, (context + 1):], batch_s = 500))
+#                     else: 
+#                         print('r squared training: ', metrics.r_squared(m_tr.result(), b_data[0][:, (context + 1):]))
+#                         print('r squared testing: ', metrics.r_squared(m_te.result(), data[5][:500, (context + 1):], batch_s = 500))
 
 
                 manager.save()
             step += 1
             ckpt.step.assign_add(1)
 
-        print('Time taken for 1 epoch: {} secs\n'.format(time.time() - start))
+        print ('Time taken for 1 epoch: {} secs\n'.format(time.time() - start))
