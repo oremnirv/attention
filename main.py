@@ -103,23 +103,18 @@ with writer.as_default():
 
 
                 else:
-                    pred_te, pred_log_te=test_step(
-                        decoder, test_loss, m_te, x_te=data[2][:500, :], y_te=data[5][:500, :], context_p=context)
-                helpers.print_progress(epoch, batch_n, train_loss.result(
-                ), test_loss.result(), m_tr.result(), m_te.result())
-                helpers.tf_summaries(run, step, train_loss.result(
-                ), test_loss.result(), m_tr.result(), m_te.result(), weights, names)
-                print('learning rate is {}'.format(
-                    optimizer_c._decayed_lr('float32').numpy()))
+                    pred_te, pred_log_te=test_step(decoder, test_loss, m_te, x_te=data[2][:500, :], y_te=data[5][:500, :], context_p=context)
+
+                helpers.print_progress(epoch, batch_n, train_loss.result(), test_loss.result(), m_tr.result(), m_te.result())
+                helpers.tf_summaries(run, step, train_loss.result(), test_loss.result(), m_tr.result(), m_te.result(), weights, names)
+                print('learning rate is {}'.format(optimizer_c._decayed_lr('float32').numpy()))
                 if d:
                     m0, m1=metrics.r_sq_2d(
                         b_data[0][:, 1:], pred.numpy(), b_data[3][:, 1:], context_p=context)
                     m0_te, m1_te=metrics.r_sq_2d(
                         b_data_te[0][:, 1:], pred_te.numpy(), b_data_te[3][:, 1:], context_p=context)
-                    print(
-                        'r squared training, series 0: {}, series 1: {}'.format(m0, m1))
-                    print('r squared testing, series 0: {}, series 1: {}'.format(
-                        m0_te, m1_te))
+                    print('r squared training, series 0: {}, series 1: {}'.format(m0, m1))
+                    print('r squared testing, series 0: {}, series 1: {}'.format(m0_te, m1_te))
 
 
                 # else:
