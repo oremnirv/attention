@@ -76,7 +76,7 @@ with writer.as_default():
                 m_te.reset_states(); test_loss.reset_states()
                 if d:
 
-                    b_data_te, c_te = batch_creator.create_batch_2d(em_x=data[3], x=data[2], y=data[6],  em_2=data[0], batch_s=64)
+                    b_data_te, c_te = batch_creator.create_batch_2d(em_x=data[1], x=data[4], y=data[5],  em_2=data[6], batch_s=64)
                     if type(c_te) is list:
                         cols = [np.arange(c_te[i], b_data_te[2].shape[1] - 1, 1)
                                           for i in range(len(c_te))]
@@ -99,9 +99,9 @@ with writer.as_default():
                     
                         
 #                         plotter.follow_training_plot2d(x_tr = b_data[1], y_tr = b_data[0], em_2_tr = b_data[3] , pred = pred, x_te = data[2][:500], y_te = data[-2][:500], em_2_te = data[0][:500] ,pred_te = pred_te, num_context = context)
-                else:
-                    pred_te, pred_log_te = test_step(decoder, test_loss, m_te, x_te = data[2][:500, :], y_te = data[5][:500, :], context_p = context)
-                    plotter.follow_training_plot(x_tr = b_data[1], y_tr = b_data[0], pred = pred, x_te = data[1][:500, :], y_te = data[5][:500, :], pred_te = pred_te, num_context = context)
+                # else:
+                #     pred_te, pred_log_te = test_step(decoder, test_loss, m_te, x_te = data[2][:500, :], y_te = data[5][:500, :], context_p = context)
+                #     plotter.follow_training_plot(x_tr = b_data[1], y_tr = b_data[0], pred = pred, x_te = data[1][:500, :], y_te = data[5][:500, :], pred_te = pred_te, num_context = context)
                 helpers.print_progress(epoch, batch_n, train_loss.result(), test_loss.result(), m_tr.result(), m_te.result())
                 helpers.tf_summaries(run, step, train_loss.result(), test_loss.result(), m_tr.result(), m_te.result(), weights, names)
                 print('learning rate is {}'.format(optimizer_c._decayed_lr('float32').numpy()))
