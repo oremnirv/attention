@@ -25,6 +25,9 @@ def evaluate(model, x, y, sample=True, d=False, x2=None, xx=None, yy=None, c_ste
     combined_mask_x = masks.create_masks(x)
     if d:
         pred = model(x, x2, y, False, combined_mask_x[:, :-1, :-1], infer=infer, ix=xx, iy=yy, n=c_step, x0=x0, y0=y0, x1=x1, y1=y1)
+        print('pred: ', pred)
+        tf.print(pred)
+
     else:
         pred = model(x, y, False, combined_mask_x[:, :-1, :-1])
     if sample:
@@ -65,10 +68,12 @@ def inference(model, em_te, y, num_steps=1, sample=True, d=False, em_te_2=None, 
     if d:
         temp_x2 = em_te_2[:, :(n + 1)]
         print('series: ', temp_x2[:, -1])
+        print('current: ', temp_x[:, -1])
         pred, pred_log_sig, sample_y = evaluate(model, temp_x, y, d=True, x2=temp_x2, sample=sample, infer=infer, xx=xx, yy=yy, c_step=n, x0=x0, y0=y0, x1=x1, y1=y1)
     else:
         pred, pred_log_sig, sample_y = evaluate(model, temp_x, y, sample=sample)
     y = tf.concat((y, tf.reshape(sample_y, [1, 1])), axis=1)
+    print('sample_y: ', sample_y)
     if num_steps > 1:
         model, em_te, y, num_steps = inference(model, em_te, y, num_steps - 1, d=d, em_te_2=em_te_2, series=series,
                                                sample=sample, xx=xx, yy=yy, infer=infer, x0=x0, y0=y0, x1=x1, y1=y1)

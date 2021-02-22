@@ -24,7 +24,9 @@ class Decoder(tf.keras.Model):
         x = self.embedding(x)
         # norm = tf.reshape(tf.repeat(tf.norm(x, axis=-1), self.e), shape=[-1, x.shape[1] ,self.e])
         # print(tf.divide(x, norm))
+        tf.print(x_2[0][1])
         x_2 = self.embedding(x_2)
+        tf.print(x_2[0][1])
         y_attn, _ = self.mha(y, x, x, x_2, x_mask, infer=infer, x=ix, y=iy, n=n, x0=x0, y0=y0, x1=x1, y1=y1)
         # y_attn = tf.nn.leaky_relu(y_attn)
         current_position = x[:, 1:, :]

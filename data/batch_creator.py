@@ -93,17 +93,17 @@ def create_batch_2d(em_x, x, y, em_2, batch_s=128, context_p=50):
     em_2 = em_2[batch_idx]
     c = context_p
     p = np.random.random()
-    # print('p: ', p)
-    if p <= 0.25:
+    print('p: ', p)
+    if p <= 0.5:
         x, y, em_x, em_2, c = rearange_tr_2d(x, y, em_x, em_2, context_p)
-    elif p <= 0.5:
+    elif p <= 1:
         x, y, em_x, em_2, c = rearange_tr_2d(x, y, em_x, em_2, context_p, s=0)
-    elif p <= 0.75:
-        permute_idx = np.random.permutation(np.arange(cols))
-        x = x[:, permute_idx]
-        y = y[:, permute_idx]
-        em_x = em_x[:, permute_idx]
-        em_2 = em_2[:, permute_idx]
+    # elif p <= 0.75:
+    #     permute_idx = np.random.permutation(np.arange(cols))
+    #     x = x[:, permute_idx]
+    #     y = y[:, permute_idx]
+    #     em_x = em_x[:, permute_idx]
+    #     em_2 = em_2[:, permute_idx]
     else:
         pass
 
