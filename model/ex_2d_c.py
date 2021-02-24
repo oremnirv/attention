@@ -69,6 +69,6 @@ class Decoder(tf.keras.Model):
         L2 = tf.nn.leaky_relu(L1)
         L2 = self.dropout4(L1, training)
         L2 = self.layernorm3(L2 + L1)
-        print(xx)
+        # print(xx)
         L2 = self.A6(L2) + self.A7(current_series)
         return tf.squeeze(L2)

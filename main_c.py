@@ -85,7 +85,7 @@ with writer.as_default():
                 plt.figure()
                 plt.scatter(b_data[1][idd, :seq_l], b_data[0][idd, :seq_l] , c = 'blue')
                 plt.scatter(b_data[1][idd, seq_l:], pred[idd][(seq_l - 1):])
-                plt.savefig('foo{}.png'.format((batch_n / num_batches) + (epoch + 1)))
+                plt.savefig('foo_c_{}.png'.format((batch_n / num_batches) + (epoch + 1)))
 
                 helpers.print_progress(epoch, batch_n, train_loss.result(), test_loss.result(), m_tr.result(), m_te.result())
                 helpers.tf_summaries(run, step, train_loss.result(), test_loss.result(), m_tr.result(), m_te.result(), weights, names)
