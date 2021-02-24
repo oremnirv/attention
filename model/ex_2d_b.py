@@ -57,13 +57,13 @@ class Decoder(tf.keras.Model):
         current_position = x[:, 1:, :]
         current_series = x_2[:, 1:, :]
         # print(current_series.shape)
-        L = tf.math.add(self.A1(y_attn), self.A2(current_position)) 
-        L = tf.math.add(self.A3(current_series), L)
-        L = tf.nn.leaky_relu(L)
+        L0 = tf.math.add(self.A1(y_attn), self.A2(current_position)) 
+        L0 = tf.math.add(self.A3(current_series), L0)
+        L0 = tf.nn.leaky_relu(L0)
         # print(self.A3(current_series)[:, -1, :])
         # print(self.A2(current_position)[:, -1, :])
-        L = self.dropout3(L, training)
-        L = self.layernorm2(L + y_attn)
+        L = self.dropout3(L0, training)
+        L = self.layernorm2(L + L0)
         L1 = self.A4(L)
         L2 = tf.nn.leaky_relu(L1)
         L2 = self.dropout4(L1, training)
