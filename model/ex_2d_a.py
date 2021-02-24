@@ -36,7 +36,7 @@ class Decoder(tf.keras.Model):
 
     def call(self, x, x_2, y, training, x_mask, infer=False, ix=None, iy=None, n=0, x0=None, y0=None, x1=None, y1=None):
         batch_size = tf.shape(y)[0]
-        yy = tf.reshape(tf.repeat(y, self.l1), [batch_size, tf.shape(y)[1] , self.l1])
+        yy = tf.reshape(tf.repeat(y, self.e), [batch_size, tf.shape(y)[1] , self.e])
         print(yy)
         y = y[:, :, tf.newaxis]
 
