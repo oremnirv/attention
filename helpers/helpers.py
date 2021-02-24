@@ -50,7 +50,7 @@ def write_speci(folder, names, shapes, context_p):
             writer.writerow([str(name.numpy()).split('/')[-2], str(shape.numpy())])
 
 
-def load_spec(path, e, l, context_p, d=False, old=False):
+def load_spec(path, e, l, context_p, d=False, old=False, abc = False):
     if not os.path.exists(path + '_context_' + str(context_p) + '_speci.csv'):
         print('Does not exists')
         return (e, *l)
@@ -61,6 +61,10 @@ def load_spec(path, e, l, context_p, d=False, old=False):
             if old:
                 for i in [1, 17, 19, 23, 25]:
                     ls.append(int(df[i][1].split('[')[1].split(']')[0]))
+            elif(abc):
+                for i in [8, 14, 16, 18, 20]:
+                    ls.append(int(df[i][1].split('[')[1].split(']')[0]))
+
             else:
                 for i in [1, 11, 13, 15, 17]:
                     ls.append(int(df[i][1].split('[')[1].split(']')[0]))

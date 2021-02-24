@@ -24,7 +24,7 @@ writer = tf.summary.create_file_writer(logdir)
 folder = save_dir + '/ckpt/check_' + name_comp
 #     lr_fn = tf.optimizers.schedules.PolynomialDecay(9e-3, train_steps, 1e-7, 2)
 optimizer_c = tf.keras.optimizers.Adam(3e-4)
-ℯ, l1, _, l2, l3 = helpers.load_spec(folder, ℯ, l, context,  d=True)
+ℯ, l1, _, l2, l3 = helpers.load_spec(folder, ℯ, l, context,  d=True, abc=True)
 helpers.mkdir(folder)
 if d:
     decoder = ex_2d_b.Decoder(ℯ, l1, l2, l3, num_heads=heads)
@@ -89,7 +89,7 @@ with writer.as_default():
                 plt.figure()
                 plt.scatter(b_data[1][idd, :seq_l], b_data[0][idd, :seq_l] , c = 'blue')
                 plt.scatter(b_data[1][idd, seq_l:], pred[idd][(seq_l - 1):])
-                plt.savefig('foo{}.png'.format((batch_n / num_batches) + (epoch + 1)))
+                plt.savefig('foo_b_{}.png'.format((batch_n / num_batches) + (epoch + 1)))
 
                 helpers.print_progress(epoch, batch_n, train_loss.result(), test_loss.result(), m_tr.result(), m_te.result())
                 helpers.tf_summaries(run, step, train_loss.result(), test_loss.result(), m_tr.result(), m_te.result(), weights, names)

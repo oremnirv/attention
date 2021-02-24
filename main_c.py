@@ -24,7 +24,7 @@ writer = tf.summary.create_file_writer(logdir)
 folder = save_dir + '/ckpt/check_' + name_comp
 #     lr_fn = tf.optimizers.schedules.PolynomialDecay(9e-3, train_steps, 1e-7, 2)
 optimizer_c = tf.keras.optimizers.Adam(3e-4)
-ℯ, l1, _, l2, l3 = helpers.load_spec(folder, ℯ, l, context,  d=True)
+ℯ, l1, _, l2, l3 = helpers.load_spec(folder, ℯ, l, context,  d=True, abc=True)
 helpers.mkdir(folder)
 if d:
     decoder = ex_2d_c.Decoder(ℯ, l1, l2, l3, num_heads=heads)
