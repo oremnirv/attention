@@ -37,7 +37,7 @@ class Decoder(tf.keras.Model):
     def call(self, x, x_2, y, training, x_mask, infer=False, ix=None, iy=None, n=0, x0=None, y0=None, x1=None, y1=None):
         batch_size = tf.shape(y)[0]
         yy = tf.reshape(tf.repeat(y, self.e), [batch_size, tf.shape(y)[1] , self.e])
-        print(yy)
+        # print(yy)
         y = y[:, :, tf.newaxis]
 
 
@@ -51,7 +51,7 @@ class Decoder(tf.keras.Model):
         x_2  = self.dropout1(x_2, training)
         # tf.print(x_2[0][1])
         y_attn, _ = self.mha(y, x, x, x_2, x_mask, infer=infer, x=ix, y=iy, n=n, x0=x0, y0=y0, x1=x1, y1=y1)
-        print(y_attn)
+        # print(y_attn)
         y_attn = self.dropout2(y_attn, training)
         y_attn = self.layernorm1(y_attn + yy)
         # y_attn = tf.nn.leaky_relu(y_attn)
@@ -69,5 +69,6 @@ class Decoder(tf.keras.Model):
         L2 = tf.nn.leaky_relu(L1)
         L2 = self.dropout4(L1, training)
         L2 = self.layernorm3(L2 + L1)
+        print(xx)
         L2 = self.A6(L2) + self.A7(xx[:, 1:, :])
         return tf.squeeze(L2)
