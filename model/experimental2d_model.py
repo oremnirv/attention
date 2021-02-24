@@ -18,25 +18,27 @@ class Decoder(tf.keras.Model):
         self.A4 = tf.keras.layers.Dense(l2, name='A4')
         self.A5 = tf.keras.layers.Dense(l3, name='A5')
         self.A6 = tf.keras.layers.Dense(2, name='A6')
+        self.A7 = tf.keras.layers.Dense(2, name='A7')
 
     def call(self, x, x_2, y, training, x_mask, infer=False, ix=None, iy=None, n=0, x0=None, y0=None, x1=None, y1=None):
         y = y[:, :, tf.newaxis]
         x = self.embedding(x)
         # norm = tf.reshape(tf.repeat(tf.norm(x, axis=-1), self.e), shape=[-1, x.shape[1] ,self.e])
         # print(tf.divide(x, norm))
-        tf.print(x_2[0][1])
+        # tf.print(x_2[0][1])
         x_2 = self.embedding(x_2)
-        tf.print(x_2[0][1])
+        # tf.print(x_2[0][1])
         y_attn, _ = self.mha(y, x, x, x_2, x_mask, infer=infer, x=ix, y=iy, n=n, x0=x0, y0=y0, x1=x1, y1=y1)
         # y_attn = tf.nn.leaky_relu(y_attn)
         current_position = x[:, 1:, :]
         current_series = x_2[:, 1:, :]
         # print(current_series.shape)
-        L = self.A1(y_attn) + self.A2(current_position) + self.A3(current_series)
+        L = tf.math.add(self.A1(y_attn), self.A2(current_position)) 
+        L = tf.math.add(self.A3(current_series), L)
         # print(self.A3(current_series)[:, -1, :])
         # print(self.A2(current_position)[:, -1, :])
         L = tf.nn.leaky_relu(L)
         L = tf.nn.leaky_relu(self.A4(L))
         L = tf.nn.leaky_relu(self.A5(L))
-        L = self.A6(L)
+        L = self.A6(L) + self.A7(current_series)
         return tf.squeeze(L)

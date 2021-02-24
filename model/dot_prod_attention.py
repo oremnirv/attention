@@ -33,16 +33,18 @@ def dot_product_attention(q, k, v, mask, infer=False, x=None, y=None, n=0, x0=No
     if mask is not None:
         nl_qk += ((tf.cast(mask, tf.float64)) * -1e9)
     att_weights = tf.nn.softmax(nl_qk, axis=-1, name='att_weights')  # batch_size X d_model X seq_len X seq_len
-    if infer:
-        k_vals, k_ind = tf.math.top_k(att_weights[0, :, -1, :], k=5, sorted=True, name=None)
-        # k_vals_agg, k_ind_agg = tf.math.top_k(k_ind.reshape(-1), k=10, sorted=True, name=None)
-        plt.figure(n)
-        # print('x0: ', x0)
-        plt.plot(x0, y0, c='lightcoral')
-        plt.plot(x1, y1, c='black')
-        plt.scatter(x[k_ind.numpy()], y[k_ind.numpy()], color='darkorange', s=52, label='attention points')
-        plt.scatter(x[n], y[n], s=52, color ='limegreen')
-        plt.savefig('/Users/omernivron/Downloads/attention_plots/step_{}'.format(n))
+    # if infer:
+    #     print(att_weights)
+    #     k_vals, k_ind = tf.math.top_k(att_weights[0, :, -1, :], k=5, sorted=True, name=None)
+    #     print(k_ind)
+    #     # k_vals_agg, k_ind_agg = tf.math.top_k(k_ind.reshape(-1), k=10, sorted=True, name=None)
+    #     plt.figure(n)
+    #     # print('x0: ', x0)
+    #     plt.plot(x0, y0, c='lightcoral')
+    #     plt.plot(x1, y1, c='black')
+    #     plt.scatter(x[k_ind.numpy()], y[k_ind.numpy()], color='darkorange', s=52, label='attention points')
+    #     plt.scatter(x[n], y[n], s=52, color ='limegreen')
+    #     plt.savefig('/Users/omernivron/Downloads/attention_plots/step_{}'.format(n))
         # print('top k indices: ', k_ind.numpy())
 
     # if any(k_ind.numpy() < 21):
@@ -150,7 +152,9 @@ class MultiHeadAttention2D(tf.keras.layers.Layer):
         # k = self.wk3(tf.nn.leaky_relu(self.wk(k) + self.wk2(e)))
         q = self.wq(q)  # (batch_size, seq_len, d_model)
         k = self.wk(k)
-        v = self.wv(v)
+        v = tf.reshape(tf.repeat(v, self.d_model), [batch_size, tf.shape(q)[1] - 1, self.d_model])
+        # print(v)
+        # tf.print(v)
 
         q = self.split_heads(q, batch_size)  # (batch_size, num_heads, seq_len_q, depth)
         k = self.split_heads(k, batch_size)

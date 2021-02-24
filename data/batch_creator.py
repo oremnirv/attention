@@ -71,6 +71,53 @@ def rearange_tr_2d(x, y, em, em_2, context_p=50, s=1):
 
     return np.array(xx), np.array(yy), np.array(eem), np.array(eem2), c
 
+def create_batch_2d_b(em_x, x, y, em_2, batch_s=128, context_p=50):
+    """
+
+    :param em_x:
+    :param x:
+    :param y:
+    :param em_2:
+    :param batch_s:
+    :param context_p:
+    :return:
+    """
+    b_data = []
+    shape = y.shape[0]
+    cols = y.shape[1]
+    batch_idx = np.random.choice(list(range(shape)), batch_s)
+    x = x[batch_idx]
+    y = y[batch_idx]
+    em_x = em_x[batch_idx]
+    em_2 = em_2[batch_idx]
+    c = context_p
+    p = np.random.random()
+    print('p: ', p)
+    if p <= 0.25:
+        x, y, em_x, em_2, c = rearange_tr_2d(x, y, em_x, em_2, context_p)
+    elif p <= 0.5:
+        x, y, em_x, em_2, c = rearange_tr_2d(x, y, em_x, em_2, context_p, s=0)
+    elif p <= 0.75:
+        permute_idx = np.random.permutation(np.arange(cols))
+        x = x[:, permute_idx]
+        y = y[:, permute_idx]
+        em_x = em_x[:, permute_idx]
+        em_2 = em_2[:, permute_idx]
+    else:
+        pass
+
+    b_data.append(y)
+    b_data.append(x)
+    b_data.append(em_x)
+    b_data.append(em_2)
+
+    return b_data, c
+
+
+
+
+
+
 
 def create_batch_2d(em_x, x, y, em_2, batch_s=128, context_p=50):
     """

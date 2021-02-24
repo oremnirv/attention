@@ -277,7 +277,7 @@ def follow_training_plot2d(x_tr, y_tr, em_2_tr, pred,
         idx_te, samples_test, y_te, pred_te, num_context)
 
     sorted_em = (em_2_tr[idx_tr]).reshape(-1)[np.array(sorted_idx_tr).reshape(-1)]
-    sorted_em_te = (em_2_te[:500][idx_te]).reshape(-1)[np.array(sorted_idx_te).reshape(-1)]
+    sorted_em_te = (em_2_te[idx_te]).reshape(-1)[np.array(sorted_idx_te).reshape(-1)]
 
     idx_f1 = sorted_idx_tr[np.where(sorted_em == 1)[0]]
     idx_f2 = sorted_idx_tr[np.where(sorted_em == 0)[0]]

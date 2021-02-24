@@ -26,7 +26,7 @@ def evaluate(model, x, y, sample=True, d=False, x2=None, xx=None, yy=None, c_ste
     if d:
         pred = model(x, x2, y, False, combined_mask_x[:, :-1, :-1], infer=infer, ix=xx, iy=yy, n=c_step, x0=x0, y0=y0, x1=x1, y1=y1)
         print('pred: ', pred)
-        tf.print(pred)
+        # tf.print(pred)
 
     else:
         pred = model(x, y, False, combined_mask_x[:, :-1, :-1])
