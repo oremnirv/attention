@@ -16,7 +16,7 @@ save_dir = os.path.expanduser('~/Downloads/GPT_' + kernel)
 data = loader.load_data(kernel, size=1, rewrite=False,
                         diff_x=True, noise=False, d=True, ordered=True)
 train_step, test_step, loss_object, train_loss, test_loss, m_tr, m_te = grapher_b.build_graph()
-EPOCHS = 75; batch_s = 64; run = 1; step = 0; train_steps = 35000; heads = 32; ℯ = 512; context = 10
+EPOCHS = 75; batch_s = 64; run = 2; step = 0; train_steps = 35000; heads = 32; ℯ = 512; context = 10
 l = [256, 256, 64, 32]
 name_comp = 'run_' + str(run)
 logdir = save_dir + '/logs/' + name_comp
