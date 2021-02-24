@@ -60,7 +60,7 @@ def inference(model, em_te, y, num_steps=1, sample=True, d=False, em_te_2=None, 
     """
     n = y.shape[1]
     # print('current step: ', n)
-    if xx is not None:
+    # if xx is not None:
         # print('current_position to infer: ', xx[n])
         # print('current target: ', yy[n])
     num_steps = em_te.shape[1] - n if num_steps == 999 else min(num_steps, em_te.shape[1] - n)
