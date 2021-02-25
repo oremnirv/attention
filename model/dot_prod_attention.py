@@ -27,24 +27,24 @@ def dot_product_attention(q, k, v, mask, infer=False, x=None, y=None, n=0, x0=No
     matmul_qk = tf.matmul(q, k, transpose_b=True, name='qk')
     matmul_qk = matmul_qk[:, :, 1:, :-1]
     # print(matmul_qk.shape)
-    dk = tf.cast(tf.shape(k)[-1], tf.float64)
-    # nl_qk = tf.cast(tf.nn.relu(matmul_qk / tf.math.sqrt(dk), name='nl_qk'), tf.float64)
-    nl_qk = tf.cast(matmul_qk / tf.math.sqrt(dk), tf.float64)
+    dk = tf.cast(tf.shape(k)[-1], tf.float32)
+    # nl_qk = tf.cast(tf.nn.relu(matmul_qk / tf.math.sqrt(dk), name='nl_qk'), tf.float32)
+    nl_qk = tf.cast(matmul_qk / tf.math.sqrt(dk), tf.float32)
     if mask is not None:
-        nl_qk += ((tf.cast(mask, tf.float64)) * -1e9)
+        nl_qk += ((tf.cast(mask, tf.float32)) * -1e9)
     att_weights = tf.nn.softmax(nl_qk, axis=-1, name='att_weights')  # batch_size X d_model X seq_len X seq_len
-    # if infer:
-    #     print(att_weights)
-    #     k_vals, k_ind = tf.math.top_k(att_weights[0, :, -1, :], k=5, sorted=True, name=None)
-    #     print(k_ind)
-    #     # k_vals_agg, k_ind_agg = tf.math.top_k(k_ind.reshape(-1), k=10, sorted=True, name=None)
-    #     plt.figure(n)
-    #     # print('x0: ', x0)
-    #     plt.plot(x0, y0, c='lightcoral')
-    #     plt.plot(x1, y1, c='black')
-    #     plt.scatter(x[k_ind.numpy()], y[k_ind.numpy()], color='darkorange', s=52, label='attention points')
-    #     plt.scatter(x[n], y[n], s=52, color ='limegreen')
-    #     plt.savefig('/Users/omernivron/Downloads/attention_plots/step_{}'.format(n))
+    if infer:
+        # print(att_weights)
+        k_vals, k_ind = tf.math.top_k(att_weights[0, :, -1, :], k=5, sorted=True, name=None)
+        # print(k_ind)
+        k_vals_agg, k_ind_agg = tf.math.top_k(k_ind.numpy().reshape(-1), k=10, sorted=True, name=None)
+        plt.figure(n)
+        # print('x0: ', x0)
+        plt.plot(x0, y0, c='lightcoral')
+        plt.plot(x1, y1, c='black')
+        plt.scatter(x[k_vals_agg.numpy()], y[k_vals_agg.numpy()], color='darkorange', s=52, label='attention points')
+        plt.scatter(x[n], y[n], s=52, color ='limegreen')
+        plt.savefig('/Users/omernivron/Downloads/attention_plots/step_{}'.format(n))
         # print('top k indices: ', k_ind.numpy())
 
     # if any(k_ind.numpy() < 21):
@@ -61,7 +61,7 @@ def dot_product_attention(q, k, v, mask, infer=False, x=None, y=None, n=0, x0=No
     # So we can expect an output from these rows which we want to ignore
     # this will be enforced in the masking of the loss function
 
-    out_tar = tf.matmul(att_weights, tf.cast(v, tf.float64))
+    out_tar = tf.matmul(att_weights, tf.cast(v, tf.float32))
     return out_tar, att_weights, matmul_qk
 
 

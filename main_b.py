@@ -83,13 +83,15 @@ with writer.as_default():
                     to_gather_te = None
 
                 pred_te, pred_log_te = test_step(decoder, test_loss, m_te, x_te=b_data_te[2], y_te=b_data_te[0], x2_te=b_data_te[3], to_gather=to_gather_te, context_p=context, d=True)
-                    
-                idd = np.random.choice(np.arange(0, 64))
-                seq_l = to_gather[to_gather[:, 0] == idd][0, 1]
-                plt.figure()
-                plt.scatter(b_data[1][idd, :seq_l], b_data[0][idd, :seq_l] , c = 'blue')
-                plt.scatter(b_data[1][idd, seq_l:], pred[idd][(seq_l - 1):])
-                plt.savefig('foo_b_{}.png'.format((batch_n / num_batches) + (epoch + 1)))
+                
+                if to_gather is not None: 
+
+                    idd = np.random.choice(np.arange(0, 64))
+                    seq_l = to_gather[to_gather[:, 0] == idd][0, 1]
+                    plt.figure()
+                    plt.scatter(b_data[1][idd, :seq_l], b_data[0][idd, :seq_l] , c = 'blue')
+                    plt.scatter(b_data[1][idd, seq_l:], pred[idd][(seq_l - 1):])
+                    plt.savefig('foo_b_{}.png'.format((batch_n / num_batches) + (epoch + 1)))
 
                 helpers.print_progress(epoch, batch_n, train_loss.result(), test_loss.result(), m_tr.result(), m_te.result())
                 helpers.tf_summaries(run, step, train_loss.result(), test_loss.result(), m_tr.result(), m_te.result(), weights, names)
