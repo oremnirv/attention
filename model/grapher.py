@@ -96,5 +96,5 @@ def build_graph():
         m_te.update_state(t_mse)
         return pred_te[:, :, 0], pred_te[:, :, 1]
 
-    # tf.keras.backend.set_floatx('float64')
+    tf.keras.backend.set_floatx('float64')
     return train_step, test_step, loss_object, train_loss, test_loss, m_tr, m_te

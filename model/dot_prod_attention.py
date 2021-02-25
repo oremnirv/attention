@@ -27,11 +27,11 @@ def dot_product_attention(q, k, v, mask, infer=False, x=None, y=None, n=0, x0=No
     matmul_qk = tf.matmul(q, k, transpose_b=True, name='qk')
     matmul_qk = matmul_qk[:, :, 1:, :-1]
     # print(matmul_qk.shape)
-    dk = tf.cast(tf.shape(k)[-1], tf.float32)
-    # nl_qk = tf.cast(tf.nn.relu(matmul_qk / tf.math.sqrt(dk), name='nl_qk'), tf.float32)
-    nl_qk = tf.cast(matmul_qk / tf.math.sqrt(dk), tf.float32)
+    dk = tf.cast(tf.shape(k)[-1], tf.float64)
+    # nl_qk = tf.cast(tf.nn.relu(matmul_qk / tf.math.sqrt(dk), name='nl_qk'), tf.float64)
+    nl_qk = tf.cast(matmul_qk / tf.math.sqrt(dk), tf.float64)
     if mask is not None:
-        nl_qk += ((tf.cast(mask, tf.float32)) * -1e9)
+        nl_qk += ((tf.cast(mask, tf.float64)) * -1e9)
     att_weights = tf.nn.softmax(nl_qk, axis=-1, name='att_weights')  # batch_size X d_model X seq_len X seq_len
     if infer:
         # print(att_weights)
@@ -61,7 +61,7 @@ def dot_product_attention(q, k, v, mask, infer=False, x=None, y=None, n=0, x0=No
     # So we can expect an output from these rows which we want to ignore
     # this will be enforced in the masking of the loss function
 
-    out_tar = tf.matmul(att_weights, tf.cast(v, tf.float32))
+    out_tar = tf.matmul(att_weights, tf.cast(v, tf.float64))
     return out_tar, att_weights, matmul_qk
 
 
