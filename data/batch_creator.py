@@ -92,7 +92,6 @@ def create_batch_2d_b(em_x, x, y, em_2, batch_s=128, context_p=50):
     em_2 = em_2[batch_idx]
     c = context_p
     p = np.random.random()
-    # print('p: ', p)
     if p <= 0.25:
         x, y, em_x, em_2, c = rearange_tr_2d(x, y, em_x, em_2, context_p)
     elif p <= 0.5:
@@ -112,11 +111,6 @@ def create_batch_2d_b(em_x, x, y, em_2, batch_s=128, context_p=50):
     b_data.append(em_2)
 
     return b_data, c
-
-
-
-
-
 
 
 def create_batch_2d(em_x, x, y, em_2, batch_s=128, context_p=50):
@@ -140,25 +134,15 @@ def create_batch_2d(em_x, x, y, em_2, batch_s=128, context_p=50):
     em_2 = em_2[batch_idx]
     c = context_p
     p = np.random.random()
-    # print('p: ', p)
     if p <= 0.5:
         x, y, em_x, em_2, c = rearange_tr_2d(x, y, em_x, em_2, context_p)
-    elif p <= 1:
-        x, y, em_x, em_2, c = rearange_tr_2d(x, y, em_x, em_2, context_p, s=0)
-    # elif p <= 0.75:
-    #     permute_idx = np.random.permutation(np.arange(cols))
-    #     x = x[:, permute_idx]
-    #     y = y[:, permute_idx]
-    #     em_x = em_x[:, permute_idx]
-    #     em_2 = em_2[:, permute_idx]
     else:
-        pass
+        x, y, em_x, em_2, c = rearange_tr_2d(x, y, em_x, em_2, context_p, s=0)
 
     b_data.append(y)
     b_data.append(x)
     b_data.append(em_x)
     b_data.append(em_2)
-
     return b_data, c
 
 
@@ -188,13 +172,7 @@ def create_batch(em_x, x, y, batch_s=128, chnge_context=True, d=False, em_2=None
         if d:
             b_data.append(em_2[batch_idx])
     else:
-
-        if time:
-            permute_idx = np.concatenate(
-                (np.sort(np.random.choice(range(120), context_p * 2, replace=False)), range(120, cols, 1)))
-
-        else:
-            permute_idx = np.random.permutation(np.arange(cols))
+        permute_idx = np.random.permutation(np.arange(cols))
         b_data.append(y[batch_idx][:, permute_idx])
         b_data.append(x[batch_idx][:, permute_idx])
         b_data.append(em_x[batch_idx][:, permute_idx])

@@ -152,7 +152,6 @@ def choose_random_ex_n_sort(x, num_samples):
     samples = np.zeros((num_samples, x.shape[1]))
     sorted_idx_samples = pd.DataFrame(x[idx, :]).apply(
         lambda x: np.argsort(x), axis=1)
-    # print(np.array(sorted_idx_samples)[0, :])
     return idx, samples, sorted_idx_samples
 
 
@@ -537,13 +536,8 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps=100, samples=10, order=True,
     sorted_infer, x_infer, x0, y0, x1, y1, x0_p, y0_p, em_infer, em2_infer, y_infer, yy, xx, no_s_x1, no_s_y1, n_s_x0_p, n_s_y0_p, n_s_x0, n_s_y0 = concat_n_rearange(
         x, y, em, em_2, context_p * 2, num_steps)
     num_steps = em_infer.shape[1] - y_infer.shape[1]
-    # print('num_steps: ', num_steps)
-    # print('seq len: ', em_infer.shape[1])
     first_pos = y_infer.shape[1]
-    # print('close by indices')
     top_idx = np.where((xx <= xx[first_pos] + 0.1) & (xx >= xx[first_pos] - 0.1))[0]
-    # print('x1: ', no_s_x1[top_idx[0]])
-    # print('y1: ', no_s_y1[top_idx[0]])
     axs.scatter(x0_p, y0_p, c='red')
     axs.plot(x0, y0, c='lightcoral')
     axs.plot(x1, y1, c='black')
@@ -552,11 +546,8 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps=100, samples=10, order=True,
                                       sample=True, d=True, em_te_2=em2_infer, series=1, infer=True, xx = xx, yy=yy, x0=x0, y0=y0, x1=x1, y1=y1)
 
         axs.plot(x_infer, y_inf.numpy().reshape(-1)[sorted_infer], c='lightskyblue')
-
-
         mse_model = metrics.mse(yy.reshape(-1)[sorted_infer].reshape(1, -1),
                                 y_inf.numpy().reshape(-1)[sorted_infer].reshape(1, -1))
-
 
         n = min(em_infer.shape[1] - len(y_infer), num_steps)
         y_mean = np.repeat(np.mean(yy.reshape(-1)[sorted_infer]), n).reshape(1, -1)
@@ -566,8 +557,6 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps=100, samples=10, order=True,
                                       sample=False, d=True, em_te_2=em2_infer, series=1, infer=False)
 
         axs.plot(x_infer, y_inf.numpy().reshape(-1)[sorted_infer], c='goldenrod')
-
-
 
     if ins:
         return axs
@@ -599,15 +588,12 @@ def GP_compare_1D(x, y, kernel, noise=False, context_p=50, order=True, consec=Tr
 
     if (kernel == 'rbf'):
         k = RBF(length_scale=1)
-        print(k)
 
     else:
         k = ExpSineSquared(length_scale=1, periodicity=1, length_scale_bounds=(1, 10.0), periodicity_bounds=(1, 10.0))
-        print(k)
 
     if noise:
         k = k + WhiteKernel(noise_level=0.5)
-        print(k)
 
     model = GaussianProcessRegressor(kernel=k, n_restarts_optimizer=1, alpha=0.0001)
     model.fit(x[:context_p].reshape(-1, 1), y[:context_p].reshape(-1, 1))
@@ -617,20 +603,10 @@ def GP_compare_1D(x, y, kernel, noise=False, context_p=50, order=True, consec=Tr
     p_sort = np.argsort(x[context_p:])
     y_samples = model.sample_y(x[context_p:][p_sort].reshape(-1, 1), 10).squeeze()
     x_samples = np.tile(x[context_p:][p_sort].reshape(-1, 1), 10).reshape(len(x[context_p:]), -1)
-
-    # print(y_samples.shape)
-    # print(x_samples.shape)
-    # print(kernel, σ)
-
-    # axs.fill_between(x.reshape(-1)[sorted_idx], μ.squeeze()[sorted_idx] -2 * σ[sorted_idx], μ.squeeze()[sorted_idx] + 2 * σ[sorted_idx], alpha=.4, color = 'lightskyblue')
     axs.plot(x_samples, y_samples, color="lightskyblue")
-
     axs.plot(x.reshape(-1)[sorted_idx], μ.squeeze()[sorted_idx], color="goldenrod")
-
     axs.plot(x[sorted_idx], y[sorted_idx], color='black')
-
     axs.scatter(x[:context_p].reshape(-1, 1), y[:context_p].reshape(-1, 1), color='red')
-    print(model.kernel_)
     if ins:
         return axs
     else:

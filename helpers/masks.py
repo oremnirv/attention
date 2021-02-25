@@ -1,33 +1,4 @@
 import tensorflow as tf
-import numpy as np
-
-
-def position_mask(arr, mask_val=0):
-    """
-    This tries to emulate the kernel matrix.
-    In the first stage we have a 2X2 matrix of zeros, next
-    3X3 matrix of zeros, etc.
-    -------------------------
-    Parameters:
-    arr (np array): the 1st/2nd output from data_generator_for_gp_mimick_gpt function
-    mask_val (int)
-    -------------------------
-    Returns:
-    mask (4D np array): if there are 100 rows and 50 cols in arr then this will
-    return [100, 49, 50, 50] array -- where the first dim is observation number
-    second dim is timestamp and third+fourth dim are the mask matrix.
-    """
-    rows = arr.shape[0]
-    cols = arr.shape[1]
-    mask = np.ones((rows, cols - 1, cols, cols))
-    specific = np.sum(np.equal(arr, mask_val), 1)
-    for i in range(2, cols + 1):
-        mask[:, i - 2, :i, :i] = np.zeros((i, i))
-    for j in range(rows):
-        k = specific[j]
-        mask[j, k:, :, :] = 1
-
-    return mask
 
 
 def create_padding_mask(seq, pad_val=0):
@@ -46,9 +17,6 @@ def create_padding_mask(seq, pad_val=0):
 
     """
     seq = tf.cast(tf.math.equal(seq, pad_val), tf.float32)
-
-    # add extra dimensions to add the padding
-    # to the attention. Extra dimension is used in create_masks function
     return seq[:, tf.newaxis, :]
 
 
@@ -102,12 +70,7 @@ def create_masks(tar):
     """
 
     tar_padding_mask = create_padding_mask(tar)
-    # this will be batch_size X 1 X 40
-
     look_ahead_mask = create_look_ahead_mask(tf.shape(tar)[1])
-    # if max seq length is 40 -- > this will be 40X40 
-
-    # This will also be (64, 40, 40)
     combined_mask_tar = tf.maximum(tar_padding_mask, look_ahead_mask)
 
     return combined_mask_tar

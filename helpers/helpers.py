@@ -1,7 +1,5 @@
 import csv
 import os
-
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -22,10 +20,8 @@ def tf_summaries(run, string, train_loss_r, test_loss_r, tr_metric, te_metric, w
     """
 
     """
-    tf.summary.scalar("training loss run {}".format(run), train_loss_r
-                      , step=string)
-    tf.summary.scalar("test loss run {}".format(run), test_loss_r,
-                      step=string)
+    tf.summary.scalar("training loss run {}".format(run), train_loss_r, step=string)
+    tf.summary.scalar("test loss run {}".format(run), test_loss_r, step=string)
     tf.summary.scalar('train metric', tr_metric, step=string)
     tf.summary.scalar('test metric', te_metric, step=string)
     for idx, var in enumerate(weights):
@@ -42,6 +38,31 @@ def print_progress(epoch, batch_n, train_loss_r, test_loss_r, tr_metric, te_metr
             epoch, batch_n,
             train_loss_r, test_loss_r, tr_metric, te_metric))
 
+def tensorboard_embeddings(model, layer_num, meta_data, logdir):
+    from tensorboard.plugins import projector
+    # Save the weights we want to analyse as a variable. Note that the first
+    # value represents any unknown word, which is not in the metadata, so
+    # we will remove that value.
+    subwords = np.concatenate(([0, 1], np.unique(meta_data)))
+    with open(os.path.join(logdir, 'metadata.tsv'), "w") as f:
+        for subword in subwords:
+            f.write("learnt {}\n".format(subword))
+        for unknown in np.arange(0, 2000)[~np.isin(range(0, 2000), subwords)]:
+            f.write("unknown #{}\n".format(unknown))
+    weights = tf.Variable(model.layers[layer_num].get_weights()[0])
+    # Create a checkpoint from embedding, the filename and key are
+    # name of the tensor.
+    checkpoint = tf.train.Checkpoint(embedding=weights)
+    checkpoint.save(os.path.join(logdir, "embedding.ckpt"))
+
+    # Set up config
+    config = projector.ProjectorConfig()
+    embedding = config.embeddings.add()
+    # The name of the tensor will be suffixed by `/.ATTRIBUTES/VARIABLE_VALUE`
+    embedding.tensor_name = "embedding/.ATTRIBUTES/VARIABLE_VALUE"
+    embedding.metadata_path = 'metadata.tsv'
+    projector.visualize_embeddings(logdir, config)
+
 
 def write_speci(folder, names, shapes, context_p):
     with open(os.path.expanduser(folder + '_context_' + str(context_p) + '_speci.csv'), "w") as csv_file:
@@ -50,7 +71,7 @@ def write_speci(folder, names, shapes, context_p):
             writer.writerow([str(name.numpy()).split('/')[-2], str(shape.numpy())])
 
 
-def load_spec(path, e, l, context_p, d=False, old=False, abc = False):
+def load_spec(path, e, l, context_p, d=False, old=False, abc=False):
     if not os.path.exists(path + '_context_' + str(context_p) + '_speci.csv'):
         print('Does not exists')
         return (e, *l)
@@ -61,7 +82,7 @@ def load_spec(path, e, l, context_p, d=False, old=False, abc = False):
             if old:
                 for i in [1, 17, 19, 23, 25]:
                     ls.append(int(df[i][1].split('[')[1].split(']')[0]))
-            elif(abc):
+            elif abc:
                 for i in [8, 14, 16, 18, 20]:
                     ls.append(int(df[i][1].split('[')[1].split(']')[0]))
 
@@ -72,49 +93,3 @@ def load_spec(path, e, l, context_p, d=False, old=False, abc = False):
             for i in [1, 9, 11, 13, 15]:
                 ls.append(int(df[i][1].split('[')[1].split(']')[0]))
         return ls
-
-
-def quick_hist_counter(left, right, jump, arr):
-    """
-    Create a histogram for the different values
-    # observations in bin i, N = total # observations, δi = width of bin i
-    density pi = ni / N * δi, where ni =
-    -----------------
-    Parameters:
-    left (int):
-    right (int):
-    jump (float):
-    arr (array float): 1-D array
-    -----------------
-    Returns:
-
-
-    """
-    base = np.arange(left, right, jump)
-    probs = np.array([len(arr[(low <= arr) &
-                              (low + jump >= arr)]) for low in base])
-    loc = np.where(probs == max(probs))
-    fig, axes = plt.subplots(1, 1, figsize=(12, 10))
-    plt.bar(base, probs / sum(probs), color='navy')
-    plt.axvline(base[loc], color='grey')
-    plt.xlabel('Value')
-    plt.ylabel('Probability')
-    return base, probs, loc
-
-
-def hist_2d(left, right, jump, post):
-    """
-
-    """
-    base = np.arange(left, right, jump)
-    probs = np.zeros((len(base) ** 2, 3))
-    for i, low_y in enumerate(base):
-        for j, low_x in enumerate(base):
-            probs[i, j] = np.array([low_x, low_y, sum(post[((low_x <= post[:, 0]) & (low_x + jump >= post[:, 0])) & (
-                    (low_y <= post[:, 1]) & (low_y + jump >= post[:, 1])), -1])])
-
-    loc = np.where(probs[:, 2] == max(probs))
-    fig, axes = plt.subplots(1, 1, figsize=(12, 10))
-    plt.scatter(probs[:, 0], probs[:, 1], color=probs[:, 2] / sum(probs[:, 2]))
-    plt.xlabel('w_1')
-    plt.ylabel('w_2')

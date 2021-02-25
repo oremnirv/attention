@@ -1,4 +1,5 @@
 import sys
+
 sys.path.append("..")
 import tensorflow as tf
 from helpers import masks
@@ -30,22 +31,20 @@ def build_graph():
         """
         y_inp = y[:, :-1]
         y_real = y[:, 1:]
-        xx = x
-        if len(x.shape) > 2:
-            xx = x[:, 0, :]
-        combined_mask_x = masks.create_masks(xx)
+        combined_mask_x = masks.create_masks(x)
         with tf.GradientTape(persistent=True) as tape:
             if d:
                 pred = decoder(x, x2, y_inp, True, combined_mask_x[:, :-1, :-1])
             else:
                 pred = decoder(x, y_inp, True, combined_mask_x[:, :-1, :-1])
-            # if type(context_p) is list:
-            #     pred0 = tf.squeeze(pred[:, :, 0])
-            #     pred1 = tf.squeeze(pred[:, :, 1])
-            #     loss, mse, mask = losses.loss_function(tf.gather_nd(y_real, to_gather, name='real'), pred= tf.gather_nd(pred0, to_gather, name='mean'),
-            #                                            pred_log_sig=tf.gather_nd(pred1, to_gather, name='log_sig'))
-            # else:
-            loss, mse, mask = losses.loss_function(y_real[:, context_p:], pred=pred[:, context_p:, 0],
+            if type(context_p) is list:
+                pred0 = tf.squeeze(pred[:, :, 0])
+                pred1 = tf.squeeze(pred[:, :, 1])
+                loss, mse, mask = losses.loss_function(tf.gather_nd(y_real, to_gather, name='real'),
+                                                       pred=tf.gather_nd(pred0, to_gather, name='mean'),
+                                                       pred_log_sig=tf.gather_nd(pred1, to_gather, name='log_sig'))
+            else:
+                loss, mse, mask = losses.loss_function(y_real[:, context_p:], pred=pred[:, context_p:, 0],
                                                        pred_log_sig=pred[:, context_p:, 1])
         gradients = tape.gradient(loss, decoder.trainable_variables)
         optimizer_c.apply_gradients(zip(gradients, decoder.trainable_variables))
@@ -82,19 +81,20 @@ def build_graph():
         else:
             pred_te = decoder(x_te, y_inp_te, False, combined_mask_x_te[:, :-1, :-1])
 
-        # if type(context_p) is list:
-        #     pred0_te = tf.squeeze(pred_te[:, :, 0])
-        #     pred1_te = tf.squeeze(pred_te[:, :, 1])
-        #     t_loss, t_mse, t_mask = losses.loss_function(tf.gather_nd(y_real_te, to_gather, name='real_te'), pred= tf.gather_nd(pred0_te, to_gather, name='mean_te'),
-        #                                                pred_log_sig=tf.gather_nd(pred1_te, to_gather, name='log_sig_te'))
-        # else:
-        t_loss, t_mse, t_mask = losses.loss_function(y_real_te[:, context_p:], pred=pred_te[:, context_p:, 0],
-                                                       pred_log_sig=pred_te[:, context_p:, 1])
-
+        if type(context_p) is list:
+            pred0_te = tf.squeeze(pred_te[:, :, 0])
+            pred1_te = tf.squeeze(pred_te[:, :, 1])
+            t_loss, t_mse, t_mask = losses.loss_function(tf.gather_nd(y_real_te, to_gather, name='real_te'),
+                                                         pred=tf.gather_nd(pred0_te, to_gather, name='mean_te'),
+                                                         pred_log_sig=tf.gather_nd(pred1_te, to_gather,
+                                                                                   name='log_sig_te'))
+        else:
+            t_loss, t_mse, t_mask = losses.loss_function(y_real_te[:, context_p:], pred=pred_te[:, context_p:, 0],
+                                                         pred_log_sig=pred_te[:, context_p:, 1])
 
         test_loss(t_loss)
         m_te.update_state(t_mse)
         return pred_te[:, :, 0], pred_te[:, :, 1]
 
-    # tf.keras.backend.set_floatx('float64')
+    tf.keras.backend.set_floatx('float64')
     return train_step, test_step, loss_object, train_loss, test_loss, m_tr, m_te

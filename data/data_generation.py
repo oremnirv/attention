@@ -94,7 +94,7 @@ def data_gen(num_obs, tr_percent=0.8, seq_len=200, extarpo=False, extarpo_num=19
             x = np.sort(x)
         if kernel == 'rbf':
             k = gp_kernels.rbf_kernel(x.reshape(-1, 1))
-            f_prior = gp_priors.generate_priors(k, seq_len, 1)
+            f_prior = gp_priors.generate_priors(k,  1)
         elif kernel == 'periodic':
             k = 1.0 * ExpSineSquared(length_scale=1.0,
                                      periodicity=3.0, length_scale_bounds=(0.1, 10.0))
@@ -190,35 +190,6 @@ def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf',
 
     return x_tr, x_te, y_tr, y_te, df_tr, df_te, em
 
-
-def data_generator_river_flow(df, basins, seq_len, num_seq):
-    """
-    selected_basins = pd.read_csv('/Users/omernivron/Downloads/basin_list.txt', header=None)
-    test_basins = df.basin.unique()[~np.isin(df.basin.unique(), selected_basins)]
-
-    """
-    context_channels2 = ['prcp(mm/day)', 'srad(W/m2)',
-                         'tmax(C)', 'tmin(C)', 'vp(Pa)']
-    arr_pp = np.zeros((5 * num_seq, seq_len))
-    m = int(seq_len / 2)
-    for i in range(len(context_channels2)):
-        for row in range(0 + num_seq * i, num_seq * (i + 1), 5):
-            basin = np.random.choice(basins, 2)
-            df_temp = (df[df['basin'] == basin[0]]).reset_index()
-            df_riv = (df[df['basin'] == basin[1]]).reset_index()
-            idx_i = np.random.choice(np.arange(0, df_temp.shape[0], 1), m)
-            idx_riv = np.random.choice(np.arange(0, df_riv.shape[0], 1), m)
-            arr_pp[row, :] = np.concatenate((df_temp.loc[idx_i, [
-                context_channels2[i]]], df_riv.loc[idx_riv, ['OBS_RUN']]), axis=0).reshape(-1)
-            arr_pp[row + 1, :] = np.concatenate(
-                (df_temp.loc[idx_i, ['doy_cos']], df_riv.loc[idx_riv, ['doy_cos']]), axis=0).reshape(-1)
-            arr_pp[row + 2, :] = np.concatenate(
-                (df_temp.loc[idx_i, ['doy_sin']], df_riv.loc[idx_riv, ['doy_sin']]), axis=0).reshape(-1)
-            arr_pp[row + 3, :] = np.concatenate((np.ones(m) * i, np.ones(m) * 9))
-            arr_pp[row + 4, :] = np.concatenate(
-                (df_temp.loc[idx_i, ['basin']], df_riv.loc[idx_riv, ['basin']]), axis=0).reshape(-1)
-
-    return arr_pp
 
 
 def main():

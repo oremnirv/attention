@@ -1,27 +1,13 @@
 import numpy as np
 
 
-def kuee(y_true, μ_te, σ_te):
-    """
-    A metric to empirically estimate aleatoric uncertainty (all observations are indpendent)
-    ------------------------
-
-
-    """
-
-    y_true = round(y_true, 4)
-    lower = μ_te - 2 * σ_te
-    upper = μ_te + 2 * σ_te
-
-    cond = ((y_true >= lower) & (y_true <= upper))
-    if cond:
-        return np.sum(cond)
-    else:
-        return 0
-
-
 def r_squared(mse_model, y_true, batch_s=64):
     """
+    Measures the R^2 metric
+    :param mse_model: (float) mean squared error derived by comparing predictions with y_true
+    :param y_true: (np.array) the true values of y
+    :param batch_s: (int) size of batch
+    :return: (float)
     """
     n = y_true.shape[1]
     y_mean = np.repeat(np.mean(y_true, 1), n).reshape(batch_s, -1)
@@ -29,6 +15,14 @@ def r_squared(mse_model, y_true, batch_s=64):
 
 
 def r_sq_2d(y, pred_te, em_2, context_p):
+    """
+    Measures the R^2 metric for pairs of sequences
+    :param y:
+    :param pred_te: (np.array)
+    :param em_2: (np.array) label for each data point in y: 0/1
+    :param context_p: (int) number of context points that were considered
+    :return:
+    """
     n = y.shape[0]
     r_sq0 = []
     r_sq1 = []
@@ -46,23 +40,10 @@ def r_sq_2d(y, pred_te, em_2, context_p):
 
 def mse(y_true, y_pred):
     """
-
+    Mean squared error for multiple sequences, i.e. calculate MSE for each row and then average these MSEs
+    :param y_true:
+    :param y_pred:
+    :return: (float)
     """
 
     return np.mean(np.mean((y_true - y_pred) ** 2, 1))
-
-
-def rmse(y_true, y_pred):
-    """
-
-    """
-
-    return np.sqrt(np.sum((y_true - y_pred) ** 2) / len(y_true))
-
-
-def mae(y_true, y_pred):
-    """
-
-    """
-
-    return np.abs(y_true - y_pred)

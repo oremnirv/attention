@@ -3,31 +3,33 @@ import tensorflow as tf
 import numpy as np
 
 
-def evaluate(model, x, y, sample=True, d=False, x2=None, xx=None, yy=None, c_step=0, infer=False, x0=None, y0=None, x1=None, y1=None):
+def evaluate(model, x, y, sample=True, d=False, x_2=None, xx=None, yy=None, c_step=0, infer=False, x0=None, y0=None,
+             x1=None, y1=None):
     """
+    This function just makes a call to the forward pass of the model. If sample=True, then we sample from
+    N(mu, exp(log sigma)) where mu and log sigma are the last outputs from the forward pass, otherwise we just report
+    the mean mu.
 
-    :param y1:
-    :param x1:
-    :param y0:
-    :param x0:
-    :param infer:
-    :param c_step:
-    :param yy:
-    :param xx:
-    :param model:
-    :param x:
-    :param y:
-    :param sample:
-    :param d:
-    :param x2:
+    :param model: (tf.keras.Model) a trained model
+    :param x: (tf.tensor) see inference function for details
+    :param y: (tf.tensor) see inference function for details
+    :param sample: (bool) Whether to infer the mean (mu) or to sample from N(mu, sigma)
+    :param d: (bool) Is it infernce between pairs of sequnces (TRUE) or just one sequence at a time
+    :param infer: (bool) If TRUE then will plot attention given to points while making each prediction
+    :param c_step: (int) the current index to be predicted
+    :param x_2: (tf.tensor) each entry represents the series member (0/1) a certain value is assocated with. shape is (m + num_steps)x1.
+    :param y1: (tf.tensor) the true y-vals associated with pair element #1. Used only for plotting attention
+    :param x1: (tf.tensor) the true x-vals associated with pair element #1. Used only for plotting attention
+    :param y0: (tf.tensor) the true y-vals associated with pair element #0. Used only for plotting attention
+    :param x0: (tf.tensor) the true x-vals associated with pair element #0. Used only for plotting attention
+    :param xx: (tf.tensor) unsorted true x-vals associated with both elements of the sequence pair. Used only for plotting attention
+    :param yy: (tf.tensor) unsorted true y-vals associated with both elements of the sequence pair. Used only for plotting attention
     :return:
     """
     combined_mask_x = masks.create_masks(x)
     if d:
-        pred = model(x, x2, y, False, combined_mask_x[:, :-1, :-1], infer=infer, ix=xx, iy=yy, n=c_step, x0=x0, y0=y0, x1=x1, y1=y1)
-        # print('pred: ', pred)
-        # tf.print(pred)
-
+        pred = model(x, x_2, y, False, combined_mask_x[:, :-1, :-1], infer=infer, ix=xx, iy=yy, n=c_step, x0=x0, y0=y0,
+                     x1=x1, y1=y1)
     else:
         pred = model(x, y, False, combined_mask_x[:, :-1, :-1])
     if sample:
@@ -38,47 +40,45 @@ def evaluate(model, x, y, sample=True, d=False, x2=None, xx=None, yy=None, c_ste
     return pred[:, 0], pred[:, 1], sample_y
 
 
-def inference(model, em_te, y, num_steps=1, sample=True, d=False, em_te_2=None, series=1, infer=False, xx=None, yy=None, x0=None, y0=None, x1=None, y1=None):
+def inference(model, x, y, num_steps=1, sample=True, d=False, x_2=None, series=1, infer=False, xx=None, yy=None,
+              x0=None, y0=None, x1=None, y1=None):
     """
+    This is a recursive function for inference. It receives y-vals, x-vals and the series which they came from (x_2-vals).
+    At every inference step, if y is of length n, x and x_2 are of length n+1. We then make a prediction for y[n+1]
+    using the evaluate function, attach the result to y, retrieve x[n+2], x_2[n+2] and repeat until num_steps is done.
 
-    :param y1:
-    :param x1:
-    :param y0:
-    :param x0:
-    :param xx:
-    :param yy:
-    :param infer:
-    :param model:
-    :param em_te:
-    :param y:
-    :param num_steps:
-    :param sample:
-    :param d:
-    :param em_te_2:
-    :param series:
-    :return:
+    :param model: (tf.keras.Model) a trained model
+    :param x: (tf.tensor) shape is (m + num_steps)x1
+    :param y: (tf.tensor mx1) target variable
+    :param num_steps: (int) how many forward steps to infer. If num_steps=999, then infer all remaining points
+    :param sample: (bool) Whether to infer the mean (mu) or to sample from N(mu, sigma)
+    :param d: (bool) Is it infernce between pairs of sequnces (TRUE) or just one sequence at a time
+    :param x_2: (tf.tensor) each entry represents the series member (0/1) a certain value is assocated with. shape is (m + num_steps)x1.
+    :param series: (int 0/1) If d=True, which member of the pair should we infer 0/1
+    :param infer: (bool) If TRUE then will plot attention given to points while making each prediction
+    :param y1: (tf.tensor) the true y-vals associated with pair element #1. Used only for plotting attention
+    :param x1: (tf.tensor) the true x-vals associated with pair element #1. Used only for plotting attention
+    :param y0: (tf.tensor) the true y-vals associated with pair element #0. Used only for plotting attention
+    :param x0: (tf.tensor) the true x-vals associated with pair element #0. Used only for plotting attention
+    :param xx: (tf.tensor) unsorted true x-vals associated with both elements of the sequence pair. Used only for plotting attention
+    :param yy: (tf.tensor) unsorted true y-vals associated with both elements of the sequence pair. Used only for plotting attention
+    :return: model object, x-vals, y-vals, number of steps
     """
     n = y.shape[1]
-    # print('current step: ', n)
-    # if xx is not None:
-        # print('current_position to infer: ', xx[n])
-        # print('current target: ', yy[n])
-    num_steps = em_te.shape[1] - n if num_steps == 999 else min(num_steps, em_te.shape[1] - n)
-    temp_x = em_te[:, :(n + 1)]
+    num_steps = x.shape[1] - n if num_steps == 999 else min(num_steps, x.shape[1] - n)
+    temp_x = x[:, :(n + 1)]
     if d:
-        temp_x2 = em_te_2[:, :(n + 1)]
-        # print('series: ', temp_x2[:, -1])
-        # print('current: ', temp_x[:, -1])
-        pred, pred_log_sig, sample_y = evaluate(model, temp_x, y, d=True, x2=temp_x2, sample=sample, infer=infer, xx=xx, yy=yy, c_step=n, x0=x0, y0=y0, x1=x1, y1=y1)
+        temp_x2 = x_2[:, :(n + 1)]
+        pred, pred_log_sig, sample_y = evaluate(model, temp_x, y, d=True, x_2=temp_x2, sample=sample, infer=infer,
+                                                xx=xx, yy=yy, c_step=n, x0=x0, y0=y0, x1=x1, y1=y1)
     else:
         pred, pred_log_sig, sample_y = evaluate(model, temp_x, y, sample=sample)
     y = tf.concat((y, tf.reshape(sample_y, [1, 1])), axis=1)
-    # print('sample_y: ', sample_y)
     if num_steps > 1:
-        model, em_te, y, num_steps = inference(model, em_te, y, num_steps - 1, d=d, em_te_2=em_te_2, series=series,
-                                               sample=sample, xx=xx, yy=yy, infer=infer, x0=x0, y0=y0, x1=x1, y1=y1)
+        model, x, y, num_steps = inference(model, x, y, num_steps - 1, d=d, x_2=x_2, series=series,
+                                           sample=sample, xx=xx, yy=yy, infer=infer, x0=x0, y0=y0, x1=x1, y1=y1)
 
-    return model, em_te, y, num_steps
+    return model, x, y, num_steps
 
 
 def main():
