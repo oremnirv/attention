@@ -43,13 +43,13 @@ def build_graph():
             loss, mse, mask = losses.loss_function(tf.gather_nd(y_real, to_gather, name='real'), pred= tf.gather_nd(pred0, to_gather, name='mean'),
                                                        pred_log_sig=tf.gather_nd(pred1, to_gather, name='log_sig'))
 
-            gradients = tape.gradient(loss, decoder.trainable_variables)
-            optimizer_c.apply_gradients(zip(gradients, decoder.trainable_variables))
-            train_loss(loss)
-            m_tr.update_state(mse)
-            names = [v.name for v in decoder.trainable_variables]
-            shapes = [v.shape for v in decoder.trainable_variables]
-            return pred[:, :, 0], pred[:, :, 1], decoder.trainable_variables, names, shapes
+        gradients = tape.gradient(loss, decoder.trainable_variables)
+        optimizer_c.apply_gradients(zip(gradients, decoder.trainable_variables))
+        train_loss(loss)
+        m_tr.update_state(mse)
+        names = [v.name for v in decoder.trainable_variables]
+        shapes = [v.shape for v in decoder.trainable_variables]
+        return pred[:, :, 0], pred[:, :, 1], decoder.trainable_variables, names, shapes
 
     @tf.function
     def test_step(decoder, test_loss, m_te, x_te, y_te, context_p=50, d=False, x2_te=None, to_gather=None):
@@ -84,5 +84,5 @@ def build_graph():
         m_te.update_state(t_mse)
         return pred_te[:, :, 0], pred_te[:, :, 1]
 
-    # tf.keras.backend.set_floatx('float64')
+    tf.keras.backend.set_floatx('float32')
     return train_step, test_step, loss_object, train_loss, test_loss, m_tr, m_te
