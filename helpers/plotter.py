@@ -56,69 +56,6 @@ def plot_2d_examples(x, y, em_2):
     plt.show()
 
 
-def choose_random_ex_n_sort(x, num_samples):
-    """
-
-    :param x:
-    :param num_samples:
-    :return:
-    """
-    idx = np.random.choice(np.arange(0, len(x)), num_samples, replace=False)
-    samples = np.zeros((num_samples, x.shape[1]))
-    sorted_idx_samples = pd.DataFrame(x[idx, :]).apply(
-        lambda x: np.argsort(x), axis=1)
-    return idx, samples, sorted_idx_samples
-
-
-def assign_context_points_to_preds(idx, samples, y, pred, num_context):
-    """
-
-    :param idx:
-    :param samples:
-    :param y:
-    :param pred:
-    :param num_context:
-    :return:
-    """
-    samples[:, :num_context] = y[idx, :num_context]
-    samples[:, num_context:] = pred.numpy()[idx, (num_context - 1):]
-    return samples
-
-
-def follow_training_plot(x_tr, y_tr, pred,
-                         x_te, y_te, pred_te, num_context=50, num_samples=2):
-    """
-
-    :param x_tr:
-    :param y_tr:
-    :param pred:
-    :param x_te:
-    :param y_te:
-    :param pred_te:
-    :param num_context:
-    :param num_samples:
-    :return:
-    """
-    fig, axs = plt.subplots(2, 2, figsize=(10, 6))
-    custom_xlim = (4, 16)
-    custom_ylim = (-4, 4)
-
-    # Setting the values for all axes.
-    plt.setp(axs, xlim=custom_xlim, ylim=custom_ylim)
-    idx_tr, samples_train, sorted_idx_tr = choose_random_ex_n_sort(x_tr, 2)
-    idx_te, samples_test, sorted_idx_te = choose_random_ex_n_sort(x_te, 2)
-    samples_tr = assign_context_points_to_preds(
-        idx_tr, samples_train, y_tr, pred, num_context)
-    samples_te = assign_context_points_to_preds(
-        idx_te, samples_test, y_te, pred_te, num_context)
-    axs = plot_subplot_training(axs, x_tr, x_te, y_tr, y_te, samples_tr, samples_te, idx_tr, idx_te, np.array(
-        sorted_idx_tr), np.array(sorted_idx_te), num_context)
-    for ax in axs.flat:
-        ax.label_outer()
-
-    plt.show()
-
-
 def plot_subplot_training(params, x, x_te, y, y_te, pred_y, pred_y_te, tr_idx, te_idx, sorted_idx_tr, sorted_idx_te,
                           num_context):
     """
@@ -162,188 +99,15 @@ def plot_subplot_training(params, x, x_te, y, y_te, pred_y, pred_y_te, tr_idx, t
     return params
 
 
-def follow_training_plot2d(x_tr, y_tr, em_2_tr, pred,
-                           x_te, y_te, em_2_te, pred_te, num_context=50):
+def create_condition_list(cond_arr, context_p):
     """
-
-    :param x_tr:
-    :param y_tr:
-    :param em_2_tr:
-    :param pred:
-    :param x_te:
-    :param y_te:
-    :param em_2_te:
-    :param pred_te:
-    :param num_context:
-    :return:
-    """
-    fig, axs = plt.subplots(2, 1, figsize=(10, 6))
-    custom_xlim = (4, 16)
-    custom_ylim = (-8, 8)
-
-    # Setting the values for all axes.
-    plt.setp(axs, xlim=custom_xlim, ylim=custom_ylim)
-    idx_tr, samples_train, sorted_idx_tr = choose_random_ex_n_sort(x_tr, 1)
-    idx_te, samples_test, sorted_idx_te = choose_random_ex_n_sort(x_te, 1)
-    samples_tr = assign_context_points_to_preds(
-        idx_tr, samples_train, y_tr, pred, num_context)
-    samples_te = assign_context_points_to_preds(
-        idx_te, samples_test, y_te, pred_te, num_context)
-
-    sorted_em = (em_2_tr[idx_tr]).reshape(-1)[np.array(sorted_idx_tr).reshape(-1)]
-    sorted_em_te = (em_2_te[idx_te]).reshape(-1)[np.array(sorted_idx_te).reshape(-1)]
-
-    idx_f1 = sorted_idx_tr[np.where(sorted_em == 1)[0]]
-    idx_f2 = sorted_idx_tr[np.where(sorted_em == 0)[0]]
-    idx_f1_te = sorted_idx_te[np.where(sorted_em_te == 1)[0]]
-    idx_f2_te = sorted_idx_te[np.where(sorted_em_te == 0)[0]]
-
-    samples_tr1 = samples_tr.reshape(-1)[np.array(idx_f1).reshape(-1)]
-    samples_tr2 = samples_tr.reshape(-1)[np.array(idx_f2).reshape(-1)]
-
-    samples_te1 = samples_te.reshape(-1)[np.array(idx_f1_te).reshape(-1)]
-    samples_te2 = samples_te.reshape(-1)[np.array(idx_f2_te).reshape(-1)]
-
-    axs = plot_subplot_training2d(axs, x_tr, x_te, y_tr, y_te, samples_tr1, samples_tr2, samples_te1, samples_te2,
-                                  idx_tr, idx_te, idx_f1, idx_f2, idx_f1_te, idx_f2_te, num_context)
-    for ax in axs.flat:
-        ax.label_outer()
-
-    plt.show()
-
-
-def create_condition_list(cond_arr, context_p, series=1):
-    """
-
     :param cond_arr:
-    :param series:
     :return:
     """
     cond = []
-    cond_arr_pre = cond_arr[:context_p]
-    cond_arr_pos = cond_arr[context_p:]
-    cond.append(np.where([cond_arr_pre == series])[1])
-    print('1')
-    print(np.where([cond_arr_pre == series])[1])
-    cond.append(np.where([cond_arr_pos == series])[1])
-    cond.append(np.where(~(cond_arr_pre == series)))
-    print('2')
-    print(np.where(~(cond_arr_pre == series)))
-    cond.append(np.where(~ (cond_arr_pos == series)))
+    cond.append(np.where(cond_arr == 0))
+    cond.append(np.where(~(cond_arr == 0)))
     return cond
-
-
-def concat_context_to_infer(df, cond, context_p):
-    """
-
-    :param df:
-    :param cond:
-    :param context_p:
-    :return:
-    """
-    df_pre = df[:context_p]  # this includes context_p points, some from series 0 and some from series 1
-    df_post = df[context_p:]  # this includes all points that were not picked as context
-    df_infer = np.concatenate((df_pre, df_post[cond[1]]))  # this includes context points and all the rest of series 0/1
-    df_infer = np.concatenate((df_infer, df_post[cond[3]]))  # this completes the rest of the series to infer
-    return df_infer
-
-
-def get_series_separately(df, cond, context_p):
-    """
-
-    :param df:
-    :param cond:
-    :param context_p:
-    :return:
-    """
-    df_pre = df[:context_p]
-    df_post = df[context_p:]
-    df_1 = np.concatenate((df_pre[cond[0]], df_post[cond[1]]))
-    df_0 = np.concatenate((df_pre[cond[2]], df_post[cond[3]]))
-    return df_1, df_0
-
-
-def get_context_points(df, cond, context_p):
-    """
-
-    :param df:
-    :param cond:
-    :return:
-    """
-    df_pre = df[:context_p];
-    context_points = df_pre[cond[2]]
-    return context_points
-
-
-def y_infer_constructor(df, cond, context_p):
-    """
-
-    :param df:
-    :param cond:
-    :return:
-    """
-    df_pre = df[:context_p]
-    df_post = df[context_p:]
-    df_infer = np.concatenate((df_pre, df_post[cond[1]])).reshape(1, -1)
-    return df_infer
-
-
-def arg_sorter(*l):
-    """
-
-    :param l:
-    :return:
-    """
-    s_list = []
-    for idx, element in enumerate(*l):
-        s_list.append(np.argsort(element))
-    return s_list
-
-
-def concat_n_rearange(x, y, em, em_2, context_p, num_steps, series=1):
-    """
-
-    :param x:
-    :param y:
-    :param em:
-    :param em_2:
-    :param context_p:
-    :param num_steps:
-    :param series:
-    :return:
-    """
-    cond = create_condition_list(em_2, context_p)
-    y1, y0 = get_series_separately(y, cond, context_p)
-    y0_p = get_context_points(y, cond, context_p)
-    x0_p = get_context_points(x, cond, context_p)
-    y_infer = y_infer_constructor(y, cond, context_p)
-    em_infer = concat_context_to_infer(em, cond, context_p)
-    em2_infer = concat_context_to_infer(em_2, cond, context_p)
-    yy = concat_context_to_infer(y, cond, context_p)
-    xx = concat_context_to_infer(x, cond, context_p)
-    x1, x0 = get_series_separately(x, cond, context_p)
-
-    maxi = num_steps + y_infer.shape[1]
-    em_infer = em_infer[:maxi]
-    em2_infer = em2_infer[:maxi]
-    xx = xx[:maxi]
-    s_x1, s_x0, s_x0p, s_xx = arg_sorter([x1, x0, x0_p, xx])
-    # sort 1's and 0's according to sorted x's
-    s_vals_em2 = em2_infer[s_xx]
-    series_cond = np.where(s_vals_em2 == series)
-    s_idx_xx_ser0 = s_xx[series_cond]
-    s_vals_xx_ser0 = xx[s_idx_xx_ser0]
-    s_vals_x0 = x0[s_x0]
-    s_vals_y0 = y0[s_x0]
-    s_vals_x1 = x1[s_x1]
-    s_vals_y1 = y1[s_x1]
-    s_context_x = x0_p[s_x0p]
-    s_context_y = y0_p[s_x0p]
-
-    return s_idx_xx_ser0, s_vals_xx_ser0, s_vals_x0 \
-        , s_vals_y0, s_vals_x1, s_vals_y1 \
-        , s_context_x, s_context_y, \
-           em_infer.reshape(1, -1), em2_infer.reshape(1, -1), y_infer, yy, xx, x1, y1, x0_p, y0_p, x0, y0
 
 
 def infer_plot2D(decoder, x, y, em, em_2, num_steps=100, samples=10, order=True, context_p=50, mean=True, consec=False,
@@ -387,30 +151,31 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps=100, samples=10, order=True,
             em = em.reshape(-1)[non_cosec_idx]
             em_2 = em_2.reshape(-1)[non_cosec_idx]
 
-    sorted_infer, x_infer, x0, y0, x1, y1, x0_p, y0_p, em_infer, em2_infer, y_infer, yy, xx, no_s_x1, no_s_y1, n_s_x0_p, n_s_y0_p, n_s_x0, n_s_y0 = concat_n_rearange(
-        x, y, em, em_2, context_p * 2, num_steps)
-    num_steps = em_infer.shape[1] - y_infer.shape[1]
-    first_pos = y_infer.shape[1]
-    top_idx = np.where((xx <= xx[first_pos] + 0.1) & (xx >= xx[first_pos] - 0.1))[0]
-    axs.scatter(x0_p, y0_p, c='red')
+    cond = create_condition_list(em_2, context_p)
+    x0 = x[cond[0]]; x1 = x[cond[1]]
+    y0 = x[cond[0]]; y1 = y[cond[1]]
+    em0 = em[cond[0]]; em1 = em[cond[1]]
+    em_2_0 = em_2[cond[0]]; em_2_1 = em_2[cond[1]]
+
+    y_infer = np.concatenate((y1, y0[:context_p])
+    x_infer = np.concatenate((x1, x0))
+    em_infer = np.concatenate((em1, em0))
+    em2_infer = np.concatenate((em_2_1, em_2_0))
+
+    axs.scatter(x0[:context_p], y0[:context_p], c='red')
     axs.plot(x0, y0, c='lightcoral')
     axs.plot(x1, y1, c='black')
     for i, inf in enumerate(range(samples)):
         _, _, y_inf, _ = infer.inference(decoder, x=em_infer, y=y_infer, num_steps=num_steps,
-                                      sample=True, d=True, x_2=em2_infer, series=0, infer=True, xx = xx, yy=yy, x0=x0, y0=y0, x1=x1, y1=y1)
+                                      sample=True, d=True, x_2=em2_infer, series=0, infer=True, xx = x, yy=y, x0=x0, y0=y0, x1=x1, y1=y1)
 
-        axs.plot(x_infer, y_inf.numpy().reshape(-1)[sorted_infer], c='lightskyblue')
-        mse_model = metrics.mse(yy.reshape(-1)[sorted_infer].reshape(1, -1),
-                                y_inf.numpy().reshape(-1)[sorted_infer].reshape(1, -1))
+        axs.plot(x_infer, y_inf.numpy().reshape(-1), c='lightskyblue')
 
-        n = min(em_infer.shape[1] - len(y_infer), num_steps)
-        y_mean = np.repeat(np.mean(yy.reshape(-1)[sorted_infer]), n).reshape(1, -1)
-        print('sample # {}, r squared: {}'.format(i, 1 - (mse_model / metrics.mse(yy[-n:].reshape(1, -1), y_mean))))
     if mean:
         _, _, y_inf, _ = infer.inference(decoder, em_te=em_infer, y=y_infer, num_steps=num_steps,
                                       sample=False, d=True, em_te_2=em2_infer, series=0, infer=False)
 
-        axs.plot(x_infer, y_inf.numpy().reshape(-1)[sorted_infer], c='goldenrod')
+        axs.plot(x_infer, y_inf.numpy().reshape(-1), c='goldenrod')
 
     if ins:
         return axs
@@ -683,3 +448,176 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps=100, samples=10, order=True,
 #         return axs
 #     else:
 #         plt.show()
+#
+
+# def follow_training_plot(x_tr, y_tr, pred,
+#                          x_te, y_te, pred_te, num_context=50, num_samples=2):
+#     """
+#
+#     :param x_tr:
+#     :param y_tr:
+#     :param pred:
+#     :param x_te:
+#     :param y_te:
+#     :param pred_te:
+#     :param num_context:
+#     :param num_samples:
+#     :return:
+#     """
+#     fig, axs = plt.subplots(2, 2, figsize=(10, 6))
+#     custom_xlim = (4, 16)
+#     custom_ylim = (-4, 4)
+#
+#     # Setting the values for all axes.
+#     plt.setp(axs, xlim=custom_xlim, ylim=custom_ylim)
+#     idx_tr, samples_train, sorted_idx_tr = choose_random_ex_n_sort(x_tr, 2)
+#     idx_te, samples_test, sorted_idx_te = choose_random_ex_n_sort(x_te, 2)
+#     samples_tr = assign_context_points_to_preds(
+#         idx_tr, samples_train, y_tr, pred, num_context)
+#     samples_te = assign_context_points_to_preds(
+#         idx_te, samples_test, y_te, pred_te, num_context)
+#     axs = plot_subplot_training(axs, x_tr, x_te, y_tr, y_te, samples_tr, samples_te, idx_tr, idx_te, np.array(
+#         sorted_idx_tr), np.array(sorted_idx_te), num_context)
+#     for ax in axs.flat:
+#         ax.label_outer()
+#
+#     plt.show()
+
+#
+# def concat_n_rearange(x, y, em, em_2, context_p, num_steps, series=1):
+#     """
+#
+#     :param x:
+#     :param y:
+#     :param em:
+#     :param em_2:
+#     :param context_p:
+#     :param num_steps:
+#     :param series:
+#     :return:
+#     """
+#     cond = create_condition_list(em_2, context_p)
+#     y1, y0 = get_series_separately(y, cond, context_p)
+#     y0_p = get_context_points(y, cond, context_p)
+#     x0_p = get_context_points(x, cond, context_p)
+#     y_infer = y_infer_constructor(y, cond, context_p)
+#     em_infer = concat_context_to_infer(em, cond, context_p)
+#     em2_infer = concat_context_to_infer(em_2, cond, context_p)
+#     yy = concat_context_to_infer(y, cond, context_p)
+#     xx = concat_context_to_infer(x, cond, context_p)
+#     x1, x0 = get_series_separately(x, cond, context_p)
+#
+#     maxi = num_steps + y_infer.shape[1]
+#     em_infer = em_infer[:maxi]
+#     em2_infer = em2_infer[:maxi]
+#     xx = xx[:maxi]
+#     s_x1, s_x0, s_x0p, s_xx = arg_sorter([x1, x0, x0_p, xx])
+#     # sort 1's and 0's according to sorted x's
+#     s_vals_em2 = em2_infer[s_xx]
+#     series_cond = np.where(s_vals_em2 == series)
+#     s_idx_xx_ser0 = s_xx[series_cond]
+#     s_vals_xx_ser0 = xx[s_idx_xx_ser0]
+#     s_vals_x0 = x0[s_x0]
+#     s_vals_y0 = y0[s_x0]
+#     s_vals_x1 = x1[s_x1]
+#     s_vals_y1 = y1[s_x1]
+#     s_context_x = x0_p[s_x0p]
+#     s_context_y = y0_p[s_x0p]
+#
+#     return s_idx_xx_ser0, s_vals_xx_ser0, s_vals_x0 \
+#         , s_vals_y0, s_vals_x1, s_vals_y1 \
+#         , s_context_x, s_context_y, \
+#            em_infer.reshape(1, -1), em2_infer.reshape(1, -1), y_infer, yy, xx, x1, y1, x0_p, y0_p, x0, y0
+#
+#
+# def y_infer_constructor(df, cond, context_p):
+#     """
+#
+#     :param df:
+#     :param cond:
+#     :return:
+#     """
+#     df_pre = df[:context_p]
+#     df_post = df[context_p:]
+#     df_infer = np.concatenate((df_pre, df_post[cond[1]])).reshape(1, -1)
+#     return df_infer
+#
+#
+# def arg_sorter(*l):
+#     """
+#
+#     :param l:
+#     :return:
+#     """
+#     s_list = []
+#     for idx, element in enumerate(*l):
+#         s_list.append(np.argsort(element))
+#     return s_list
+# def choose_random_ex_n_sort(x, num_samples):
+#     """
+#
+#     :param x:
+#     :param num_samples:
+#     :return:
+#     """
+#     idx = np.random.choice(np.arange(0, len(x)), num_samples, replace=False)
+#     samples = np.zeros((num_samples, x.shape[1]))
+#     sorted_idx_samples = pd.DataFrame(x[idx, :]).apply(
+#         lambda x: np.argsort(x), axis=1)
+#     return idx, samples, sorted_idx_samples
+
+# def assign_context_points_to_preds(idx, samples, y, pred, num_context):
+#     """
+#
+#     :param idx:
+#     :param samples:
+#     :param y:
+#     :param pred:
+#     :param num_context:
+#     :return:
+#     """
+#     samples[:, :num_context] = y[idx, :num_context]
+#     samples[:, num_context:] = pred.numpy()[idx, (num_context - 1):]
+#     return samples
+
+
+# def concat_context_to_infer(df, cond, context_p):
+#     """
+#
+#     :param df:
+#     :param cond:
+#     :param context_p:
+#     :return:
+#     """
+#     df_pre = df[:context_p]  # this includes context_p points, some from series 0 and some from series 1
+#     df_post = df[context_p:]  # this includes all points that were not picked as context
+#     df_infer = np.concatenate((df_pre, df_post[cond[1]]))  # this includes context points and all the rest of series 0/1
+#     df_infer = np.concatenate((df_infer, df_post[cond[3]]))  # this completes the rest of the series to infer
+#     return df_infer
+
+
+# def get_series_separately(df, cond, context_p):
+#     """
+#
+#     :param df:
+#     :param cond:
+#     :param context_p:
+#     :return:
+#     """
+#     df_pre = df[:context_p]
+#     df_post = df[context_p:]
+#     df_1 = np.concatenate((df_pre[cond[0]], df_post[cond[1]]))
+#     df_0 = np.concatenate((df_pre[cond[2]], df_post[cond[3]]))
+#     return df_1, df_0
+
+#
+# def get_context_points(df, cond, context_p):
+#     """
+#
+#     :param df:
+#     :param cond:
+#     :return:
+#     """
+#     df_pre = df[:context_p];
+#     context_points = df_pre[cond[2]]
+#     return context_points
