@@ -25,6 +25,19 @@ def evaluate(model, x, y, sample=True, d=False, x_2=None, xx=None, yy=None, c_st
     :param xx: (tf.tensor) unsorted true x-vals associated with both elements of the sequence pair. Used only for plotting attention
     :param yy: (tf.tensor) unsorted true y-vals associated with both elements of the sequence pair. Used only for plotting attention
     :return:
+    mean, variance, sample value for the most recent prediction
+
+    To run an example of evaluate for 1 step returning a mean and log sigma on UNN notebook:
+        a) load model
+        b) choose random index: idx = int(np.random.choice(np.arange(0, 30000, 1), 1))
+        c) from helpers import masks
+        d) combined_mask_x = masks.create_masks(data[3][idx, :51].reshape(1, -1))[:, :-1, :-1]
+        e) decoder(x = data[3][idx, :51].reshape(1, -1), x_2 = data[0][idx, :51].reshape(1, -1), y = data[6][idx, :50].reshape(1, -1), training = False, x_mask = combined_mask_x)
+        f) the last row of the output represents the mean prediction and log sigma prediction
+
+    If you would like to compare the output of inferecne to that of a decoder call, run the steps above
+    and then run steps (c) and (d) from inference below. compare the 50th index in the output of
+    inference with the last row extracted from running the steps (a-f) above.
     """
     combined_mask_x = masks.create_masks(x)
     if d:
@@ -62,6 +75,13 @@ def inference(model, x, y, num_steps=1, sample=True, d=False, x_2=None, infer=Fa
     :param xx: (tf.tensor) unsorted true x-vals associated with both elements of the sequence pair. Used only for plotting attention
     :param yy: (tf.tensor) unsorted true y-vals associated with both elements of the sequence pair. Used only for plotting attention
     :return: model object, x-vals, y-vals, number of steps
+
+    To run an example of inference for 5 steps returning a sample on UNN notebook:
+        a) load model
+        b) choose random index: idx = int(np.random.choice(np.arange(0, 30000, 1), 1))
+        c) from inference import infer
+        d) infer.inference(decoder, x=data[3][idx, :].reshape(1, -1), y=data[6][idx, :50].reshape(1, -1), num_steps=5,
+                                          sample=True, d=True, x_2=data[0][idx, :].reshape(1, -1))
     """
     n = y.shape[1]
     num_steps = x.shape[1] - n if num_steps == 999 else min(num_steps, x.shape[1] - n)
