@@ -32,6 +32,9 @@ def dot_product_attention(q, k, v, mask, infer=False, x=None, y=None, n=0, x0=No
         nl_qk += ((tf.cast(mask, tf.float64)) * -1e9)
         print('nl_qk: ', nl_qk)
         tf.print(nl_qk[0, 0, :, :])
+        print('last row: ')
+        tf.print(nl_qk[0, 0, -1, :])
+
     att_weights = tf.nn.softmax(nl_qk, axis=-1, name='att_weights')  # (batch_size X d_model X seq_len X seq_len)
     if infer:
         k_vals, k_ind = tf.math.top_k(att_weights[0, :, -1, :], k=5, sorted=True, name=None)
