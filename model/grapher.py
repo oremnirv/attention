@@ -7,7 +7,6 @@ from model import losses
 
 
 def build_graph():
-    loss_object = tf.keras.losses.MeanSquaredError(reduction=tf.keras.losses.Reduction.NONE)
     train_loss = tf.keras.metrics.Mean(name='train_loss')
     test_loss = tf.keras.metrics.Mean(name='test_loss')
     m_tr = tf.keras.metrics.Mean()
@@ -16,28 +15,32 @@ def build_graph():
     @tf.function
     def train_step(decoder, optimizer_c, train_loss, m_tr, x, y, context_p=50, d=False, x2=None, to_gather=None):
         """
-
-        :param decoder:
-        :param optimizer_c:
-        :param train_loss:
-        :param m_tr:
-        :param x:
-        :param y:
-        :param context_p:
-        :param d:
-        :param x2:
-        :param to_gather:
+        # Examples for using @tf.function: https://www.tensorflow.org/guide/keras/writing_a_training_loop_from_scratch
+        :param decoder: tf.keras.Model
+        :param optimizer_c: tensorflow.python.keras.optimizer_v2
+        :param train_loss: tf.keras.metrics
+        :param m_tr: tf.keras.metrics object
+        :param x: (tf.tensor)
+        :param y: (tf.tensor)
+        :param context_p: (int) or a list of int
+        :param d: (bool) TRUE if we are dealing with pairs of sequences
+        :param x2: (tf.tensor) if d = True, otherwise None
+        :param to_gather: (np.array) indicates for tf.gather_nd (see function content) which indices
+        to pick from which rows. This array is defined in the UNN notebook as part of the training procedure
         :return:
+        (tf.tensor) of mean predictions, (tf.tensor) of log sigma predictions,
+        (tf.tensor) of weights, (tf.tensor) of names of weights, (tf.tensor) of shapes of weights
         """
         y_inp = y[:, :-1]
         y_real = y[:, 1:]
         combined_mask_x = masks.create_masks(x)
         with tf.GradientTape(persistent=True) as tape:
             if d:
-                pred = decoder(x, x2, y_inp, True, combined_mask_x[:, :-1, :-1])
+                pred = decoder(x, x2, y_inp, True, combined_mask_x[:, :-1, :-1]) # (batch_size x seq_len)
+                print('pred: ', pred)
             else:
                 pred = decoder(x, y_inp, True, combined_mask_x[:, :-1, :-1])
-            if type(context_p) is list:
+            if type(context_p) is list: # this step only executes when the batch rows have varying # of context points
                 pred0 = tf.squeeze(pred[:, :, 0])
                 pred1 = tf.squeeze(pred[:, :, 1])
                 loss, mse, mask = losses.loss_function(tf.gather_nd(y_real, to_gather, name='real'),
@@ -70,10 +73,7 @@ def build_graph():
         """
         y_inp_te = y_te[:, :-1]
         y_real_te = y_te[:, 1:]
-        xx = x_te
-        if len(x_te.shape) > 2:
-            xx = x_te[:, 0, :]
-        combined_mask_x_te = masks.create_masks(xx)
+        combined_mask_x_te = masks.create_masks(x_te)
         # training=False is only needed if there are layers with different
         # behavior during training versus inference (e.g. Dropout).
         if d:
@@ -97,4 +97,4 @@ def build_graph():
         return pred_te[:, :, 0], pred_te[:, :, 1]
 
     tf.keras.backend.set_floatx('float64')
-    return train_step, test_step, loss_object, train_loss, test_loss, m_tr, m_te
+    return train_step, test_step, train_loss, test_loss, m_tr, m_te

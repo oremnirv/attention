@@ -1,4 +1,5 @@
 import numpy as np
+import sklearn.gaussian_process as gp
 
 
 def rbf_kernel(x, sigma=1):

@@ -43,7 +43,7 @@ def tensorboard_embeddings(model, layer_num, meta_data, logdir):
     # Save the weights we want to analyse as a variable. Note that the first
     # value represents any unknown word, which is not in the metadata, so
     # we will remove that value.
-    subwords = np.concatenate(([0, 1], np.unique(meta_data)))
+    subwords = meta_data
     with open(os.path.join(logdir, 'metadata.tsv'), "w") as f:
         for subword in subwords:
             f.write("learnt {}\n".format(subword))

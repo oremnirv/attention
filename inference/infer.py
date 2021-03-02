@@ -40,7 +40,7 @@ def evaluate(model, x, y, sample=True, d=False, x_2=None, xx=None, yy=None, c_st
     return pred[:, 0], pred[:, 1], sample_y
 
 
-def inference(model, x, y, num_steps=1, sample=True, d=False, x_2=None, series=1, infer=False, xx=None, yy=None,
+def inference(model, x, y, num_steps=1, sample=True, d=False, x_2=None, infer=False, xx=None, yy=None,
               x0=None, y0=None, x1=None, y1=None):
     """
     This is a recursive function for inference. It receives y-vals, x-vals and the series which they came from (x_2-vals).
@@ -54,7 +54,6 @@ def inference(model, x, y, num_steps=1, sample=True, d=False, x_2=None, series=1
     :param sample: (bool) Whether to infer the mean (mu) or to sample from N(mu, sigma)
     :param d: (bool) Is it infernce between pairs of sequnces (TRUE) or just one sequence at a time
     :param x_2: (tf.tensor) each entry represents the series member (0/1) a certain value is assocated with. shape is (m + num_steps)x1.
-    :param series: (int 0/1) If d=True, which member of the pair should we infer 0/1
     :param infer: (bool) If TRUE then will plot attention given to points while making each prediction
     :param y1: (tf.tensor) the true y-vals associated with pair element #1. Used only for plotting attention
     :param x1: (tf.tensor) the true x-vals associated with pair element #1. Used only for plotting attention
@@ -75,7 +74,7 @@ def inference(model, x, y, num_steps=1, sample=True, d=False, x_2=None, series=1
         pred, pred_log_sig, sample_y = evaluate(model, temp_x, y, sample=sample)
     y = tf.concat((y, tf.reshape(sample_y, [1, 1])), axis=1)
     if num_steps > 1:
-        model, x, y, num_steps = inference(model, x, y, num_steps - 1, d=d, x_2=x_2, series=series,
+        model, x, y, num_steps = inference(model, x, y, num_steps - 1, d=d, x_2=x_2,
                                            sample=sample, xx=xx, yy=yy, infer=infer, x0=x0, y0=y0, x1=x1, y1=y1)
 
     return model, x, y, num_steps

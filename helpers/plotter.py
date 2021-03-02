@@ -29,6 +29,7 @@ def plot_examples(x, y):
 
 def plot_2d_examples(x, y, em_2):
     """
+    Show few graphs of how the data looks like
 
     :param x:
     :param y:
@@ -157,7 +158,7 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps=100, samples=10, order=True,
     em0 = em[cond[0]]; em1 = em[cond[1]]
     em_2_0 = em_2[cond[0]]; em_2_1 = em_2[cond[1]]
 
-    y_infer = np.concatenate((y1, y0[:context_p])
+    y_infer = np.concatenate((y1, y0[:context_p]))
     x_infer = np.concatenate((x1, x0))
     em_infer = np.concatenate((em1, em0))
     em2_infer = np.concatenate((em_2_1, em_2_0))
@@ -167,13 +168,13 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps=100, samples=10, order=True,
     axs.plot(x1, y1, c='black')
     for i, inf in enumerate(range(samples)):
         _, _, y_inf, _ = infer.inference(decoder, x=em_infer, y=y_infer, num_steps=num_steps,
-                                      sample=True, d=True, x_2=em2_infer, series=0, infer=True, xx = x, yy=y, x0=x0, y0=y0, x1=x1, y1=y1)
+                                      sample=True, d=True, x_2=em2_infer, infer=True, xx = x, yy=y, x0=x0, y0=y0, x1=x1, y1=y1)
 
         axs.plot(x_infer, y_inf.numpy().reshape(-1), c='lightskyblue')
 
     if mean:
         _, _, y_inf, _ = infer.inference(decoder, em_te=em_infer, y=y_infer, num_steps=num_steps,
-                                      sample=False, d=True, em_te_2=em2_infer, series=0, infer=False)
+                                      sample=False, d=True, em_te_2=em2_infer, infer=False)
 
         axs.plot(x_infer, y_inf.numpy().reshape(-1), c='goldenrod')
 
@@ -181,7 +182,7 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps=100, samples=10, order=True,
         return axs
     else:
         plt.show()
-        return xx, yy, no_s_x1, no_s_y1, x_infer, em2_infer, y_inf.numpy().reshape(-1)[sorted_infer],  n_s_x0_p, n_s_y0_p, n_s_x0, n_s_y0
+        return x, y, x1, y1, x_infer, em2_infer, y_inf.numpy().reshape(-1),  x0[:context_p], y0[:context_p], x0, y0
 
 
 # def GP_compare_1D(x, y, kernel, noise=False, context_p=50, order=True, consec=True, axs=None, ins=False):
@@ -581,19 +582,19 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps=100, samples=10, order=True,
 #     return samples
 
 
-# def concat_context_to_infer(df, cond, context_p):
-#     """
-#
-#     :param df:
-#     :param cond:
-#     :param context_p:
-#     :return:
-#     """
-#     df_pre = df[:context_p]  # this includes context_p points, some from series 0 and some from series 1
-#     df_post = df[context_p:]  # this includes all points that were not picked as context
-#     df_infer = np.concatenate((df_pre, df_post[cond[1]]))  # this includes context points and all the rest of series 0/1
-#     df_infer = np.concatenate((df_infer, df_post[cond[3]]))  # this completes the rest of the series to infer
-#     return df_infer
+def concat_context_to_infer(df, cond, context_p):
+    """
+
+    :param df:
+    :param cond:
+    :param context_p:
+    :return:
+    """
+    df_pre = df[:context_p]  # this includes context_p points, some from series 0 and some from series 1
+    df_post = df[context_p:]  # this includes all points that were not picked as context
+    df_infer = np.concatenate((df_pre, df_post[cond[1]]))  # this includes context points and all the rest of series 0/1
+    df_infer = np.concatenate((df_infer, df_post[cond[3]]))  # this completes the rest of the series to infer
+    return df_infer
 
 
 # def get_series_separately(df, cond, context_p):
