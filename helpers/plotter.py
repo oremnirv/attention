@@ -158,10 +158,10 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps=100, samples=10, order=True,
     em0 = em[cond[0]]; em1 = em[cond[1]]
     em_2_0 = em_2[cond[0]]; em_2_1 = em_2[cond[1]]
 
-    y_infer = np.concatenate((y1, y0[:context_p]))
-    x_infer = np.concatenate((x1, x0))
-    em_infer = np.concatenate((em1, em0))
-    em2_infer = np.concatenate((em_2_1, em_2_0))
+    y_infer = np.concatenate((y1, y0[:context_p])).reshape(1, -1)
+    x_infer = np.concatenate((x1, x0)).reshape(1, -1)
+    em_infer = np.concatenate((em1, em0)).reshape(1, -1)
+    em2_infer = np.concatenate((em_2_1, em_2_0)).reshape(1, -1)
 
     axs.scatter(x0[:context_p], y0[:context_p], c='red')
     axs.plot(x0, y0, c='lightcoral')
@@ -184,6 +184,20 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps=100, samples=10, order=True,
         plt.show()
         return x, y, x1, y1, x_infer, em2_infer, y_inf.numpy().reshape(-1),  x0[:context_p], y0[:context_p], x0, y0
 
+
+def concat_context_to_infer(df, cond, context_p):
+    """
+
+    :param df:
+    :param cond:
+    :param context_p:
+    :return:
+    """
+    df_pre = df[:context_p]  # this includes context_p points, some from series 0 and some from series 1
+    df_post = df[context_p:]  # this includes all points that were not picked as context
+    df_infer = np.concatenate((df_pre, df_post[cond[1]]))  # this includes context points and all the rest of series 0/1
+    df_infer = np.concatenate((df_infer, df_post[cond[3]]))  # this completes the rest of the series to infer
+    return df_infer
 
 # def GP_compare_1D(x, y, kernel, noise=False, context_p=50, order=True, consec=True, axs=None, ins=False):
 #     if axs:
@@ -580,21 +594,6 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps=100, samples=10, order=True,
 #     samples[:, :num_context] = y[idx, :num_context]
 #     samples[:, num_context:] = pred.numpy()[idx, (num_context - 1):]
 #     return samples
-
-
-def concat_context_to_infer(df, cond, context_p):
-    """
-
-    :param df:
-    :param cond:
-    :param context_p:
-    :return:
-    """
-    df_pre = df[:context_p]  # this includes context_p points, some from series 0 and some from series 1
-    df_post = df[context_p:]  # this includes all points that were not picked as context
-    df_infer = np.concatenate((df_pre, df_post[cond[1]]))  # this includes context points and all the rest of series 0/1
-    df_infer = np.concatenate((df_infer, df_post[cond[3]]))  # this completes the rest of the series to infer
-    return df_infer
 
 
 # def get_series_separately(df, cond, context_p):

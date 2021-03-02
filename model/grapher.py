@@ -16,6 +16,7 @@ def build_graph():
     def train_step(decoder, optimizer_c, train_loss, m_tr, x, y, context_p=50, d=False, x2=None, to_gather=None):
         """
         # Examples for using @tf.function: https://www.tensorflow.org/guide/keras/writing_a_training_loop_from_scratch
+        # Examples for using tf.GradientTape: https://www.tensorflow.org/api_docs/python/tf/GradientTape
         :param decoder: tf.keras.Model
         :param optimizer_c: tensorflow.python.keras.optimizer_v2
         :param train_loss: tf.keras.metrics
@@ -27,19 +28,36 @@ def build_graph():
         :param x2: (tf.tensor) if d = True, otherwise None
         :param to_gather: (np.array) indicates for tf.gather_nd (see function content) which indices
         to pick from which rows. This array is defined in the UNN notebook as part of the training procedure
+        example: array([[  0, 253],
+                        [  0, 254],
+                        [  0, 255],
+                        ...,
+                        [ 63, 396],
+                        [ 63, 397],
+                        [ 63, 398]])
         :return:
         (tf.tensor) of mean predictions, (tf.tensor) of log sigma predictions,
         (tf.tensor) of weights, (tf.tensor) of names of weights, (tf.tensor) of shapes of weights
+
+        If you would like to understand the functionality of gather_nd run in notebook:
+        a)  x = data[1]
+            y = data[-3]
+            em = data[4]
+            em_2 = data[-1]
+            b_data, c = batch_creator.create_batch_2d(em, x, y, em_2, batch_s=64, context_p=50)
+        b) to_gather =  np.random.choice([0, 1, 2], (63, 2))
+        c) rows = np.repeat(np.arange(0, 63, 1), 2).reshape(63, 2)
+        d) aa = np.concatenate((rows.reshape(-1, 1), to_gather.reshape(-1, 1)), axis=1)
+        e) tf.gather_nd(b_data[0][:, 1:4], aa).numpy()
         """
         y_inp = y[:, :-1]
         y_real = y[:, 1:]
-        combined_mask_x = masks.create_masks(x)
+        combined_mask_x = masks.create_masks(x) # see masks.py for description
         with tf.GradientTape(persistent=True) as tape:
             if d:
-                pred = decoder(x, x2, y_inp, True, combined_mask_x[:, :-1, :-1]) # (batch_size x seq_len)
-                print('pred: ', pred)
+                pred = decoder(x, x2, y_inp, True, combined_mask_x[:, :-1, :-1]) # (batch_size x seq_len x 2)
             else:
-                pred = decoder(x, y_inp, True, combined_mask_x[:, :-1, :-1])
+                pred = decoder(x, y_inp, True, combined_mask_x[:, :-1, :-1]) # (batch_size x seq_len x 2)
             if type(context_p) is list: # this step only executes when the batch rows have varying # of context points
                 pred0 = tf.squeeze(pred[:, :, 0])
                 pred1 = tf.squeeze(pred[:, :, 1])
@@ -61,14 +79,14 @@ def build_graph():
     def test_step(decoder, test_loss, m_te, x_te, y_te, context_p=50, d=False, x2_te=None, to_gather=None):
         """
 
-        :param decoder:
-        :param test_loss:
-        :param m_te:
-        :param x_te:
-        :param y_te:
-        :param context_p:
-        :param d:
-        :param x2_te:
+        :param decoder: tf.keras.Model
+        :param test_loss: tf.keras.metrics
+        :param m_te: tf.keras.metrics
+        :param x_te: tf.tensor
+        :param y_te: tf.tensor
+        :param context_p: (int) or a list of int
+        :param d: (bool) TRUE if we are dealing with pairs of sequences
+        :param x2_te: (tf.tensor) if d = True, otherwise None
         :return:
         """
         y_inp_te = y_te[:, :-1]
