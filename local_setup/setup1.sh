@@ -10,8 +10,10 @@ pip3 install matplotlib
 pip3 install sklearn
 pip3 install pandas
 pip3 install keras
+pip3 install tensorboard
 cd
 cd Downloads
+mkdir attention_plots
 #/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 #brew install wget
 #wget --no-check-certificate "https://universityofcambridgecloud-my.sharepoint.com/:f:/g/personal/on234_cam_ac_uk/Esw4ksBwOo9KhWU9li0G9-QBtBikjXD7J1NskNPRsfNltQ?e=idZOEU"

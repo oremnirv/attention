@@ -7,36 +7,53 @@ import matplotlib.pyplot as plt
 
 def dot_product_attention(q, k, v, mask, infer=False, x=None, y=None, n=0, x0=None, y0=None, x1=None, y1=None):
     """
+    This
 
-    :param y1:
-    :param x1:
-    :param y0:
-    :param x0:
-    :param n:
-    :param y:
-    :param x:
-    :param infer:
-    :param q:
-    :param k:
-    :param v:
-    :param mask:
+    For more info see: https://www.tensorflow.org/tutorials/text/transformer
+    :param q: (tf.tensor) the embedding of x-vals
+    :param k: (tf.tensor) the embedding of x-vals
+    :param v: (tf.tensor) the embedding of y-vals (or just the repetition of y-vals)
+    :param mask: (tf.tnsor) shape is (seq_len, seq_len)
+    to see an example run: from helpers import masks; masks.create_masks(data[1][1, :].reshape(1, -1))
+    :param infer: (bool) if TRUE plot attention given to each prediction
+    :param y1: (tf.tensor) the y-vals associated with pair member #1
+    :param x1: (tf.tensor) the x-vals associated with pair member #1
+    :param y0: (tf.tensor) the y-vals associated with pair member #0
+    :param x0: (tf.tensor) the x-vals associated with pair member #0
+    :param n: (int) just used to init figures in inference. Otherwise all will be plotted on one plot.
+    :param y: (tf.tensor) all y-vals
+    :param x: (tf.tensor) all x-vals
+
     :return:
     """
     mask = mask[:, tf.newaxis, :, :]
     matmul_qk = tf.matmul(q, k, transpose_b=True, name='qk')
-    matmul_qk = matmul_qk[:, :, 1:, :-1]
-    print('matmul_qk: ',  matmul_qk)
+    # Notice that matmul_qk will produce (batch size, num heads, seq_len + 1, seq_len +1)
+    # tensor. However, we are not interested in the first row since it tells us about the dot product of
+    # x1 with xi for all i. But our first prediction is for y2 associated with x2, i.e., the second row.
+    # In the same way we are not interested in the last column, since we want to know the dot product
+    # only of x_i with x_j for i<j.
+    matmul_qk = matmul_qk[:, :, 1:, :-1]  # (batch size, num heads, seq_len, seq_len)
     dk = tf.cast(tf.shape(k)[-1], tf.float64)
     nl_qk = tf.cast(matmul_qk / tf.math.sqrt(dk), tf.float64)
+    # Why do we divide by sqrt(dk)? For example, consider that Q and K have a mean of 0 and variance of 1.
+    # Their matrix multiplication will have a mean of 0 and variance of dk.
+    # So the square root of dk is used for scaling so you get a consistent variance regardless of the value of dk
+    # each entry is a some random distribution with 0 mean and 1 variance
     if mask is not None:
-        nl_qk += ((tf.cast(mask, tf.float64)) * -1e9)
-        print('nl_qk: ', nl_qk)
-        tf.print(nl_qk[0, 0, :, :])
-        print('last row: ')
-        tf.print(nl_qk[0, 0, -1, :])
+        # This step is to make sure that values that are not allowed to be "seen" at a certain step
+        # will receive a huge negative value that will translate to 0 weighting after softmax
+        nl_qk += ((tf.cast(mask, tf.float64)) * -1e9)  # (batch size, num heads, seq_len, seq_len)
 
     att_weights = tf.nn.softmax(nl_qk, axis=-1, name='att_weights')  # (batch_size X d_model X seq_len X seq_len)
     if infer:
+        # This block has the following intention:
+        # a) get the last row of the attention weigths
+        # If we are trying to infer the 51st element then the last row
+        # should represent the attention weight of <x_51, x_1> ....<x_51, x_50>
+        # b) get top (biggest) 5 vals & idxs from the last row
+        # c) If num_head = 1 this is exactly what we want to show, else we have multiple heads so:
+        # d) take the indices of top 5 values for all heads and return the top 10 repeating values (of indices)
         k_vals, k_ind = tf.math.top_k(att_weights[0, :, -1, :], k=5, sorted=True, name=None)
         k_vals_agg, k_ind_agg = tf.math.top_k(k_ind.numpy().reshape(-1), k=10, sorted=True, name=None)
         plt.figure(n)
@@ -44,17 +61,16 @@ def dot_product_attention(q, k, v, mask, infer=False, x=None, y=None, n=0, x0=No
         plt.plot(x1, y1, c='black')
         plt.scatter(x[k_vals_agg.numpy()], y[k_vals_agg.numpy()], color='darkorange', s=52, label='attention points')
         plt.scatter(x[n], y[n], s=52, color='limegreen')
-        plt.savefig('/Users/omernivron/Downloads/attention_plots/step_{}'.format(n))
+        plt.savefig('~/Downloads/attention_plots/step_{}'.format(n))
 
     # Notice that for all the rows where 
-    # everything is 0, the masking will turn everything to -inf
+    # everything is 1, the masking will turn everything to -inf
     # and the output from the softmax would be 1/num_cols 
-    #  (try a = tf.constant([-1e9, -1e9, -1e9]), tf.nn.softmax(a))
+    # (try a = tf.constant([-1e9, -1e9, -1e9]), tf.nn.softmax(a))
     # So we can expect an output from these rows which we want to ignore
     # this will be enforced in the masking of the loss function
 
-    out_tar = tf.matmul(att_weights, tf.cast(v, tf.float64))
-    print('out_tar: ', out_tar)
+    out_tar = tf.matmul(att_weights, tf.cast(v, tf.float64))  # (batch size, num heads, seq_len, 32)
     return out_tar, att_weights, matmul_qk
 
 
