@@ -240,7 +240,7 @@ def create_batch(em_x, x, y, batch_s=128, chnge_context=True, d=False, em_2=None
     return b_data
 
 
-def batch_regime_2d(x, y, em, em_2, kind='shuffle', c=50, batch_s=64):
+def batch_regime_2d(x, y, em, em_2, kind='shuffle', context_p=50, batch_s=64):
     """
     This is a wrapper for the three different batching options
 
@@ -260,10 +260,11 @@ def batch_regime_2d(x, y, em, em_2, kind='shuffle', c=50, batch_s=64):
     """
     if kind == 'shuffle':
         b_data = create_batch(em, x, y, batch_s=batch_s, d=True, em_2=em_2)
+        c = context_p
     elif kind == 'full infer':
-        b_data, c = create_batch_2d(em, x, y, em_2, batch_s=batch_s, context_p=c)
+        b_data, c = create_batch_2d(em, x, y, em_2, batch_s=batch_s, context_p=context_p)
     else:
-        b_data, c = create_batch_2d_b(em, x, y, em_2, batch_s=batch_s, context_p=c)
+        b_data, c = create_batch_2d_b(em, x, y, em_2, batch_s=batch_s, context_p=context_p)
 
     return b_data, c
 
