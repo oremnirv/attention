@@ -342,68 +342,68 @@ def concat_context_to_infer(df, cond, context_p):
 #                     leg = ax.legend()
 
 
-# def plot_subplot_training2d(params, x, x_te, y, y_te, pred_y, pred_y_2, pred_y_te, pred_y_te_2, idx_tr, idx_te, idx_f1,
-#                             idx_f2, idx_f1_te, idx_f2_te, num_context):
-#     """
-#
-#     :param params:
-#     :param x:
-#     :param x_te:
-#     :param y:
-#     :param y_te:
-#     :param pred_y:
-#     :param pred_y_2:
-#     :param pred_y_te:
-#     :param pred_y_te_2:
-#     :param idx_tr:
-#     :param idx_te:
-#     :param idx_f1:
-#     :param idx_f2:
-#     :param idx_f1_te:
-#     :param idx_f2_te:
-#     :param num_context:
-#     :return:
-#     """
-#     for row in range(params.shape[0]):
-#         if (row == 1):
-#             x = x_te
-#             y = y_te
-#             pred_y = pred_y_te
-#             pred_y_2 = pred_y_te_2
-#             idx_tr = idx_te
-#             idx_f1 = idx_f1_te
-#             idx_f2 = idx_f2_te
-#
-#         params[row].plot(x[idx_tr[0], np.array(idx_f1)[0]],
-#                          y[idx_tr[0], np.array(idx_f1)[0]], c='black', label='obs. function')
-#
-#         params[row].plot(x[idx_tr[0], np.array(idx_f2)[0]],
-#                          y[idx_tr[0], np.array(idx_f2)[0]], c='blue', label='obs. function II')
-#
-#         params[row].scatter(x[idx_tr[0], :num_context], y[idx_tr[0], :num_context],
-#                             c='black', marker="o", zorder=1, s=25, label='context points')
-#
-#         params[row].plot(x[idx_tr[0], np.array(idx_f1)[0]], pred_y.reshape(-1), c='gray',
-#                          label='reconstructed function')
-#
-#         params[row].plot(x[idx_tr[0], np.array(idx_f2)[0]], pred_y_2.reshape(-1), c='lightskyblue',
-#                          label='reconstructed function II')
-#
-#         if (row == 0):
-#             params[row].set_title('Training ex. I')
-#             leg = params[row].legend()
-#             bb = leg.get_bbox_to_anchor().inverse_transformed(params[row].transAxes)
-#
-#             # Change to location of the legend.
-#             xOffset = .5
-#             bb.x0 += xOffset
-#             bb.x1 += xOffset
-#             leg.set_bbox_to_anchor(bb, transform=params[row].transAxes)
-#
-#         else:
-#             params[row].set_title('Test ex. I')
-#
-#     return params
+def plot_subplot_training2d(params, x, x_te, y, y_te, pred_y, pred_y_2, pred_y_te, pred_y_te_2, idx_tr, idx_te, idx_f1,
+                            idx_f2, idx_f1_te, idx_f2_te, num_context):
+    """
+
+    :param params:
+    :param x:
+    :param x_te:
+    :param y:
+    :param y_te:
+    :param pred_y:
+    :param pred_y_2:
+    :param pred_y_te:
+    :param pred_y_te_2:
+    :param idx_tr:
+    :param idx_te:
+    :param idx_f1:
+    :param idx_f2:
+    :param idx_f1_te:
+    :param idx_f2_te:
+    :param num_context:
+    :return:
+    """
+    for row in range(params.shape[0]):
+        if (row == 1):
+            x = x_te
+            y = y_te
+            pred_y = pred_y_te
+            pred_y_2 = pred_y_te_2
+            idx_tr = idx_te
+            idx_f1 = idx_f1_te
+            idx_f2 = idx_f2_te
+
+        params[row].plot(x[idx_tr[0], np.array(idx_f1)[0]],
+                         y[idx_tr[0], np.array(idx_f1)[0]], c='black', label='obs. function')
+
+        params[row].plot(x[idx_tr[0], np.array(idx_f2)[0]],
+                         y[idx_tr[0], np.array(idx_f2)[0]], c='blue', label='obs. function II')
+
+        params[row].scatter(x[idx_tr[0], :num_context], y[idx_tr[0], :num_context],
+                            c='black', marker="o", zorder=1, s=25, label='context points')
+
+        params[row].plot(x[idx_tr[0], np.array(idx_f1)[0]], pred_y.reshape(-1), c='gray',
+                         label='reconstructed function')
+
+        params[row].plot(x[idx_tr[0], np.array(idx_f2)[0]], pred_y_2.reshape(-1), c='lightskyblue',
+                         label='reconstructed function II')
+
+        if (row == 0):
+            params[row].set_title('Training ex. I')
+            leg = params[row].legend()
+            bb = leg.get_bbox_to_anchor().inverse_transformed(params[row].transAxes)
+
+            # Change to location of the legend.
+            xOffset = .5
+            bb.x0 += xOffset
+            bb.x1 += xOffset
+            leg.set_bbox_to_anchor(bb, transform=params[row].transAxes)
+
+        else:
+            params[row].set_title('Test ex. I')
+
+    return params
 
 
 # def infer_plot(model, em, x, y, num_steps, samples=10, mean=True, context_p=50, order=False, axs=None, ins=False,
