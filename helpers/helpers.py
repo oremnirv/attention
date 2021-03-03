@@ -120,7 +120,7 @@ def pre_trained_loader(x, save_dir, e, l, d=True, batch_s=64, context=50, heads=
         print("Restored from {}".format(manager.latest_checkpoint))
     else:
         print("Initializing from scratch.")
-    return decoder, optimizer_c, ckpt, manager, num_batches, writer
+    return decoder, optimizer_c, ckpt, manager, num_batches, writer, folder
 
 
 def gather_idx(c, x):
