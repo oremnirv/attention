@@ -126,7 +126,7 @@ def create_batch_2d_b(em_x, x, y, em_2, batch_s=128, context_p=50):
     em_2 = em_2[batch_idx]
     c = context_p
     p = np.random.random()
-    # print('p: ', p)
+    print('p: ', p)
     if p <= 0.25:
         x, y, em_x, em_2, c = rearange_tr_2d(x, y, em_x, em_2, context_p)
     elif p <= 0.5:
