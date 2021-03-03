@@ -141,7 +141,7 @@ class MultiHeadAttention2D(tf.keras.layers.Layer):
         self.depth = d_model // self.num_heads
         self.wq = tf.keras.layers.Dense(d_model, name='wq')
         self.wk = tf.keras.layers.Dense(d_model, name='wk')
-        # self.wv = tf.keras.layers.Dense(d_model, name='wv')
+        self.wv = tf.keras.layers.Dense(d_model, name='wv')
         self.dense = tf.keras.layers.Dense(d_model)
 
     def split_heads(self, x, batch_size):
@@ -151,14 +151,15 @@ class MultiHeadAttention2D(tf.keras.layers.Layer):
         x = tf.reshape(x, (batch_size, -1, self.num_heads, self.depth))
         return tf.transpose(x, perm=[0, 2, 1, 3])
 
-    def call(self, v, k, q, e, mask, infer=False, x=None, y=None, n=0, x0=None, y0=None, x1=None, y1=None):
+    def call(self, v, k, q, mask, infer=False, x=None, y=None, n=0, x0=None, y0=None, x1=None, y1=None):
         batch_size = tf.shape(q)[0]
         q = self.wq(q)  # (batch_size, seq_len, d_model)
-        k = self.wk(k)
-        v = tf.reshape(tf.repeat(v, self.d_model), [batch_size, tf.shape(q)[1] - 1, self.d_model])
+        k = self.wk(k)  # (batch_size, seq_len, d_model)
+        v = self.wv(v)  # (batch_size, seq_len, d_model)
+
         q = self.split_heads(q, batch_size)  # (batch_size, num_heads, seq_len_q, depth)
-        k = self.split_heads(k, batch_size)
-        v = self.split_heads(v, batch_size)
+        k = self.split_heads(k, batch_size)  # (batch_size, num_heads, seq_len_q, depth)
+        v = self.split_heads(v, batch_size)  # (batch_size, num_heads, seq_len_q, depth)
 
         scaled_att, att_weights, _ = dot_product_attention(
             q, k, v, mask, infer=infer, x=x, y=y, n=n, x0=x0, y0=y0, x1=x1, y1=y1)

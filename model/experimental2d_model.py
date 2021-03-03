@@ -37,15 +37,16 @@ class Decoder(tf.keras.Model):
         :param y1:
         :return:
         """
-        y = y[:, :, tf.newaxis]
-        x = self.embedding(x)
-        x_2 = self.embedding(x_2)
-        y_attn, _ = self.mha(y, x, x, x_2, x_mask, infer=infer, x=ix, y=iy, n=n, x0=x0, y0=y0, x1=x1, y1=y1)
-        current_position = x[:, 1:, :]
-        current_series = x_2[:, 1:, :]
-        L = self.A1(y_attn) + self.A2(current_position) + self.A3(current_series)
+        y = y[:, :, tf.newaxis]  # (batch_size, seq_len, 1)
+        x = self.embedding(x)  # (batch_size, seq_len + 1, e)
+        print(x)
+        x_2 = self.embedding(x_2)  # (batch_size, seq_len + 1, e)
+        y_attn, _ = self.mha(y, x, x, x_2, x_mask, infer=infer, x=ix, y=iy, n=n, x0=x0, y0=y0, x1=x1, y1=y1)  # (batch_size, seq_len, e)
+        current_position = x[:, 1:, :]  # (batch_size, seq_len, e)
+        current_series = x_2[:, 1:, :]  # (batch_size, seq_len, e)
+        L = self.A1(y_attn) + self.A2(current_position) + self.A3(current_series)  # (batch_size, seq_len, l1)
         L = tf.nn.leaky_relu(L)
-        L = tf.nn.leaky_relu(self.A4(L))
-        L = tf.nn.leaky_relu(self.A5(L))
-        L = self.A6(L)
+        L = tf.nn.leaky_relu(self.A4(L))  # (batch_size, seq_len, l2)
+        L = tf.nn.leaky_relu(self.A5(L))  # (batch_size, seq_len, l3)
+        L = self.A6(L)  # (batch_size, seq_len, 2)
         return tf.squeeze(L)

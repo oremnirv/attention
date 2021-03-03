@@ -239,6 +239,23 @@ def create_batch(em_x, x, y, batch_s=128, chnge_context=True, d=False, em_2=None
 
 
 def batch_regime_2d(x, y, em, em_2, kind='shuffle', c=50, batch_s=64):
+    """
+    This is a wrapper for the three different batching options
+
+
+    :param x: (np.array)
+    :param y: (np.array)
+    :param em: (np.array)
+    :param em_2: (np.array) consisting of zeros and ones
+    :param kind: (str) 'shuffle', 'full infer' for seeing one sequence pair member
+    in full and inferring the second sequence given initial context points, or if neither then do half-half
+    :param c: (int or list of ints) context points
+    :param batch_s: (int)
+    :return:
+    list of four np.arrays where b_data[0] corresponds to y
+    b_data[1] corresponds to x, b_data[2] corresponds to indices of embedded x
+    b_data[2] corresponds to 0/1 values specifying the sequence member
+    """
     if kind == 'shuffle':
         b_data = create_batch(em, x, y, batch_s=batch_s, d=True, em_2=em_2)
     elif kind == 'full infer':

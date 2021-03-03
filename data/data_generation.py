@@ -19,12 +19,16 @@ class EmbderMap:
         self.grid = []
         self.idxs = []
         for ix, val in enumerate(grids):
-            self.grid.append(val)
+            print('val: ', val)
+            self.grid.append(val) # list of lists
 
     def map_value_to_grid(self, var):
         n = len(self.idxs)
+        print('n: ', n)
         g = self.grid[n]
+        print('g: ', g)
         idx = []
+        print('var 0: ', var[0])
         for i in var[0]:
             if n == 0:
 
@@ -33,7 +37,8 @@ class EmbderMap:
                 elif i < min(g):
                     idx.append(200 + 0)
                 else:
-                    idx.append(200 + np.where(i < g)[0][0])
+                    idx.append(200 + np.where(i <=g)[0][0])
+                    print('where: ', np.where(i < g))
             else:
                 m = max(self.idxs[n - 1]) + 1
                 if i > max(g):
@@ -193,13 +198,13 @@ def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf',
 
 
 def main():
-    # a = EmbderMap(2, [np.arange(5, 15, 0.1), np.arange(70, 74, 0.05)])
-    # a.map_value_to_grid(np.array([5, 7]).reshape(1, -1))
-    # a.map_value_to_grid(np.array([74, 77]).reshape(1, -1))
+    # a = EmbderMap(1, [np.arange(5, 15, 0.1)])
+    # a.map_value_to_grid(np.array([5, 5.5, 5.05, 7.2, 4, 3, 7, 14.9,  15, 15.5]).reshape(1, -1))
+    # # a.map_value_to_grid(np.array([74, 77]).reshape(1, -1))
     # print(a.idxs[0])
-    # print(a.idxs[1])
-    data_gen2d(10)
-
+    # # print(a.idxs[1])
+    e = np.random.permutation(np.tile(np.random.normal(0, 2, 2), 10)).reshape(-1, 1)
+    print(e == np.unique(e)[0])
 
 if __name__ == '__main__':
     main()
