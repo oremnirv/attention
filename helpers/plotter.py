@@ -366,7 +366,6 @@ def plot_subplot_training2d(params, x, x_te, y, y_te, pred_y, pred_y_2, pred_y_t
     """
     for row in range(params.shape[0]):
         if (row == 1):
-            print('row 1')
             x = x_te
             y = y_te
             pred_y = pred_y_te
@@ -377,7 +376,7 @@ def plot_subplot_training2d(params, x, x_te, y, y_te, pred_y, pred_y_2, pred_y_t
 
         params[row].plot(x[idx_tr[0], np.array(idx_f1)[0]],
                          y[idx_tr[0], np.array(idx_f1)[0]], c='black', label='obs. function')
-        print(idx_tr)
+        plt.show()
 
         params[row].plot(x[idx_tr[0], np.array(idx_f2)[0]],
                          y[idx_tr[0], np.array(idx_f2)[0]], c='blue', label='obs. function II')
