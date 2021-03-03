@@ -70,7 +70,7 @@ def tensorboard_embeddings(model, layer_num, meta_data, logdir):
 def write_speci(folder, names, shapes, context_p, heads):
     with open(os.path.expanduser(folder + '_context_' + str(context_p) + '_speci.csv'), "w") as csv_file:
         writer = csv.writer(csv_file, delimiter=',')
-        writer.writerow('heads', str(heads))
+        writer.writerow(['heads', str(heads)])
         for name, shape in zip(names, shapes):
             writer.writerow([str(name.numpy()).split('/')[-2], str(shape.numpy())])
 
