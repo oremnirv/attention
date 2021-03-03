@@ -582,19 +582,19 @@ def choose_random_ex_n_sort(x, num_samples):
         lambda x: np.argsort(x), axis=1)
     return idx, samples, sorted_idx_samples
 
-# def assign_context_points_to_preds(idx, samples, y, pred, num_context):
-#     """
-#
-#     :param idx:
-#     :param samples:
-#     :param y:
-#     :param pred:
-#     :param num_context:
-#     :return:
-#     """
-#     samples[:, :num_context] = y[idx, :num_context]
-#     samples[:, num_context:] = pred.numpy()[idx, (num_context - 1):]
-#     return samples
+def assign_context_points_to_preds(idx, samples, y, pred, num_context):
+    """
+
+    :param idx:
+    :param samples:
+    :param y:
+    :param pred:
+    :param num_context:
+    :return:
+    """
+    samples[:, :num_context] = y[idx, :num_context]
+    samples[:, num_context:] = pred.numpy()[idx, (num_context - 1):]
+    return samples
 
 
 # def get_series_separately(df, cond, context_p):
