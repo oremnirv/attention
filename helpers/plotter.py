@@ -366,6 +366,7 @@ def plot_subplot_training2d(params, x, x_te, y, y_te, pred_y, pred_y_2, pred_y_t
     """
     for row in range(params.shape[0]):
         if (row == 1):
+            print('row 1')
             x = x_te
             y = y_te
             pred_y = pred_y_te
