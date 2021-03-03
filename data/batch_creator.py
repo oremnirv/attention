@@ -69,6 +69,8 @@ def rearange_tr_2d(x, y, em, em_2, context_p=50, s=1):
     xx, yy, eem, eem2 = [], [], [], []
 
     for row in range(x.shape[0]):
+        print('em_2: ', em_2)
+        print('context_p: ', context_p)
         em_2_pre = em_2[row, :context_p * 2].reshape(-1)
         em_2_pos = em_2[row, context_p * 2:]
         cond = [np.where(em_2_pre == s), np.where(em_2_pos == s), np.where(~(em_2_pre == s)),
