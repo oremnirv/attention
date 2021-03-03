@@ -3,6 +3,7 @@
 ###########################
 import tensorflow as tf
 import matplotlib.pyplot as plt
+import os
 
 
 def dot_product_attention(q, k, v, mask, infer=False, x=None, y=None, n=0, x0=None, y0=None, x1=None, y1=None):
@@ -61,7 +62,7 @@ def dot_product_attention(q, k, v, mask, infer=False, x=None, y=None, n=0, x0=No
         plt.plot(x1, y1, c='black')
         plt.scatter(x[k_vals_agg.numpy()], y[k_vals_agg.numpy()], color='darkorange', s=52, label='attention points')
         plt.scatter(x[n], y[n], s=52, color='limegreen')
-        plt.savefig('~/Downloads/attention_plots/step_{}'.format(n))
+        plt.savefig(os.path.expanduser('~/Downloads/attention_plots/step_{}'.format(n)))
 
     # Notice that for all the rows where 
     # everything is 1, the masking will turn everything to -inf
