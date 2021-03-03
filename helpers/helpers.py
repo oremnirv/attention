@@ -84,19 +84,19 @@ def load_spec(path, e, l, heads, context_p, d=False, old=False, abc=False):
         ls = []
         if d:
             if old:
-                for i in [1, 17, 19, 23, 25]:
+                for i in [1, 17, 19, 23, 25, 0]:
                     ls.append(int(df[i][1].split('[')[1].split(']')[0]))
             elif abc:
-                for i in [7, 9, 11, 13, 15]:
+                for i in [7, 9, 11, 13, 15, 0]:
                     ls.append(int(df[i][1].split('[')[1].split(']')[0]))
 
             else:
-                for i in [1, 11, 13, 15, 17]:
+                for i in [1, 11, 13, 15, 17, 0]:
                     ls.append(int(df[i][1].split('[')[1].split(']')[0]))
         else:
-            for i in [1, 9, 11, 13, 15]:
+            for i in [1, 9, 11, 13, 15, 0]:
                 ls.append(int(df[i][1].split('[')[1].split(']')[0]))
-        ls.append(heads)
+
         return ls
 
 
