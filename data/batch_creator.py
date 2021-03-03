@@ -238,7 +238,7 @@ def create_batch(em_x, x, y, batch_s=128, chnge_context=True, d=False, em_2=None
     return b_data
 
 
-def batch_regime_2d(x, y, em, em_2, kind='shuffle', c=50, batch_s):
+def batch_regime_2d(x, y, em, em_2, kind='shuffle', c=50, batch_s=64):
     if kind == 'shuffle':
         b_data = create_batch(em, x, y, batch_s=batch_s, d=True, em_2=em_2)
     elif kind == 'full infer':
