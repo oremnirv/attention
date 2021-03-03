@@ -621,3 +621,51 @@ def concat_context_to_infer(df, cond, context_p):
 #     df_pre = df[:context_p];
 #     context_points = df_pre[cond[2]]
 #     return context_points
+
+def follow_training_plot2d(x_tr, y_tr, em_2_tr, pred,
+                           x_te, y_te, em_2_te, pred_te, num_context=50):
+    """
+    :param x_tr:
+    :param y_tr:
+    :param em_2_tr:
+    :param pred:
+    :param x_te:
+    :param y_te:
+    :param em_2_te:
+    :param pred_te:
+    :param num_context:
+    :return:
+    """
+    fig, axs = plt.subplots(2, 1, figsize=(10, 6))
+    custom_xlim = (4, 16)
+    custom_ylim = (-8, 8)
+
+    # Setting the values for all axes.
+    plt.setp(axs, xlim=custom_xlim, ylim=custom_ylim)
+    idx_tr, samples_train, sorted_idx_tr = choose_random_ex_n_sort(x_tr, 1)
+    idx_te, samples_test, sorted_idx_te = choose_random_ex_n_sort(x_te, 1)
+    samples_tr = assign_context_points_to_preds(
+        idx_tr, samples_train, y_tr, pred, num_context)
+    samples_te = assign_context_points_to_preds(
+        idx_te, samples_test, y_te, pred_te, num_context)
+
+    sorted_em = (em_2_tr[idx_tr]).reshape(-1)[np.array(sorted_idx_tr).reshape(-1)]
+    sorted_em_te = (em_2_te[:500][idx_te]).reshape(-1)[np.array(sorted_idx_te).reshape(-1)]
+
+    idx_f1 = sorted_idx_tr[np.where(sorted_em == 1)[0]]
+    idx_f2 = sorted_idx_tr[np.where(sorted_em == 0)[0]]
+    idx_f1_te = sorted_idx_te[np.where(sorted_em_te == 1)[0]]
+    idx_f2_te = sorted_idx_te[np.where(sorted_em_te == 0)[0]]
+
+    samples_tr1 = samples_tr.reshape(-1)[np.array(idx_f1).reshape(-1)]
+    samples_tr2 = samples_tr.reshape(-1)[np.array(idx_f2).reshape(-1)]
+
+    samples_te1 = samples_te.reshape(-1)[np.array(idx_f1_te).reshape(-1)]
+    samples_te2 = samples_te.reshape(-1)[np.array(idx_f2_te).reshape(-1)]
+
+    axs = plot_subplot_training2d(axs, x_tr, x_te, y_tr, y_te, samples_tr1, samples_tr2, samples_te1, samples_te2,
+                                  idx_tr, idx_te, idx_f1, idx_f2, idx_f1_te, idx_f2_te, num_context)
+    for ax in axs.flat:
+        ax.label_outer()
+
+    plt.show()
