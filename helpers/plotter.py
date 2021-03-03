@@ -568,18 +568,19 @@ def concat_context_to_infer(df, cond, context_p):
 #     for idx, element in enumerate(*l):
 #         s_list.append(np.argsort(element))
 #     return s_list
-# def choose_random_ex_n_sort(x, num_samples):
-#     """
-#
-#     :param x:
-#     :param num_samples:
-#     :return:
-#     """
-#     idx = np.random.choice(np.arange(0, len(x)), num_samples, replace=False)
-#     samples = np.zeros((num_samples, x.shape[1]))
-#     sorted_idx_samples = pd.DataFrame(x[idx, :]).apply(
-#         lambda x: np.argsort(x), axis=1)
-#     return idx, samples, sorted_idx_samples
+
+def choose_random_ex_n_sort(x, num_samples):
+    """
+
+    :param x:
+    :param num_samples:
+    :return:
+    """
+    idx = np.random.choice(np.arange(0, len(x)), num_samples, replace=False)
+    samples = np.zeros((num_samples, x.shape[1]))
+    sorted_idx_samples = pd.DataFrame(x[idx, :]).apply(
+        lambda x: np.argsort(x), axis=1)
+    return idx, samples, sorted_idx_samples
 
 # def assign_context_points_to_preds(idx, samples, y, pred, num_context):
 #     """
