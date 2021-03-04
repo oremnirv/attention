@@ -53,7 +53,6 @@ def build_graph():
         y_inp = y[:, :-1]
         y_real = y[:, 1:]
         if type(context_p) is list:
-            print('here')
             y_real *= to_gather
         combined_mask_x = masks.create_masks(x) # see masks.py for description
         with tf.GradientTape(persistent=True) as tape:
@@ -76,7 +75,7 @@ def build_graph():
         m_tr.update_state(mse, mask)
         names = [v.name for v in decoder.trainable_variables]
         shapes = [v.shape for v in decoder.trainable_variables]
-        return pred[:, :, 0], pred[:, :, 1], decoder.trainable_variables, names, shapes, y_real
+        return pred[:, :, 0], pred[:, :, 1], decoder.trainable_variables, names, shapes
 
     @tf.function
     def test_step(decoder, test_loss, m_te, x_te, y_te, context_p=50, d=False, x2_te=None, to_gather=None):
@@ -95,7 +94,7 @@ def build_graph():
         y_inp_te = y_te[:, :-1]
         y_real_te = y_te[:, 1:]
         if type(context_p) is list:
-            y_real_te[to_gather] = 0
+            y_real_te *= to_gather
         combined_mask_x_te = masks.create_masks(x_te)
         # training=False is only needed if there are layers with different
         # behavior during training versus inference (e.g. Dropout).
