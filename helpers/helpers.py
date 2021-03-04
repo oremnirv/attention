@@ -126,7 +126,7 @@ def load_spec(path, e, l, heads, context_p, d=False, old=False, abc=False):
                     ls.append(int(df[i][1].split('[')[1].split(']')[0]))
 
             else:
-                for i in [1, 11, 13, 15, 17, 0]:
+                for i in [1, 9, 11, 13, 15, 17]:
                     ls.append(int(df[i][1].split('[')[1].split(']')[0]))
         else:
             for i in [1, 9, 11, 13, 15, 0]:
