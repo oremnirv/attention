@@ -54,6 +54,7 @@ def build_graph():
         y_real = y[:, 1:]
         if type(context_p) is list:
             y_real[to_gather] = 0
+            tf.print(y_real[0, 0])
         combined_mask_x = masks.create_masks(x) # see masks.py for description
         with tf.GradientTape(persistent=True) as tape:
             if d:
