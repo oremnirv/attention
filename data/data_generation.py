@@ -24,8 +24,8 @@ class EmbderMap:
 
     def map_value_to_grid(self, var):
         """
-        map each float in var to an integer, s
-        tarting from 200 (arbitrary choice in order to avoid zero)
+        map each float in var to an integer,
+        starting from 200 (arbitrary choice in order to avoid zero)
 
         :param var: list of floats
         :return:

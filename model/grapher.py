@@ -26,34 +26,17 @@ def build_graph():
         :param context_p: (int) or a list of int
         :param d: (bool) TRUE if we are dealing with pairs of sequences
         :param x2: (tf.tensor) if d = True, otherwise None
-        :param to_gather: (np.array) indicates for tf.gather_nd (see function content) which indices
-        to pick from which rows. This array is defined in the UNN notebook as part of the training procedure
-        example: array([[  0, 253],
-                        [  0, 254],
-                        [  0, 255],
-                        ...,
-                        [ 63, 396],
-                        [ 63, 397],
-                        [ 63, 398]])
+        :param to_gather: (np.array) array sized the same as y, in each row the context points will be indicated by 0 else
+        1s.
         :return:
         (tf.tensor) of mean predictions, (tf.tensor) of log sigma predictions,
         (tf.tensor) of weights, (tf.tensor) of names of weights, (tf.tensor) of shapes of weights
 
-        If you would like to understand the functionality of gather_nd run in notebook:
-        a)  x = data[1]
-            y = data[-3]
-            em = data[4]
-            em_2 = data[-1]
-            b_data, c = batch_creator.create_batch_2d(em, x, y, em_2, batch_s=64, context_p=50)
-        b) to_gather =  np.random.choice([0, 1, 2], (63, 2))
-        c) rows = np.repeat(np.arange(0, 63, 1), 2).reshape(63, 2)
-        d) aa = np.concatenate((rows.reshape(-1, 1), to_gather.reshape(-1, 1)), axis=1)
-        e) tf.gather_nd(b_data[0][:, 1:4], aa).numpy()
         """
 
         y_inp = y[:, :-1]
         if type(context_p) is list:
-            y *= to_gather
+            y *= to_gather  # this is the step to make sure we only consider non context points in prediction
         y_real = y[:, 1:]
         combined_mask_x = masks.create_masks(x) # see masks.py for description
         with tf.GradientTape(persistent=True) as tape:
@@ -61,13 +44,7 @@ def build_graph():
                 pred = decoder(x, x2, y_inp, True, combined_mask_x[:, :-1, :-1]) # (batch_size x seq_len x 2)
             else:
                 pred = decoder(x, y_inp, True, combined_mask_x[:, :-1, :-1]) # (batch_size x seq_len x 2)
-            # if type(context_p) is list: # this step only executes when the batch rows have varying # of context points
-            #     pred0 = tf.squeeze(pred[:, :, 0])
-            #     pred1 = tf.squeeze(pred[:, :, 1])
-            #     loss, mse, mask = losses.loss_function(tf.gather_nd(y_real, to_gather, name='real'),
-            #                                            pred=tf.gather_nd(pred0, to_gather, name='mean'),
-            #                                            pred_log_sig=tf.gather_nd(pred1, to_gather, name='log_sig'))
-            # else:
+
             loss, mse, mask = losses.loss_function(y_real, pred=pred[:, :, 0],
                                                        pred_log_sig=pred[:, :, 1])
         gradients = tape.gradient(loss, decoder.trainable_variables)
@@ -85,11 +62,13 @@ def build_graph():
         :param decoder: tf.keras.Model
         :param test_loss: tf.keras.metrics
         :param m_te: tf.keras.metrics
-        :param x_te: tf.tensor
-        :param y_te: tf.tensor
+        :param x_te: (tf.tensor)
+        :param y_te: (tf.tensor)
         :param context_p: (int) or a list of int
         :param d: (bool) TRUE if we are dealing with pairs of sequences
         :param x2_te: (tf.tensor) if d = True, otherwise None
+        :param to_gather: (np.array) array sized the same as y, in each row the context points will be indicated by 0 else
+        1s.
         :return:
         """
 
@@ -105,17 +84,8 @@ def build_graph():
         else:
             pred_te = decoder(x_te, y_inp_te, False, combined_mask_x_te[:, :-1, :-1])
 
-        # if type(context_p) is list:
-        #     pred0_te = tf.squeeze(pred_te[:, :, 0])
-        #     pred1_te = tf.squeeze(pred_te[:, :, 1])
-        #     t_loss, t_mse, t_mask = losses.loss_function(tf.gather_nd(y_real_te, to_gather, name='real_te'),
-        #                                                  pred=tf.gather_nd(pred0_te, to_gather, name='mean_te'),
-        #                                                  pred_log_sig=tf.gather_nd(pred1_te, to_gather,
-        #                                                                            name='log_sig_te'))
-        # else:
         t_loss, t_mse, t_mask = losses.loss_function(y_real_te, pred=pred_te[:, :, 0],
                                                          pred_log_sig=pred_te[:, :, 1])
-
         test_loss(t_loss)
         m_te.update_state(t_mse, t_mask)
         return pred_te[:, :, 0], pred_te[:, :, 1]

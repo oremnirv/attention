@@ -8,6 +8,8 @@ from model import experimental2d_model
 
 def mkdir(folder):
     """
+    Checks if a folder exist and create a new one if it does not.
+    :param folder: (str) path to folder
     """
     if os.path.exists(folder):
         print('Already exists')
@@ -19,6 +21,7 @@ def mkdir(folder):
 
 def tf_summaries(run, string, train_loss_r, test_loss_r, tr_metric, te_metric, weights, names):
     """
+    These are summary stats used for logging things on TensorBoard
 
     """
     tf.summary.scalar("training loss run {}".format(run), train_loss_r, step=string)
@@ -41,6 +44,16 @@ def print_progress(epoch, batch_n, train_loss_r, test_loss_r, tr_metric, te_metr
 
 
 def tensorboard_embeddings(model, layer_num, meta_data, logdir):
+    """
+    This function saves a file to logdir that can be used for viewing
+    T-SNE or PCA on any layer in the NN on TensorBoard
+
+    :param model: trained tensorflow model object
+    :param layer_num: (int) which layer would you like to present? 0 means look at embedding layer
+    :param meta_data: (strings or np.array) used to identify each point in your layer. For example in emebeddings' layer
+    if we have 2000 embeddings then we can identify them by the array np.arange(0, 2000, 1)
+    :param logdir: (string) path where all tensorboard event files are saved
+    """
     from tensorboard.plugins import projector
     # Save the weights we want to analyse as a variable. Note that the first
     # value represents any unknown word, which is not in the metadata, so
@@ -67,6 +80,17 @@ def tensorboard_embeddings(model, layer_num, meta_data, logdir):
 
 
 def write_speci(folder, names, shapes, context_p, heads):
+    """
+    This is used in order to create a csv with the
+    information about which layers were used in this specific run
+    of the network --> so that one can replicate easily results
+
+    :param folder: (str) the path were this file should be saved
+    :param names:
+    :param shapes:
+    :param context_p: (int) how many context points were taken
+    :param heads: (int) how many heads were used in the MultiHead attention
+    """
     with open(os.path.expanduser(folder + '_context_' + str(context_p) + '_speci.csv'), "w") as csv_file:
         writer = csv.writer(csv_file, delimiter=',')
         writer.writerow(['heads', str(heads)])
@@ -75,6 +99,18 @@ def write_speci(folder, names, shapes, context_p, heads):
 
 
 def load_spec(path, e, l, heads, context_p, d=False, old=False, abc=False):
+    """
+
+    :param path:
+    :param e:
+    :param l:
+    :param heads:
+    :param context_p:
+    :param d:
+    :param old:
+    :param abc:
+    :return:
+    """
     if not os.path.exists(path + '_context_' + str(context_p) + '_speci.csv'):
         print('Does not exists')
         return (e, *l, heads)
@@ -122,9 +158,39 @@ def pre_trained_loader(x, save_dir, e, l, d=True, batch_s=64, context=50, heads=
     return decoder, optimizer_c, ckpt, manager, num_batches, writer, folder
 
 
-def gather_idx(c, x):
+def gather_idx(c, l=400):
+    """
+    This function is used to indicate the network which points are context in each row.
+    During training we call this function and then use its output as an index
+    to an array of zeros to assign the value 1 in each (row, column) combination we are interested in
+    making a prediction.
+
+    :param c: (list of ints) indicating the number of context points for each row
+    :param l: (int) the max sequence length in dataset
+    :return:
+    (np.array) a 2-d array that can be used for fancy indexing.
+    The first column represents the row number and the second column represents the column number.
+
+    In order to see an example output, run in main:
+    gather_idx([396, 391])
+
+    Output:
+    [[  0 396]
+    [  0 397]
+    [  0 398]
+    [  0 399]
+    [  1 391]
+    [  1 392]
+    [  1 393]
+    [  1 394]
+    [  1 395]
+    [  1 396]
+    [  1 397]
+    [  1 398]
+    [  1 399]]
+    """
     if type(c) is list:
-        cols = [np.arange(c[i], x.shape[1], 1) for i in range(len(c))]
+        cols = [np.arange(c[i], l, 1) for i in range(len(c))]
         cc = np.concatenate(cols, axis=0)
         rows = [np.repeat(i, len(m)) for i, m in enumerate(cols)]
         r = np.concatenate(rows, axis=0)
@@ -132,3 +198,11 @@ def gather_idx(c, x):
     else:
         to_gather = None
     return to_gather
+
+
+
+def main():
+    print(gather_idx([396, 391]))
+
+if __name__ == '__main__':
+    main()

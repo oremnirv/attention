@@ -2,7 +2,7 @@ import glob
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import tensorflow as tf;
+import tensorflow as tf
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import ExpSineSquared, WhiteKernel, RBF
 from data import loader
@@ -15,9 +15,8 @@ plt.style.use('ggplot')
 def plot_examples(x, y):
     """
     Show few graphs of how the data looks like
-    :param x:
-    :param y:
-    :return:
+    :param x: (np.array)
+    :param y: (np.array)
     """
     idx = np.random.choice(np.arange(0, len(x)), 5, replace=False)
     for i in idx:
@@ -31,10 +30,9 @@ def plot_2d_examples(x, y, em_2):
     """
     Show few graphs of how the data looks like
 
-    :param x:
-    :param y:
-    :param em_2:
-    :return:
+    :param x: (np.array)
+    :param y: (np.array)
+    :param em_2: (np.array) with 0/1 values indicating the sequence member
     """
     fig, axs = plt.subplots(2, 2, figsize=(12, 8))
     custom_xlim = (4, 16)
@@ -45,9 +43,11 @@ def plot_2d_examples(x, y, em_2):
     for i, idd in enumerate(idxs):
         row = i // 2;
         col = i % 2
+        # choose one example from sequence member 1
         f_x = x[idd, :][np.where(em_2[idd, :] == 1)[0]]
         f_y = y[idd, :][np.where(em_2[idd, :] == 1)[0]]
         axs[row, col].plot(np.sort(f_x), f_y[np.argsort(f_x)])
+        # choose one example from sequence member 0
         s_x = x[idd, :][np.where(em_2[idd, :] == 0)[0]]
         s_y = y[idd, :][np.where(em_2[idd, :] == 0)[0]]
         axs[row, col].plot(np.sort(s_x), s_y[np.argsort(s_x)])
@@ -72,7 +72,7 @@ def plot_subplot_training(params, x, x_te, y, y_te, pred_y, pred_y_te, tr_idx, t
     :param te_idx:
     :param sorted_idx_tr:
     :param sorted_idx_te:
-    :param num_context:
+    :param num_context: (int) how many context points have been used
     :return:
     """
     for row in range(params.shape[0]):
@@ -100,10 +100,13 @@ def plot_subplot_training(params, x, x_te, y, y_te, pred_y, pred_y_te, tr_idx, t
     return params
 
 
-def create_condition_list(cond_arr, context_p):
+def create_condition_list(cond_arr):
     """
-    :param cond_arr:
+    :param cond_arr: (np.array) with 0/1 values
     :return:
+    list with two np.array elements. The first indicating
+    the indices of values from sequence member 0, the second the indices of values
+    of sequence member 1
     """
     cond = []
     cond.append(np.where(cond_arr == 0))
@@ -114,18 +117,20 @@ def create_condition_list(cond_arr, context_p):
 def infer_plot2D(decoder, x, y, em, em_2, num_steps=100, samples=10, order=True, context_p=50, mean=True, consec=False,
                  axs=None, ins=False):
     """
+    This is a wrapper function for making inferences for pairs of sequences
+    and plotting the result, including the attention mechanism.
 
-    :param decoder:
-    :param x:
-    :param y:
-    :param em:
-    :param em_2:
-    :param num_steps:
-    :param samples:
-    :param order:
+    :param decoder: tf.Keras.Model object. Already trained.
+    :param x: (np.array)
+    :param y: (np.array)
+    :param em: (np.array) indices associated with x-vals -- to be used for embedding
+    :param em_2: (np.array) 0/1 values indicating pair sequence member
+    :param num_steps: (int) how many infernce steps to make
+    :param samples: (int) how many inference trajectories to draw
+    :param order: (bool)
     :param context_p: (int) has to be smaller than 120
-    :param mean:
-    :param consec:
+    :param mean: (bool) If True infer just the mean without sampling from N(mu, sigma)
+    :param consec: (bool) True when we want context points to be taken consecutively
     :param axs:
     :param ins:
     :return:
@@ -188,13 +193,28 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps=100, samples=10, order=True,
 def concat_context_to_infer(df, cond, context_p):
     """
 
-    :param df:
-    :param cond:
-    :param context_p:
+    :param df: (np.array)
+    :param cond: list of four np.arrays of indices. The first consists of indices from context points
+    that are part of pair sequence member s (s is chosen in rearange_tr_2d func), second indicates indices
+    of sequence member s that are not context points, third is the same like one but for the second sequence
+    and fourth is the same as the second but for the second sequence member.
+    :param context_p: (int) how many context points to use
     :return:
+    reordered np.array
+
+    To see an example, Run (see also main below):
+    df =np.random.normal(0, 1, 15)
+    em = np.random.choice([0, 1], 15)
+    context_p = 4; s=1
+    em_pre = em[:context_p]
+    em_pos = em[context_p:]
+    cond = [np.where(em_pre == s), np.where(em_pos == s), np.where(~(em_pre == s)),
+        np.where(~(em_pos == s))]
+    concat_context_to_infer(df, cond, context_p)
     """
     df_pre = df[:context_p]  # this includes context_p points, some from series 0 and some from series 1
     df_post = df[context_p:]  # this includes all points that were not picked as context
+    # print('df_post: ', df_post)
     df_infer = np.concatenate((df_pre, df_post[cond[1]]))  # this includes context points and all the rest of series 0/1
     df_infer = np.concatenate((df_infer, df_post[cond[3]]))  # this completes the rest of the series to infer
     return df_infer
@@ -584,16 +604,19 @@ def choose_random_ex_n_sort(x, num_samples):
 
 def assign_context_points_to_preds(idx, samples, y, pred, num_context):
     """
+    This function is used to ensure that context points
+    receive the observed y-vals and not predictions.
 
-    :param idx:
+    :param idx: (int)
     :param samples:
-    :param y:
-    :param pred:
-    :param num_context:
+    :param y: (np.array)
+    :param pred: (tf.tensor)
+    :param num_context: (int) how many context points to use.
     :return:
+    (np.array)
     """
     samples[:, :num_context] = y[idx, :num_context]
-    samples[:, num_context:] = pred.numpy()[idx, (num_context - 1):]
+    samples[:, num_context:] = pred.numpy()[idx, (num_context - 1):]  # the prediction at t is assocaited with y_(t+1)
     return samples
 
 
@@ -626,16 +649,15 @@ def assign_context_points_to_preds(idx, samples, y, pred, num_context):
 def follow_training_plot2d(x_tr, y_tr, em_2_tr, pred,
                            x_te, y_te, em_2_te, pred_te, num_context=50):
     """
-    :param x_tr:
-    :param y_tr:
-    :param em_2_tr:
-    :param pred:
-    :param x_te:
-    :param y_te:
-    :param em_2_te:
-    :param pred_te:
-    :param num_context:
-    :return:
+    :param x_tr: (np.array)
+    :param y_tr: (np.array)
+    :param em_2_tr: (np.array)
+    :param pred: (tf.tensor)
+    :param x_te: (np.array)
+    :param y_te: (np.array)
+    :param em_2_te: (np.array)
+    :param pred_te: (tf.tensor)
+    :param num_context: (int)
     """
     fig, axs = plt.subplots(2, 1, figsize=(10, 6))
     custom_xlim = (4, 16)
@@ -670,3 +692,25 @@ def follow_training_plot2d(x_tr, y_tr, em_2_tr, pred,
         ax.label_outer()
 
     plt.show()
+
+
+def main():
+    df = np.random.normal(0, 1, 15)
+    print('df: ', df)
+    em = np.random.choice([0, 1], 15)
+    print('em: ', em)
+    context_p = 4;
+    s = 1
+    em_pre = em[:context_p]
+    em_pos = em[context_p:]
+    print('condition list: ')
+    cond = [np.where(em_pre == s), np.where(em_pos == s), np.where(~(em_pre == s)),
+            np.where(~(em_pos == s))]
+    print(cond)
+    print('output: ')
+    print(concat_context_to_infer(df, cond, context_p))
+
+
+
+if __name__ == '__main__':
+    main()
