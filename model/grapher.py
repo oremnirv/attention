@@ -72,7 +72,7 @@ def build_graph():
         gradients = tape.gradient(loss, decoder.trainable_variables)
         optimizer_c.apply_gradients(zip(gradients, decoder.trainable_variables))
         train_loss(loss)
-        m_tr.update_state(mse)
+        m_tr.update_state(mse, mask)
         names = [v.name for v in decoder.trainable_variables]
         shapes = [v.shape for v in decoder.trainable_variables]
         return pred[:, :, 0], pred[:, :, 1], decoder.trainable_variables, names, shapes
@@ -93,6 +93,8 @@ def build_graph():
         """
         y_inp_te = y_te[:, :-1]
         y_real_te = y_te[:, 1:]
+        if type(context_p) is list:
+            y_real_te[to_gather] = 0
         combined_mask_x_te = masks.create_masks(x_te)
         # training=False is only needed if there are layers with different
         # behavior during training versus inference (e.g. Dropout).
@@ -101,19 +103,19 @@ def build_graph():
         else:
             pred_te = decoder(x_te, y_inp_te, False, combined_mask_x_te[:, :-1, :-1])
 
-        if type(context_p) is list:
-            pred0_te = tf.squeeze(pred_te[:, :, 0])
-            pred1_te = tf.squeeze(pred_te[:, :, 1])
-            t_loss, t_mse, t_mask = losses.loss_function(tf.gather_nd(y_real_te, to_gather, name='real_te'),
-                                                         pred=tf.gather_nd(pred0_te, to_gather, name='mean_te'),
-                                                         pred_log_sig=tf.gather_nd(pred1_te, to_gather,
-                                                                                   name='log_sig_te'))
-        else:
-            t_loss, t_mse, t_mask = losses.loss_function(y_real_te[:, context_p:], pred=pred_te[:, context_p:, 0],
-                                                         pred_log_sig=pred_te[:, context_p:, 1])
+        # if type(context_p) is list:
+        #     pred0_te = tf.squeeze(pred_te[:, :, 0])
+        #     pred1_te = tf.squeeze(pred_te[:, :, 1])
+        #     t_loss, t_mse, t_mask = losses.loss_function(tf.gather_nd(y_real_te, to_gather, name='real_te'),
+        #                                                  pred=tf.gather_nd(pred0_te, to_gather, name='mean_te'),
+        #                                                  pred_log_sig=tf.gather_nd(pred1_te, to_gather,
+        #                                                                            name='log_sig_te'))
+        # else:
+        t_loss, t_mse, t_mask = losses.loss_function(y_real_te, pred=pred_te[:, :, 0],
+                                                         pred_log_sig=pred_te[:, :, 1])
 
         test_loss(t_loss)
-        m_te.update_state(t_mse)
+        m_te.update_state(t_mse, t_mask)
         return pred_te[:, :, 0], pred_te[:, :, 1]
 
     tf.keras.backend.set_floatx('float64')
