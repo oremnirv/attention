@@ -124,7 +124,7 @@ def pre_trained_loader(x, save_dir, e, l, d=True, batch_s=64, context=50, heads=
 
 def gather_idx(c, x):
     if type(c) is list:
-        cols = [np.arange(c[i], x.shape[1] - 1, 1) for i in range(len(c))]
+        cols = [np.arange(c[i], x.shape[1], 1) for i in range(len(c))]
         cc = np.concatenate(cols, axis=0)
         rows = [np.repeat(i, len(m)) for i, m in enumerate(cols)]
         r = np.concatenate(rows, axis=0)

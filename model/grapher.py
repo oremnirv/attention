@@ -50,10 +50,11 @@ def build_graph():
         d) aa = np.concatenate((rows.reshape(-1, 1), to_gather.reshape(-1, 1)), axis=1)
         e) tf.gather_nd(b_data[0][:, 1:4], aa).numpy()
         """
+
         y_inp = y[:, :-1]
-        y_real = y[:, 1:]
         if type(context_p) is list:
-            y_real *= to_gather
+            y *= to_gather
+        y_real = y[:, 1:]
         combined_mask_x = masks.create_masks(x) # see masks.py for description
         with tf.GradientTape(persistent=True) as tape:
             if d:
@@ -91,10 +92,11 @@ def build_graph():
         :param x2_te: (tf.tensor) if d = True, otherwise None
         :return:
         """
+
         y_inp_te = y_te[:, :-1]
-        y_real_te = y_te[:, 1:]
         if type(context_p) is list:
-            y_real_te *= to_gather
+            y_te *= to_gather
+        y_real_te = y_te[:, 1:]
         combined_mask_x_te = masks.create_masks(x_te)
         # training=False is only needed if there are layers with different
         # behavior during training versus inference (e.g. Dropout).

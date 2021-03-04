@@ -175,7 +175,6 @@ def create_batch_2d(em_x, x, y, em_2, batch_s=128, context_p=50):
         em_2 = data[-1][:2, :30]
         batch_creator.create_batch_2d(em, x, y, em_2, batch_s=1, context_p=2)
     """
-    print('full infer')
     b_data = []
     shape = y.shape[0]
     batch_idx = np.random.choice(list(range(shape)), batch_s)
