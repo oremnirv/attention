@@ -98,41 +98,29 @@ def write_speci(folder, names, shapes, context_p, heads):
             writer.writerow([str(name.numpy()).split('/')[-2], str(shape.numpy())])
 
 
-def load_spec(path, e, l, heads, context_p, d=False, old=False, abc=False):
+def load_spec(path, e, l, heads, context_p):
     """
-
+    This function currently only fit a network with A1-A6 layers.
     :param path:
     :param e:
     :param l:
     :param heads:
     :param context_p:
-    :param d:
-    :param old:
-    :param abc:
     :return:
+
     """
     if not os.path.exists(path + '_context_' + str(context_p) + '_speci.csv'):
         print('Does not exists')
         return (e, *l, heads)
     else:
         df = np.array(pd.read_csv(path + '_context_' + str(context_p) + '_speci.csv'))
-        ls = []
-        if d:
-            if old:
-                for i in [1, 17, 19, 23, 25, 0]:
-                    ls.append(int(df[i][1].split('[')[1].split(']')[0]))
-            elif abc:
-                for i in [7, 9, 11, 13, 15, 0]:
-                    ls.append(int(df[i][1].split('[')[1].split(']')[0]))
+        heads = int(df.loc[df.iloc[:, 0] == 'heads', 1][0])
+        e = int(list(df.loc[df.iloc[:, 0] == 'embedding', 1])[0].split(' ')[-1][:-1])
+        l1 = int(list(df.loc[df.iloc[:, 0] == 'A1', 1])[1][1:-1])
+        l2 = int(list(df.loc[df.iloc[:, 0] == 'A4', 1])[1][1:-1])
+        l3 = int(list(df.loc[df.iloc[:, 0] == 'A5', 1])[1][1:-1])
 
-            else:
-                for i in [1, 9, 11, 13, 15, 17]:
-                    ls.append(int(df[i][1].split('[')[1].split(']')[0]))
-        else:
-            for i in [1, 9, 11, 13, 15, 0]:
-                ls.append(int(df[i][1].split('[')[1].split(']')[0]))
-
-        return ls
+        return e, l1, l2, l3, heads
 
 
 def pre_trained_loader(x, save_dir, e, l, d=True, batch_s=64, context=50, heads=1, run=9999, abc=True):
