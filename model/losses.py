@@ -3,7 +3,6 @@
 ###########################
 import tensorflow as tf
 
-loss_object = tf.keras.losses.MeanSquaredError(reduction='none', name ='mean_squared_error')
 
 def loss_function(real, pred, pred_log_sig=None, epsilon=0.001):
     """
@@ -20,11 +19,12 @@ def loss_function(real, pred, pred_log_sig=None, epsilon=0.001):
     loss value (tf.float64), mean squared error, masking
     """
     mask = tf.math.logical_not(tf.math.equal(real, 0))
-    mse = loss_object(real, pred)
-    print('mse object: ', mse)
+    mse = tf.math.square(tf.math.subtract(real, pred))
     loss_ = 1 / 2 * (tf.math.divide(mse, tf.math.square(tf.math.exp(pred_log_sig)) + epsilon) + pred_log_sig)
     mask = tf.cast(mask, dtype=loss_.dtype)
+    mask_b = tf.cast(mask, dtype=mse.dtype)
     loss_ *= mask
-    return tf.reduce_sum(loss_) / tf.reduce_sum(mask), mse, mask
+    mse *= mask_b
+    return tf.reduce_mean(tf.reduce_sum(loss_, 1) / tf.reduce_sum(mask, 1)), tf.reduce_mean(tf.reduce_sum(mse, 1) / tf.reduce_sum(mask_b, 1)), mask
 
 

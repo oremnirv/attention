@@ -50,7 +50,7 @@ def build_graph():
         gradients = tape.gradient(loss, decoder.trainable_variables)
         optimizer_c.apply_gradients(zip(gradients, decoder.trainable_variables))
         train_loss(loss)
-        m_tr.update_state(mse, mask)
+        m_tr.update_state(mse)
         names = [v.name for v in decoder.trainable_variables]
         shapes = [v.shape for v in decoder.trainable_variables]
         return pred[:, :, 0], pred[:, :, 1], decoder.trainable_variables, names, shapes
@@ -87,7 +87,7 @@ def build_graph():
         t_loss, t_mse, t_mask = losses.loss_function(y_real_te, pred=pred_te[:, :, 0],
                                                          pred_log_sig=pred_te[:, :, 1])
         test_loss(t_loss)
-        m_te.update_state(t_mse, t_mask)
+        m_te.update_state(t_mse)
         return pred_te[:, :, 0], pred_te[:, :, 1]
 
     tf.keras.backend.set_floatx('float64')
