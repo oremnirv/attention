@@ -53,7 +53,7 @@ def build_graph():
         m_tr.update_state(mse)
         names = [v.name for v in decoder.trainable_variables]
         shapes = [v.shape for v in decoder.trainable_variables]
-        return pred[:, :, 0], pred[:, :, 1], decoder.trainable_variables, names, shapes
+        return pred[:, :, 0], pred[:, :, 1], decoder.trainable_variables, names, shapes, y_real, to_gather
 
     @tf.function
     def test_step(decoder, test_loss, m_te, x_te, y_te, context_p=50, d=False, x2_te=None, to_gather=None):
