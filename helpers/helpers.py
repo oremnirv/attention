@@ -119,8 +119,9 @@ def load_spec(path, e, l, heads, context_p):
         l1 = int(list(df.loc[df.iloc[:, 0] == 'A1', 1])[1][1:-1])
         l2 = int(list(df.loc[df.iloc[:, 0] == 'A4', 1])[1][1:-1])
         l3 = int(list(df.loc[df.iloc[:, 0] == 'A5', 1])[1][1:-1])
+        l = [l1, l2, l3]
 
-        return e, l1, l2, l3, heads
+        return (e, *l, heads)
 
 
 def pre_trained_loader(x, save_dir, e, l, d=True, batch_s=64, context=50, heads=1, run=9999):
