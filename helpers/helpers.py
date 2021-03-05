@@ -146,7 +146,7 @@ def pre_trained_loader(x, save_dir, e, l, d=True, batch_s=64, context=50, heads=
     return decoder, optimizer_c, ckpt, manager, num_batches, writer, folder
 
 
-def gather_idx(c, l=400):
+def gather_idx(c, l=400, b=64):
     """
     This function is used to indicate the network which points are context in each row.
     During training we call this function and then use its output as an index
@@ -178,13 +178,17 @@ def gather_idx(c, l=400):
     [  1 399]]
     """
     if type(c) is list:
-        cols = [np.arange(c[i], l, 1) for i in range(len(c))]
+        cols = [np.arange(c[i], l, 1) for i in range(len(b))]
         cc = np.concatenate(cols, axis=0)
         rows = [np.repeat(i, len(m)) for i, m in enumerate(cols)]
         r = np.concatenate(rows, axis=0)
         to_gather = np.concatenate((r.reshape(-1, 1), cc.reshape(-1, 1)), 1)
     else:
-        to_gather = None
+        cols = [np.arange(c, l, 1) for i in range(b)]
+        cc = np.concatenate(cols, axis=0)
+        rows = [np.repeat(i, len(m)) for i, m in enumerate(cols)]
+        r = np.concatenate(rows, axis=0)
+        to_gather = np.concatenate((r.reshape(-1, 1), cc.reshape(-1, 1)), 1)
     return to_gather
 
 
