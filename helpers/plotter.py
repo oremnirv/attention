@@ -165,6 +165,7 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps=100, samples=10, order=True,
 
     y_infer = np.concatenate((y1, y0[:context_p])).reshape(1, -1)
     s_step = len(y_infer)
+    print('s_step: ', s_step)
     yy = np.concatenate((y1, y0)).reshape(1, -1)
     x_infer = np.concatenate((x1, x0)).reshape(1, -1)
     em_infer = np.concatenate((em1, em0)).reshape(1, -1)
