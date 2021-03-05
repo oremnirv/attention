@@ -157,7 +157,7 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps=100, samples=10, order=True,
             em = em.reshape(-1)[non_cosec_idx]
             em_2 = em_2.reshape(-1)[non_cosec_idx]
 
-    cond = create_condition_list(em_2, context_p)
+    cond = create_condition_list(em_2)
     x0 = x[cond[0]]; x1 = x[cond[1]]
     y0 = x[cond[0]]; y1 = y[cond[1]]
     em0 = em[cond[0]]; em1 = em[cond[1]]
