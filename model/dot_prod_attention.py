@@ -61,12 +61,12 @@ def dot_product_attention(q, k, v, mask, infer=False, x=None, y=None, n=0, x0=No
         print('count: ', count)
         agg_vals, agg_idx = tf.math.top_k(count, k=10)
         print('agg_idx: ', agg_idx)
-        k_vals_agg = unique_idx_vals[agg_idx]
+        k_vals_agg = unique_idx_vals.numpy()[agg_idx.numpy()]
         print('k_vals_agg: ', k_vals_agg)
         plt.figure(n)
         plt.plot(x0, y0, c='lightcoral')
         plt.plot(x1, y1, c='black')
-        plt.scatter(x[k_vals_agg.numpy()], y[k_vals_agg.numpy()], color='darkorange', s=52, label='attention points')
+        plt.scatter(x[k_vals_agg], y[k_vals_agg], color='darkorange', s=52, label='attention points')
         plt.scatter(x[n], y[n], s=52, color='limegreen')
         plt.savefig(os.path.expanduser('~/Downloads/attention_plots/step_{}'.format(n)))
 
