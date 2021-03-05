@@ -113,7 +113,7 @@ def load_spec(path, e, l, heads, context_p):
         print('Does not exist')
         return (e, *l, heads)
     else:
-        df = pd.read_csv(path + '_context_' + str(context_p) + '_speci.csv')
+        df = pd.read_csv(path + '_context_' + str(context_p) + '_speci.csv', header=None)
         heads = int(df.loc[df.iloc[:, 0] == 'heads', 1][0])
         e = int(list(df.loc[df.iloc[:, 0] == 'embedding', 1])[0].split(' ')[-1][:-1])
         l1 = int(list(df.loc[df.iloc[:, 0] == 'A1', 1])[1][1:-1])
