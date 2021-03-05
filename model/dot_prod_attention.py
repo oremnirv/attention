@@ -61,8 +61,6 @@ def dot_product_attention(q, k, v, mask, infer=False, x=None, y=None, n=0, x0=No
         plt.figure(n)
         plt.plot(x0, y0, c='lightcoral')
         plt.plot(x1, y1, c='black')
-        print('x: ', x[0])
-        print('x shape: ', x.shape)
         plt.scatter(x[k_vals_agg.numpy()], y[k_vals_agg.numpy()], color='darkorange', s=52, label='attention points')
         plt.scatter(x[n], y[n], s=52, color='limegreen')
         plt.savefig(os.path.expanduser('~/Downloads/attention_plots/step_{}'.format(n)))
