@@ -178,7 +178,7 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps=100, samples=10, order=True,
         axs.plot(x_infer.reshape(-1), y_inf.numpy().reshape(-1), c='lightskyblue')
 
     if mean:
-        _, _, y_inf, _ = infer.inference(decoder, em_te=em_infer, y=y_infer, num_steps=num_steps,
+        _, _, y_inf, _ = infer.inference(decoder, x=em_infer, y=y_infer, num_steps=num_steps,
                                       sample=False, d=True, x_2=em2_infer, infer=False)
 
         axs.plot(x_infer.reshape(-1), y_inf.numpy().reshape(-1), c='goldenrod')
