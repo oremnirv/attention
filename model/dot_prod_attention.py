@@ -57,7 +57,7 @@ def dot_product_attention(q, k, v, mask, infer=False, x=None, y=None, n=0, x0=No
         # d) take the indices of top 5 values for all heads and return the top 10 repeating values (of indices)
         k_vals, k_ind = tf.math.top_k(att_weights[0, :, -1, :], k=5, sorted=True, name=None)
         k_vals_agg, k_ind_agg = tf.math.top_k(k_ind.numpy().reshape(-1), k=10, sorted=True, name=None)
-        print('att: ', att_weights[0, :, -1, :].shape)
+        # print('att: ', att_weights[0, :, -1, :].shape)
         plt.figure(n)
         plt.plot(x0, y0, c='lightcoral')
         plt.plot(x1, y1, c='black')
