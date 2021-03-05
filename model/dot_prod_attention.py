@@ -48,7 +48,7 @@ def dot_product_attention(q, k, v, mask, infer=False, x=None, y=None, n=0, x0=No
 
     att_weights = tf.nn.softmax(nl_qk, axis=-1, name='att_weights')  # (batch_size X d_model X seq_len X seq_len)
     if infer:
-        # This block has the following intention:
+        # This block has the following intention (majority vote of indices):
         # a) get the last row of the attention weigths
         # If we are trying to infer the 51st element then the last row
         # should represent the attention weight of <x_51, x_1> ....<x_51, x_50>
@@ -57,12 +57,12 @@ def dot_product_attention(q, k, v, mask, infer=False, x=None, y=None, n=0, x0=No
         # d) take the indices of top 5 values for all heads and return the top 10 repeating values (of indices)
         k_vals, k_ind = tf.math.top_k(att_weights[0, :, -1, :], k=5, sorted=True, name=None)
         unique_idx_vals, idx, count = tf.unique_with_counts(k_ind.numpy().reshape(-1))
-        print('unique: ', unique_idx_vals)
-        print('count: ', count)
+        # print('unique: ', unique_idx_vals)
+        # print('count: ', count)
         agg_vals, agg_idx = tf.math.top_k(count, k=10)
-        print('agg_idx: ', agg_idx)
+        # print('agg_idx: ', agg_idx)
         k_vals_agg = unique_idx_vals.numpy()[agg_idx.numpy()]
-        print('k_vals_agg: ', k_vals_agg)
+        # print('k_vals_agg: ', k_vals_agg)
         plt.figure(n)
         plt.plot(x0, y0, c='lightcoral')
         plt.plot(x1, y1, c='black')
