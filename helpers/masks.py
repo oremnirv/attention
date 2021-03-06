@@ -81,7 +81,7 @@ def create_masks(tar):
 
 def main():
     a = create_masks(tf.constant([1, 2, 5, 3, 4], shape = [1, 5]))
-    print(a[:, :-1, :-1])
+    print(a[:, 1:, :-1])
 
 if __name__ == '__main__':
     main()

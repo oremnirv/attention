@@ -7,7 +7,7 @@ from model import losses
 
 
 def build_graph():
-    loss_object = tf.keras.losses.MeanSquaredError()
+
     train_loss = tf.keras.metrics.Mean(name='train_loss')
     test_loss = tf.keras.metrics.Mean(name='test_loss')
     m_tr = tf.keras.metrics.Mean()
@@ -50,7 +50,8 @@ def build_graph():
                                                        pred_log_sig=pred[:, :, 1])
         gradients = tape.gradient(loss, decoder.trainable_variables)
         optimizer_c.apply_gradients(zip(gradients, decoder.trainable_variables))
-        train_loss(loss); m_tr.update_state(mse, mask)
+        train_loss(loss)
+        m_tr.update_state(mse)
         names = [v.name for v in decoder.trainable_variables]
         shapes = [v.shape for v in decoder.trainable_variables]
         return pred[:, :, 0], pred[:, :, 1], decoder.trainable_variables, names, shapes, y_real, to_gather
@@ -86,8 +87,9 @@ def build_graph():
 
         t_loss, t_mse, t_mask = losses.loss_function(y_real_te, pred=pred_te[:, :, 0],
                                                          pred_log_sig=pred_te[:, :, 1])
-        test_loss(t_loss); m_te.update_state(t_mse, t_mask)
+        test_loss(t_loss)
+        m_te.update_state(t_mse)
         return pred_te[:, :, 0], pred_te[:, :, 1]
 
     tf.keras.backend.set_floatx('float64')
-    return train_step, test_step, loss_object, train_loss, test_loss, m_tr, m_te
+    return train_step, test_step, train_loss, test_loss, m_tr, m_te
