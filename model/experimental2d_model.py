@@ -10,6 +10,7 @@ class Decoder(tf.keras.Model):
     def __init__(self, e, l1=256, l2=128, l3=32, num_heads=1, input_vocab_size=2000):
         super(Decoder, self).__init__()
         self.e = e
+        self.layernorm1 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
         self.embedding = tf.keras.layers.Embedding(input_vocab_size, e, name='embedding')
         self.mha = dot_prod_attention.MultiHeadAttention2D(e, num_heads)
         self.A1 = tf.keras.layers.Dense(l1, name='A1')
@@ -40,11 +41,12 @@ class Decoder(tf.keras.Model):
         y = y[:, :, tf.newaxis]  # (batch_size, seq_len, 1)
         x = self.embedding(x)  # (batch_size, seq_len + 1, e)
         x_2 = self.embedding(x_2)  # (batch_size, seq_len + 1, e)
-        y_attn, _ = self.mha(y, x, x, x_mask, infer=infer, x=ix, y=iy, n=n, x0=x0, y0=y0, x1=x1, y1=y1)  # (batch_size, seq_len, e)
-        y_attn = tf.nn.leaky_relu(y_attn)
+        y_attn, _, v = self.mha(y, x, x, x_mask, infer=infer, x=ix, y=iy, n=n, x0=x0, y0=y0, x1=x1, y1=y1)  # (batch_size, seq_len, e)
+        out1 = self.layernorm1(y_attn + v)
+        out1 = tf.nn.leaky_relu(out1)
         current_position = x[:, 1:, :]  # (batch_size, seq_len, e)
         current_series = x_2[:, 1:, :]  # (batch_size, seq_len, e)
-        L = self.A1(y_attn) + self.A2(current_position) + self.A3(current_series)  # (batch_size, seq_len, l1)
+        L = self.A1(out1) + self.A2(current_position) + self.A3(current_series)  # (batch_size, seq_len, l1)
         L = tf.nn.leaky_relu(L)
         L = tf.nn.leaky_relu(self.A4(L))  # (batch_size, seq_len, l2)
         L = tf.nn.leaky_relu(self.A5(L))  # (batch_size, seq_len, l3)
