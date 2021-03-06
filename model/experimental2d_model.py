@@ -41,6 +41,7 @@ class Decoder(tf.keras.Model):
         x = self.embedding(x)  # (batch_size, seq_len + 1, e)
         x_2 = self.embedding(x_2)  # (batch_size, seq_len + 1, e)
         y_attn, _ = self.mha(y, x, x, x_mask, infer=infer, x=ix, y=iy, n=n, x0=x0, y0=y0, x1=x1, y1=y1)  # (batch_size, seq_len, e)
+        y_attn = tf.nn.leaky_relu(y_attn)
         current_position = x[:, 1:, :]  # (batch_size, seq_len, e)
         current_series = x_2[:, 1:, :]  # (batch_size, seq_len, e)
         L = self.A1(y_attn) + self.A2(current_position) + self.A3(current_series)  # (batch_size, seq_len, l1)
