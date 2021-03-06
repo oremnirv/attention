@@ -1,5 +1,5 @@
 ###########################
-# Author: Omer Nivron
+# Author: Omer Nivrona
 ###########################
 import tensorflow as tf
 from tensorflow.keras import regularizers
