@@ -36,7 +36,7 @@ def dot_product_attention(q, k, v, mask, infer=False, x=None, y=None, n=0, x0=No
     # only of x_i with x_j for i<j.
     matmul_qk = matmul_qk[:, :, 1:, :-1]  # (batch size, num heads, seq_len, seq_len)
     dk = tf.cast(tf.shape(k)[-1], tf.float64)
-    nl_qk = tf.cast(tf.nn.relu(matmul_qk / tf.math.sqrt(dk)), tf.float64)
+    nl_qk = tf.cast(tf.nn.relu(matmul_qk / tf.math.sqrt(dk), name='nl_qk'), tf.float64)
     # Why do we divide by sqrt(dk)? For example, consider that Q and K have a mean of 0 and variance of 1.
     # Their matrix multiplication will have a mean of 0 and variance of dk.
     # So the square root of dk is used for scaling so you get a consistent variance regardless of the value of dk
