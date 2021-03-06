@@ -86,8 +86,7 @@ def build_graph():
 
         t_loss, t_mse, t_mask = losses.loss_function(y_real_te, pred=pred_te[:, :, 0],
                                                          pred_log_sig=pred_te[:, :, 1])
-        test_loss(t_loss)
-        m_te.update_state(t_mse)
+        test_loss(t_loss); m_te.update_state(t_mse, t_mask)
         return pred_te[:, :, 0], pred_te[:, :, 1]
 
     tf.keras.backend.set_floatx('float64')
