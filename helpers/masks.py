@@ -54,6 +54,7 @@ def create_masks(tar):
 
     Example:
     masks.create_masks(tf.constant([1, 2, 5, 0, 0], shape = [1, 5]))
+    (see main below)
     <tf.Tensor: shape=(1, 5, 5), dtype=float32, numpy=
     array([[[0., 1., 1., 1., 1.],
             [0., 0., 1., 1., 1.],
@@ -74,3 +75,13 @@ def create_masks(tar):
     combined_mask_tar = tf.maximum(tar_padding_mask, look_ahead_mask)
 
     return combined_mask_tar
+
+
+
+
+def main():
+    a = create_masks(tf.constant([1, 2, 5, 3, 4], shape = [1, 5]))
+    print(a[:, :-1, :-1])
+
+if __name__ == '__main__':
+    main()
