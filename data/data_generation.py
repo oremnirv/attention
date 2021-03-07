@@ -35,7 +35,7 @@ class EmbderMap:
         n = len(self.idxs)
         g = self.grid[n]  # list of floats
         idx = []
-        for i in var:
+        for i in var[0]:
             if n == 0:
 
                 if i > max(g):
