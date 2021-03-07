@@ -35,8 +35,7 @@ class EmbderMap:
         n = len(self.idxs)
         g = self.grid[n]  # list of floats
         idx = []
-        print('var 0: ', var[0])
-        for i in var[0]:
+        for i in var:
             if n == 0:
 
                 if i > max(g):
@@ -45,7 +44,6 @@ class EmbderMap:
                     idx.append(200 + 0)
                 else:
                     idx.append(200 + np.where(i <=g)[0][0])
-                    print('where: ', np.where(i < g))
             else:
                 m = max(self.idxs[n - 1]) + 1
                 if i > max(g):
@@ -71,8 +69,8 @@ def data_gen(num_obs, tr_percent=0.8, seq_len=200, extarpo=False, extarpo_num=19
     seq_len (int): daefult 59
     -----------------------
     Returns:
-    pad_pos_tr (np array): the first rows * tr_percent from the x generated values 
-    pad_pos_te (np array): all rows of x not chosen for training 
+    x_tr (np array): the first rows * tr_percent from the x generated values
+    xte (np array): all rows of x not chosen for training
     y_tr (np array): the first rows * tr_percent from the f_prior generated values
     y_te (np array): all rows of f_prior not chosen for training
     df_tr (np array): positions and targets combined (training) 
@@ -138,7 +136,7 @@ def data_gen(num_obs, tr_percent=0.8, seq_len=200, extarpo=False, extarpo_num=19
 
 
 def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf',
-               grid_d=[[1, 15.1, 0.05], [30, 65.1, 0.05]], noise=False,
+               grid_d=[[1, 15.1, 0.05], [-5, 5, 0.05]], noise=False,
                ordered=False, inp_d=1, p_order=0.5):
     """
     Generator for training a GPT inspired netowrk for pairs of sequences.
@@ -168,10 +166,12 @@ def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf',
     To check how the output looks like for a toy example run in main:
     x_tr, x_te, y_tr, y_te, df_tr, df_te, em = data_gen2d(5, 0.8, 3, grid_d=[[1, 15.1, 0.05]], inp_d=1)
     print((em))
+    em_y list of np.arrays):
     """
     df = np.zeros((num_obs * 2, seq_len * 2))
-    em = []
+    em = []; em_y = []
     em_idx = [np.zeros((num_obs, seq_len * 2)) for _ in range(inp_d + 1)] # list of np.arrays
+    em_y_idx = np.zeros((num_obs, seq_len * 2))
     rows = df.shape[0]
     tr_rows = int(tr_percent * rows)
     tr_rows = tr_rows if tr_rows % 2 == 0 else tr_rows + 1
@@ -184,7 +184,7 @@ def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf',
         if ordered:
             x = np.sort(x)
         idx = EmbderMap(len(grid_d), grid)  # To get intuition of what this does run the script in main below
-        idx.map_value_to_grid(x)
+        idx.map_value_to_grid(x[0])
         # if inp_d > 1:
         #     z = np.random.uniform(30, 65, size=(1, seq_len * 2))
         #     idx.map_value_to_grid(z)
@@ -210,6 +210,8 @@ def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf',
             gp = GaussianProcessRegressor(kernel=e)
             y = y + gp.sample_y(x, seq_len * 2)
 
+        idx.map_value_to_grid(np.array(y))
+        em_y_idx[int(i / 2), :] = idx.idxs[1]
         df[i, :x.shape[1]] = x
         df[i + 1, :x.shape[1]] = y.reshape(-1)
         for j in range(inp_d):
@@ -218,6 +220,8 @@ def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf',
 
     df_tr = df[:tr_rows, :]
     df_te = df[tr_rows:, :]
+    em_y.append(em_y_idx[:int(tr_rows / 2), :])
+    em_y.append(em_y_idx[int(tr_rows / 2):, :])
     for i in range(inp_d + 1):
         em.append(em_idx[i][:int(tr_rows / 2), :])
         em.append(em_idx[i][int(tr_rows / 2):, :])
@@ -229,19 +233,27 @@ def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf',
     y_tr = df_tr[1::2, :]
     y_te = df_te[1::2, :]
 
-    return x_tr, x_te, y_tr, y_te, df_tr, df_te, em
+    return x_tr, x_te, y_tr, y_te, df_tr, df_te, em, em_y
 
 
 
 def main():
     # Get intuition about EmbederMap class
-    a = EmbderMap(1, [np.arange(5, 15, 0.1)])
-    a.map_value_to_grid(np.array([5, 5.5, 5.05, 7.2, 4, 3, 7, 14.9,  15, 15.5]).reshape(1, -1))
-    print(a.idxs[0])
+    # a = EmbderMap(2, [np.arange(5, 15, 0.1), np.arange(-5, 5, 0.05)])
+    # a.map_value_to_grid(np.array([5, 5.5, 5.05, 7.2, 4, 3, 7, 14.9,  15, 15.5]).reshape(1, -1))
+    # a.map_value_to_grid(np.array(4).reshape(1, -1))
+    # print(a.idxs)
+    #
+    # b = EmbderMap(2, [np.arange(5, 15, 0.1), np.arange(-5, 5, 0.05)])
+    # b.map_value_to_grid(np.array([5, 5.5, 5.05, 7.2, 4, 3, 7, 14.9,  15, 15.5]).reshape(1, -1))
+    # b.map_value_to_grid(np.array(4).reshape(1, -1))
+    # print(b.idxs)
 
     # Example for data generation
-    x_tr, x_te, y_tr, y_te, df_tr, df_te, em = data_gen2d(5, 0.8, 3, grid_d=[[1, 15.1, 0.05]], inp_d=1)
-    print((em))
+    x_tr, x_te, y_tr, y_te, df_tr, df_te, em, em_y = data_gen2d(5, 0.8, 3, grid_d=[[1, 15.1, 0.05], [-6, 6, 0.05]], inp_d=1)
+    # print((em))
+    print('y: ', y_tr)
+    print('em_y: ', em_y)
 
 
 
