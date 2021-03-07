@@ -17,12 +17,14 @@ def load_data(kernel='rbf', size=150000, rewrite='False', diff_x=False, noise=Fa
         kernel1 = kernel.split('_')[0]
         if d:
             bias = kernel.split('_')[1]
-            x_tr, x_te, y_tr, y_te, df_tr, df_te, em_tr, em_te, em_tr_2, em_te_2 = data_generation.data_gen2d(int(size),
+            x_tr, x_te, y_tr, y_te, df_tr, df_te, em_tr, em_te, em_tr_2, em_te_2, em_y_tr, em_y_te = data_generation.data_gen2d(int(size),
                                                                                                               bias=bias,
                                                                                                               kernel=kernel1,
                                                                                                               noise=noise)
             np.save(folder + 'em_tr_2.npy', em_tr_2)
             np.save(folder + 'em_te_2.npy', em_te_2)
+            np.save(folder + 'em_y_tr.npy', em_y_tr)
+            np.save(folder + 'em_y_te.npy', em_y_te)
         else:
             x_tr, x_te, y_tr, y_te, _, df_te, em_tr, em_te = data_generation.data_gen(
                 int(size), ordered=ordered, diff_x=diff_x, kernel=kernel1, noise=noise)
