@@ -177,6 +177,8 @@ def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf',
     tr_rows = tr_rows if tr_rows % 2 == 0 else tr_rows + 1
     grid = [np.arange(*grid) for grid in grid_d]  # List with len(grid_d) elements, each is a np.array
     for i in range(0, num_obs * 2, 2):
+        if (i%5000 == 0):
+            print('row number: {}., out of {}'.format(i, num_obs*2))
         x = np.random.uniform(5, 15, size=(1, seq_len * 2))
         if (p_order > 0) & (np.random.binomial(1, p_order) == 0):
             x = np.sort(x)
