@@ -35,7 +35,7 @@ class EmbderMap:
         n = len(self.idxs)
         g = self.grid[n]  # list of floats
         idx = []
-        for i in var[0]:
+        for i in var:
             if n == 0:
 
                 if i > max(g):
@@ -95,7 +95,7 @@ def data_gen(num_obs, tr_percent=0.8, seq_len=200, extarpo=False, extarpo_num=19
             x = x.reshape(1, -1)
 
         idx = EmbderMap(1, [grid])
-        idx.map_value_to_grid(x)
+        idx.map_value_to_grid(x[0])
 
         if (p_order > 0) & (np.random.binomial(1, p_order) == 0):
             x = np.sort(x)
@@ -184,7 +184,7 @@ def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf',
         if ordered:
             x = np.sort(x)
         idx = EmbderMap(len(grid_d), grid)  # To get intuition of what this does run the script in main below
-        idx.map_value_to_grid(x)
+        idx.map_value_to_grid(x[0])
         # if inp_d > 1:
         #     z = np.random.uniform(30, 65, size=(1, seq_len * 2))
         #     idx.map_value_to_grid(z)
