@@ -214,8 +214,6 @@ def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf',
         em_y_idx[int(i / 2), :] = idx.idxs[1]
 
         df[i, :x.shape[1]] = x
-        print(y.shape)
-        print(df.shape)
         df[i + 1, :x.shape[1]] = y.reshape(1, -1)
         for j in range(inp_d):
             em_idx[j][int(i / 2), :] = idx.idxs[j]
