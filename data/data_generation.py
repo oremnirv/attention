@@ -184,7 +184,7 @@ def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf',
         if ordered:
             x = np.sort(x)
         idx = EmbderMap(len(grid_d), grid)  # To get intuition of what this does run the script in main below
-        idx.map_value_to_grid(x[0])
+        idx.map_value_to_grid(x)
         # if inp_d > 1:
         #     z = np.random.uniform(30, 65, size=(1, seq_len * 2))
         #     idx.map_value_to_grid(z)
