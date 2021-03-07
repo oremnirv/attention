@@ -208,8 +208,9 @@ def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf',
         if noise:
             e = WhiteKernel(.1)
             gp = GaussianProcessRegressor(kernel=e)
-            y = y + gp.sample_y(x, seq_len * 2)
+            y = (y + gp.sample_y(x, seq_len * 2))[0]
 
+        print(y)
         idx.map_value_to_grid(np.array(y))
         em_y_idx[int(i / 2), :] = idx.idxs[1]
 
@@ -251,7 +252,7 @@ def main():
     # print(b.idxs)
 
     # Example for data generation
-    x_tr, x_te, y_tr, y_te, df_tr, df_te, em, em_y = data_gen2d(5, 0.8, 3, grid_d=[[1, 15.1, 0.05], [-6, 6, 0.05]], inp_d=1)
+    x_tr, x_te, y_tr, y_te, df_tr, df_te, em, em_y = data_gen2d(5, 0.8, 3, grid_d=[[1, 15.1, 0.05], [-6, 6, 0.05]], inp_d=1, noise=True)
     # print((em))
     print('y: ', y_tr)
     print('em_y: ', em_y)
