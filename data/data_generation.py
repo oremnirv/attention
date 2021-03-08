@@ -211,7 +211,7 @@ def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf',
             else:
                 pass
         if noise:
-            y = y + np.random.normal(0, 0.01, size=seq_len *2
+            y = (y + np.random.normal(0, 0.01, size=seq_len *2))[0]
 
         idx.map_value_to_grid(np.array(y))
         em_y_idx[int(i / 2), :] = idx.idxs[1]
