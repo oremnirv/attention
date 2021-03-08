@@ -211,7 +211,7 @@ def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf',
             else:
                 pass
         if noise:
-            y = (np.array(y).reshape(1, -1) + np.random.normal(0, 0.01, size=(1, seq_len*2)))[0]
+            y = (np.array(y).reshape(1, -1) + np.random.normal(0, 0.1, size=(1, seq_len*2)))[0]
 
 
 
