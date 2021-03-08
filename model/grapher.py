@@ -25,7 +25,7 @@ def build_graph():
         :param x: (tf.tensor)
         :param y: (tf.tensor)
         :param context_p: (int) or a list of int
-        :param d: (bool) TRUE if we are dealing with pairs of sequences
+        :param d: (bool) TRUE if we are dealing with pairs oof sequences
         :param x2: (tf.tensor) if d = True, otherwise None
         :param to_gather: (np.array) array sized the same as y, in each row the context points will be indicated by 0 else
         1s.
