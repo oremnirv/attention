@@ -1,6 +1,7 @@
 # attention
 
 ### Setup: 
+** this setup works for mac and might require adjustments otherwise
 1. Create a new virtual env (!make sure it is python 3.7 version)
 ```angular2html
 conda create -n debug_omer anaconda python=3.7
@@ -73,4 +74,37 @@ False # (overwrite data?)
         ```
         
 
-3. Do you want to make inferences? 
+3. Do you want to make inferences?
+   The inference setup is that our network gets to "see" one full sequence (from the pair)
+   and only the beginning of the other sequence (see implementation in helpers/plotter.py --> infer_plot2D). Now, our task is to infer the rest of the unseen 
+   sequence. 
+   
+   - Go to last cell: 
+        - set parameters:
+          ```angular2html
+            samples := # times to make inferences
+            context_p := # points you want to see at the beginning of the sequence to be inferred
+            consec := should the context points be chosen without gaps? (TRUE) or with? (False)
+            order := should the data points be ordered before the network "sees" them?    
+            num_steps := 999 if we wish to infer the full sequence, else choose an integer in [1, 200 - context_p]
+          ```
+   - Run the cell. Its output will produce: 
+     * a plot where the black line is given to the network, plus the extra red points. 
+     The goal is to predict the continuation of the red line. The golden points are the mean prediction
+     and the light blue points are samples.
+     * The many plots underneath the bigger plot, show the attention the network
+    has chosen to give (orange dots) when making a prediction for the green point. 
+       
+
+4. If you would like to see some statistics about the weights, loss and embeddings run from terminal:
+```angular2html
+tensorboard --logdir ~/Downloads/GPT_rbf_const_2D/logs/
+``` 
+Then go to ```http://localhost:6006/ ``` and select only run_7.
+
+** When looking at the scalars on tensorboard, set the offset to relative
+
+5. Would you like to see any layer in T-SNE? 
+    - go to the penultimate cell (after you either trained or loaded a pretrained model)
+    - If you want to see the embedding layer, just run as-is and go to step (4), otherwise
+    you would have to specify the layer number you are interested in and its metadata. 
