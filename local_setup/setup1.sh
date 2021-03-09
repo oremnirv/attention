@@ -1,6 +1,10 @@
 # shellcheck disable=SC2164
 cd attention
 git checkout omer
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+brew install python@3.7
+echo "export PATH=/usr/local/Cellar/python@3.7/3.7.10_2/bin:$PATH" >> ~/.bash_profile
+source ~/.bash_profile
 sudo add-apt-repository universe
 sudo apt-get update
 sudo apt install python3-pip
@@ -14,8 +18,3 @@ pip3 install tensorboard
 cd
 cd Downloads
 mkdir attention_plots
-#/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-#brew install wget
-#wget --no-check-certificate "https://universityofcambridgecloud-my.sharepoint.com/:f:/g/personal/on234_cam_ac_uk/Esw4ksBwOo9KhWU9li0G9-QBtBikjXD7J1NskNPRsfNltQ?e=idZOEU"
-#
-
