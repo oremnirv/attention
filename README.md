@@ -7,10 +7,21 @@ For this I'm using an attention based model inspired by the Transformer model.
 
 ### The problem 
 After training a model and getting positive results in terms 
-of metrics like MSE and R squared, the inference step produces plots like the one below:
+of metrics like MSE and R squared and eyeballing, the inference step produces typically plots like the one below:
 
-![](infer_bug.png)
+![](infer_bug)
 
+* It is common to observe an immediate and sharp drop from the red dots to the first predictions (golden or blue)
+* It is common to observe the predictions matching (more or less) the desired shape after the sudden drop
+* the black colored sequence is seen by our network, plus the red dots
+* the red line is the observed sequence we would like to match
+* the golden points are the mean predictions of our network 
+* the blue dots are sampled from N(mean, var) given by our network
+
+### The math
+
+A simplified version of the math in the network can be found ![here](model_maths.pdf).
+Although it is not comprehensive, it contains the salient features of this network.
 
 ### Setup: 
 ** this setup works for mac and might require adjustments otherwise
