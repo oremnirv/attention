@@ -36,8 +36,7 @@ def build_graph():
         """
 
         y_inp = y[:, :-1]
-        if type(context_p) is list:
-            y *= to_gather  # this is the step to make sure we only consider non context points in prediction
+        y *= to_gather  # this is the step to make sure we only consider non context points in prediction
         y_real = y[:, 1:]
         combined_mask_x = masks.create_masks(x) # see masks.py for description
         with tf.GradientTape(persistent=True) as tape:
@@ -74,8 +73,7 @@ def build_graph():
         """
 
         y_inp_te = y_te[:, :-1]
-        if type(context_p) is list:
-            y_te *= to_gather
+        y_te *= to_gather
         y_real_te = y_te[:, 1:]
         combined_mask_x_te = masks.create_masks(x_te)
         # training=False is only needed if there are layers with different
