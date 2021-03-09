@@ -9,7 +9,7 @@ For this I'm using an attention based model inspired by the Transformer model.
 After training a model and getting positive results in terms 
 of metrics like MSE and R squared and eyeballing, the inference step produces typically plots like the one below:
 
-![](infer_bug)
+![](./infer_bug)
 
 * It is common to observe an immediate and sharp drop from the red dots to the first predictions (golden or blue)
 * It is common to observe the predictions matching (more or less) the desired shape after the sudden drop
@@ -20,7 +20,7 @@ of metrics like MSE and R squared and eyeballing, the inference step produces ty
 
 ### The math
 
-A simplified version of the math in the network can be found ![here](model_maths.pdf).
+A simplified version of the math in the network can be found ![here](./model_maths.pdf).
 Although it is not comprehensive, it contains the salient features of this network.
 
 ### Setup: 
