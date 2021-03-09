@@ -1,5 +1,17 @@
 # attention
 
+This project tries to infer values of one sequence (A) from 
+some points on (A) and other points from another sequence (B). 
+The idea is to learn the relationship (the grammar) between pairs of sequences that share some commonality (kernel).   
+For this I'm using an attention based model inspired by the Transformer model. 
+
+### The problem 
+After training a model and getting positive results in terms 
+of metrics like MSE and R squared, the inference step produces plots like the one below:
+
+![](infer_bug.png)
+
+
 ### Setup: 
 ** this setup works for mac and might require adjustments otherwise
 1. Create a new virtual env (!make sure it is python 3.7 version)
