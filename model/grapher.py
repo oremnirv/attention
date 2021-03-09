@@ -42,9 +42,9 @@ def build_graph():
         combined_mask_x = masks.create_masks(x) # see masks.py for description
         with tf.GradientTape(persistent=True) as tape:
             if d:
-                pred = decoder(x, x2, y_inp, True, combined_mask_x[:, 1:, :-1]) # (batch_size x seq_len x 2)
+                pred = decoder(x, x2, y_inp, True, combined_mask_x[:, :-1, :-1]) # (batch_size x seq_len x 2)
             else:
-                pred = decoder(x, y_inp, True, combined_mask_x[:, 1:, :-1]) # (batch_size x seq_len x 2)
+                pred = decoder(x, y_inp, True, combined_mask_x[:, :-1, :-1]) # (batch_size x seq_len x 2)
 
             loss, mse, mask = losses.loss_function(y_real, pred=pred[:, :, 0],
                                                        pred_log_sig=pred[:, :, 1])
@@ -81,9 +81,9 @@ def build_graph():
         # training=False is only needed if there are layers with different
         # behavior during training versus inference (e.g. Dropout).
         if d:
-            pred_te = decoder(x_te, x2_te, y_inp_te, False, combined_mask_x_te[:, 1:, :-1])
+            pred_te = decoder(x_te, x2_te, y_inp_te, False, combined_mask_x_te[:, :-1, :-1])
         else:
-            pred_te = decoder(x_te, y_inp_te, False, combined_mask_x_te[:, 1:, :-1])
+            pred_te = decoder(x_te, y_inp_te, False, combined_mask_x_te[:, :-1, :-1])
 
         t_loss, t_mse, t_mask = losses.loss_function(y_real_te, pred=pred_te[:, :, 0],
                                                          pred_log_sig=pred_te[:, :, 1])
