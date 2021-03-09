@@ -9,7 +9,7 @@ For this I'm using an attention based model inspired by the Transformer model.
 After training a model and getting positive results in terms 
 of metrics like MSE and R squared and eyeballing, the inference step produces typically plots like the one below:
 
-![](./infer_bug)
+![](./infer_bug.png)
 
 * It is common to observe an immediate and sharp drop from the red dots to the first predictions (golden or blue)
 * It is common to observe the predictions matching (more or less) the desired shape after the sudden drop
@@ -20,7 +20,7 @@ of metrics like MSE and R squared and eyeballing, the inference step produces ty
 
 ### The math
 
-A simplified version of the math in the network can be found ![here](./model_maths.pdf).
+A simplified version of the math in the network can be found [here](./model_maths.pdf).
 Although it is not comprehensive, it contains the salient features of this network.
 
 ### Setup: 
@@ -52,7 +52,7 @@ chmod +x attention/local_setup/setup1.sh
 ./attention/local_setup/setup1.sh
 ```
 
-5. Download data from ![link](https://universityofcambridgecloud-my.sharepoint.com/:f:/g/personal/on234_cam_ac_uk/ElcsER18Eb1OlZpzjihaAUkB_hiJVxsDuhyaxITNsHq2YQ?e=uKCgyz) and place it in your Downloads folder
+5. Download data from [link](https://universityofcambridgecloud-my.sharepoint.com/:f:/g/personal/on234_cam_ac_uk/ElcsER18Eb1OlZpzjihaAUkB_hiJVxsDuhyaxITNsHq2YQ?e=uKCgyz) and place it in your Downloads folder
 
 
 6. Now you are ready! run the following
