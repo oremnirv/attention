@@ -28,6 +28,8 @@ def dot_product_attention(q, k, v, mask, infer=False, x=None, y=None, n=0, x0=No
     :return:
     """
     mask = mask[:, tf.newaxis, :, :]
+    tf.print(mask[0, 0, 0, :5])
+    tf.print(mask[0, 0, 1, :5])
     matmul_qk = tf.matmul(q, k, transpose_b=True, name='qk')
     # Notice that matmul_qk will produce (batch size, num heads, seq_len + 1, seq_len +1)
     # tensor. However, we are not interested in the first row since it tells us about the dot product of
