@@ -14,7 +14,7 @@ def build_graph():
     m_te = tf.keras.metrics.Mean()
 
     @tf.function
-    def train_step(decoder, optimizer_c, train_loss, m_tr, x, y, context_p=50, d=False, x2=None, to_gather=None):
+    def train_step(decoder, optimizer_c, train_loss, m_tr, x, y, d=False, x2=None, to_gather=None):
         """
         # Examples for using @tf.function: https://www.tensorflow.org/guide/keras/writing_a_training_loop_from_scratch
         # Examples for using tf.GradientTape: https://www.tensorflow.org/api_docs/python/tf/GradientTape
@@ -24,7 +24,6 @@ def build_graph():
         :param m_tr: tf.keras.metrics object
         :param x: (tf.tensor)
         :param y: (tf.tensor)
-        :param context_p: (int) or a list of int
         :param d: (bool) TRUE if we are dealing with pairs oof sequences
         :param x2: (tf.tensor) if d = True, otherwise None
         :param to_gather: (np.array) array sized the same as y, in each row the context points will be indicated by 0 else
@@ -42,9 +41,9 @@ def build_graph():
         tf.print(combined_mask_x[0, 0, :5])
         with tf.GradientTape(persistent=True) as tape:
             if d:
-                pred = decoder(x, x2, y_inp, True, combined_mask_x[:, 1:, :-1]) # (batch_size x seq_len x 2)
+                pred = decoder(x, x2, y_inp, True, combined_mask_x[:, :-1, :-1]) # (batch_size x seq_len x 2)
             else:
-                pred = decoder(x, y_inp, True, combined_mask_x[:, 1:, :-1]) # (batch_size x seq_len x 2)
+                pred = decoder(x, y_inp, True, combined_mask_x[:, :-1, :-1]) # (batch_size x seq_len x 2)
 
             loss, mse, mask = losses.loss_function(y_real, pred=pred[:, :, 0],
                                                        pred_log_sig=pred[:, :, 1])
@@ -57,7 +56,7 @@ def build_graph():
         return pred[:, :, 0], pred[:, :, 1], decoder.trainable_variables, names, shapes, y_real, to_gather
 
     @tf.function
-    def test_step(decoder, test_loss, m_te, x_te, y_te, context_p=50, d=False, x2_te=None, to_gather=None):
+    def test_step(decoder, test_loss, m_te, x_te, y_te, d=False, x2_te=None, to_gather=None):
         """
 
         :param decoder: tf.keras.Model
@@ -65,7 +64,6 @@ def build_graph():
         :param m_te: tf.keras.metrics
         :param x_te: (tf.tensor)
         :param y_te: (tf.tensor)
-        :param context_p: (int) or a list of int
         :param d: (bool) TRUE if we are dealing with pairs of sequences
         :param x2_te: (tf.tensor) if d = True, otherwise None
         :param to_gather: (np.array) array sized the same as y, in each row the context points will be indicated by 0 else
@@ -80,9 +78,9 @@ def build_graph():
         # training=False is only needed if there are layers with different
         # behavior during training versus inference (e.g. Dropout).
         if d:
-            pred_te = decoder(x_te, x2_te, y_inp_te, False, combined_mask_x_te[:, 1:, :-1])
+            pred_te = decoder(x_te, x2_te, y_inp_te, False, combined_mask_x_te[:, :-1, :-1])
         else:
-            pred_te = decoder(x_te, y_inp_te, False, combined_mask_x_te[:, 1:, :-1])
+            pred_te = decoder(x_te, y_inp_te, False, combined_mask_x_te[:, :-1, :-1])
 
         t_loss, t_mse, t_mask = losses.loss_function(y_real_te, pred=pred_te[:, :, 0],
                                                          pred_log_sig=pred_te[:, :, 1])

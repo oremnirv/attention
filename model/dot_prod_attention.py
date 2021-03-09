@@ -28,8 +28,9 @@ def dot_product_attention(q, k, v, mask, infer=False, x=None, y=None, n=0, x0=No
     :return:
     """
     mask = mask[:, tf.newaxis, :, :]
-    tf.print(mask[0, 0, 0, :5])
-    tf.print(mask[0, 0, 1, :5])
+    # These print statements can help making sure mask looks like we want it to
+    # tf.print(mask[0, 0, 0, :5])
+    # tf.print(mask[0, 0, 1, :5])
     matmul_qk = tf.matmul(q, k, transpose_b=True, name='qk')
     # Notice that matmul_qk will produce (batch size, num heads, seq_len + 1, seq_len +1)
     # tensor. However, we are not interested in the first row since it tells us about the dot product of
@@ -49,11 +50,12 @@ def dot_product_attention(q, k, v, mask, infer=False, x=None, y=None, n=0, x0=No
         nl_qk += ((tf.cast(mask, tf.float64)) * -1e9)  # (batch size, num heads, seq_len, seq_len)
 
     att_weights = tf.nn.softmax(nl_qk, axis=-1, name='att_weights')  # (batch_size X d_model X seq_len X seq_len)
-    print('att_weight: ')
-    tf.print(att_weights[0, 0, 0, :5])
-    tf.print(att_weights[0, 0, 1, :5])
-    tf.print(att_weights[0, 0, 2, :5])
-    tf.print(att_weights[0, 0, 3, :5])
+    # These print statements can help making sure we are attending the right spots
+    # print('att_weight: ')
+    # tf.print(att_weights[0, 0, 0, :5])
+    # tf.print(att_weights[0, 0, 1, :5])
+    # tf.print(att_weights[0, 0, 2, :5])
+    # tf.print(att_weights[0, 0, 3, :5])
     if infer:
         # This block has the following intention (majority vote of indices):
         # a) get the last row of the attention weigths
