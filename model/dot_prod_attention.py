@@ -49,6 +49,9 @@ def dot_product_attention(q, k, v, mask, infer=False, x=None, y=None, n=0, x0=No
     att_weights = tf.nn.softmax(nl_qk, axis=-1, name='att_weights')  # (batch_size X d_model X seq_len X seq_len)
     print('att_weight: ')
     tf.print(att_weights[0, 0, 0, :])
+    tf.print(att_weights[0, 0, 1, :])
+    tf.print(att_weights[0, 0, 2, :])
+    tf.print(att_weights[0, 0, 3, :])
     if infer:
         # This block has the following intention (majority vote of indices):
         # a) get the last row of the attention weigths
