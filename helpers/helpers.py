@@ -179,7 +179,7 @@ def gather_idx(c, l=400, b=64):
     [  1 399]]
     """
     if type(c) is list:
-        cols = [np.arange(c[i], l, 1) for i in range(len(b))]
+        cols = [np.arange(c[i], l, 1) for i in range(b)]
         cc = np.concatenate(cols, axis=0)
         rows = [np.repeat(i, len(m)) for i, m in enumerate(cols)]
         r = np.concatenate(rows, axis=0)
