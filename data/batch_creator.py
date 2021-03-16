@@ -134,10 +134,10 @@ def create_batch_2d(em_x, x, y, em_2, batch_s=128, context_p=50):
     else:
         x, y, em_x, em_2, c = rearange_tr_2d(x, y, em_x, em_2, context_p, s=0)
 
-    b_data.append(y)
-    b_data.append(x)
-    b_data.append(em_x)
-    b_data.append(em_2)
+    b_data.append(y[:, (c+1)])
+    b_data.append(x[:, (c+1)])
+    b_data.append(em_x[:, (c+1)])
+    b_data.append(em_2[:, (c+1)])
     return b_data, c
 
 
