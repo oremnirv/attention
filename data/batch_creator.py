@@ -92,59 +92,6 @@ def create_batch_2d_b(em_x, x, y, em_2, batch_s=128, context_p=50):
 
     return b_data, c
 
-def create_batch_2d_exp(em_x, x, y, em_2, batch_s=128, context_p=50):
-    """
-    This function creates two scenarios for training for pairs of sequences:
-    1. (p<=0.5) Give the full sequence of values from series 1 and few values at the begining
-    from series #0 and try to predict the continuation of series #0
-    2. The same as scenario (1), but switching the roles of sequence #1 with
-    the role of sequence #0
-
-    :param x: (np.array)
-    :param y: (np.array)
-    :param em_x: (np.array) the mapping of x-vals to indices
-    :param em_2: (np.array) the pair member each value in x came from (0/1)
-    :param batch_s: (int) how many rows to pick for each batch
-    :param context_p: (int) number of context points to consider
-    :return:
-    A list (b_data) with four elements (each of which is np.array) and  a list of ints (c) indicating
-    the number of context points per row chosen.
-    In order to check if you understand it, run the example:
-    a. uncomment the print('p: ', p) statement below
-    b. load the data on UNN notebook
-    c. Run:
-        x = data[1][:2, :30]
-        y = data[-3][:2, :30]
-        em = data[4][:2, :30]
-        em_2 = data[-1][:2, :30]
-        batch_creator.create_batch_2d(em, x, y, em_2, batch_s=1, context_p=2)
-    """
-    b_data = []
-    shape = y.shape[0]
-    batch_idx = np.random.choice(list(range(shape)), batch_s)
-    x = x[batch_idx]
-    y = y[batch_idx]
-    em_x = em_x[batch_idx]
-    em_2 = em_2[batch_idx]
-    p = np.random.random()
-    # print('p: ', p)
-    if p <= 0.5:
-        x, y, em_x, em_2, c = rearange_tr_2d(x, y, em_x, em_2, context_p)
-    else:
-        x, y, em_x, em_2, c = rearange_tr_2d(x, y, em_x, em_2, context_p, s=0)
-
-    b_data.append(y[:, :(c+1)])
-    b_data.append(x[:, :(c+1)])
-    b_data.append(em_x[:, :(c+1)])
-    b_data.append(em_2[:, :(c+1)])
-    return b_data, c
-
-
-
-
-
-
-
 
 def create_batch_2d(em_x, x, y, em_2, batch_s=128, context_p=50):
     """
