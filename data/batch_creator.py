@@ -183,19 +183,25 @@ def create_batch(em_x, x, y, batch_s=128, chnge_context=True, d=False, em_2=None
     return b_data
 
 
-def fake_batch(x, y, batch_s=1):
+def fake_batch(em_x, x, y, batch_s=2, d = True, em_2=None):
     """
 
+    :param em_x:
     :param x:
     :param y:
     :param batch_s:
+    :param em_2:
     :return:
     """
+    b_data = []
     shape = y.shape[0]
     batch_idx = np.random.choice(list(range(shape)), batch_s)
-    batch_y_tr = np.tile(y[batch_idx], 2).reshape(2, -1)
-    batch_x_tr = np.tile(x[batch_idx], 2).reshape(2, -1)
-    return batch_x_tr, batch_y_tr, batch_idx
+    b_data.append(y[batch_idx])
+    b_data.append(x[batch_idx])
+    b_data.append(em_x[batch_idx])
+    if d:
+        b_data.append(em_2[batch_idx])
+    return b_data
 
 
 def pick_diff_cols_from_each_row(arr, cols):
