@@ -56,29 +56,29 @@ def dot_product_attention(q, k, v, mask, infer=False, x=None, y=None, n=0, x0=No
     # tf.print(att_weights[0, 0, 1, :5])
     # tf.print(att_weights[0, 0, 2, :5])
     # tf.print(att_weights[0, 0, 3, :5])
-    if infer:
-        # This block has the following intention (majority vote of indices):
-        # a) get the last row of the attention weigths
-        # If we are trying to infer the 51st element then the last row
-        # should represent the attention weight of <x_51, x_1> ....<x_51, x_50>
-        # b) get top (biggest) 5 vals & idxs from the last row
-        # c) If num_head = 1 this is exactly what we want to show, else we have multiple heads so:
-        # d) take the indices of top 5 values for all heads and return the top 10 repeating values (of indices)
-        k_vals, k_ind = tf.math.top_k(att_weights[0, :, -1, :], k=5, sorted=True, name=None)
-        # print('att: ', att_weights.shape)
-        unique_idx_vals, idx, count = tf.unique_with_counts(k_ind.numpy().reshape(-1))
-        # print('unique: ', unique_idx_vals)
-        # print('count: ', count)
-        agg_vals, agg_idx = tf.math.top_k(count, k=10)
-        # print('agg_idx: ', agg_idx)
-        k_vals_agg = unique_idx_vals.numpy()[agg_idx.numpy()]
-        # print('k_vals_agg: ', k_vals_agg)
-        plt.figure(n)
-        plt.plot(x0, y0, c='lightcoral')
-        plt.plot(x1, y1, c='black')
-        plt.scatter(x[k_vals_agg], y[k_vals_agg], color='darkorange', s=52, label='attention points')
-        plt.scatter(x[n], y[n], s=52, color='limegreen')
-        plt.savefig(os.path.expanduser('~/Downloads/attention_plots/step_{}'.format(n)))
+    # if infer:
+    #     # This block has the following intention (majority vote of indices):
+    #     # a) get the last row of the attention weigths
+    #     # If we are trying to infer the 51st element then the last row
+    #     # should represent the attention weight of <x_51, x_1> ....<x_51, x_50>
+    #     # b) get top (biggest) 5 vals & idxs from the last row
+    #     # c) If num_head = 1 this is exactly what we want to show, else we have multiple heads so:
+    #     # d) take the indices of top 5 values for all heads and return the top 10 repeating values (of indices)
+    #     k_vals, k_ind = tf.math.top_k(att_weights[0, :, -1, :], k=5, sorted=True, name=None)
+    #     # print('att: ', att_weights.shape)
+    #     unique_idx_vals, idx, count = tf.unique_with_counts(k_ind.numpy().reshape(-1))
+    #     # print('unique: ', unique_idx_vals)
+    #     # print('count: ', count)
+    #     agg_vals, agg_idx = tf.math.top_k(count, k=10)
+    #     # print('agg_idx: ', agg_idx)
+    #     k_vals_agg = unique_idx_vals.numpy()[agg_idx.numpy()]
+    #     # print('k_vals_agg: ', k_vals_agg)
+    #     plt.figure(n)
+    #     plt.plot(x0, y0, c='lightcoral')
+    #     plt.plot(x1, y1, c='black')
+    #     plt.scatter(x[k_vals_agg], y[k_vals_agg], color='darkorange', s=52, label='attention points')
+    #     plt.scatter(x[n], y[n], s=52, color='limegreen')
+    #     plt.savefig(os.path.expanduser('~/Downloads/attention_plots/step_{}'.format(n)))
 
     # Notice that for all the rows where 
     # everything is 1, the masking will turn everything to -inf
