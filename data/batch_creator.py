@@ -183,7 +183,7 @@ def create_batch(em_x, x, y, batch_s=128, chnge_context=True, d=False, em_2=None
     return b_data
 
 
-def fake_batch(em_x, x, y, batch_s=2, d = True, em_2=None):
+def fake_batch(em_x, x, y, batch_s=2, context_p=50, d = True, em_2=None):
     """
 
     :param em_x:
@@ -201,7 +201,7 @@ def fake_batch(em_x, x, y, batch_s=2, d = True, em_2=None):
     b_data.append(em_x[batch_idx])
     if d:
         b_data.append(em_2[batch_idx])
-    return b_data
+    return b_data, context_p
 
 
 def pick_diff_cols_from_each_row(arr, cols):
