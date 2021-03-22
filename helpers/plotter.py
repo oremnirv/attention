@@ -100,7 +100,7 @@ def plot_subplot_training(params, x, x_te, y, y_te, pred_y, pred_y_te, tr_idx, t
     return params
 
 
-def create_condition_list(cond_arr):
+def create_condition_list(cond_arr, s=0):
     """
     :param cond_arr: (np.array) with 0/1 values
     :return:
@@ -109,13 +109,13 @@ def create_condition_list(cond_arr):
     of sequence member 1
     """
     cond = []
-    cond.append(np.where(cond_arr == 0))
-    cond.append(np.where(~(cond_arr == 0)))
+    cond.append(np.where(cond_arr == s))
+    cond.append(np.where(~(cond_arr == s)))
     return cond
 
 
 def infer_plot2D(decoder, x, y, em, em_2, num_steps=100, samples=10, order=True, context_p=50, mean=True, consec=False,
-                 axs=None, ins=False):
+                 axs=None, ins=False, s=0):
     """
     This is a wrapper function for making inferences for pairs of sequences
     and plotting the result, including the attention mechanism.
@@ -157,7 +157,7 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps=100, samples=10, order=True,
             em = em.reshape(-1)[non_cosec_idx]
             em_2 = em_2.reshape(-1)[non_cosec_idx]
 
-    cond = create_condition_list(em_2)
+    cond = create_condition_list(em_2, s=s)
     x0 = x[cond[0]]; x1 = x[cond[1]]
     y0 = y[cond[0]]; y1 = y[cond[1]]
     em0 = em[cond[0]]; em1 = em[cond[1]]
