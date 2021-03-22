@@ -36,7 +36,7 @@ def load_data(kernel='rbf', size=150000, rewrite='False', diff_x=False, noise=Fa
         np.save(folder + 'em_tr.npy', em[0])
         np.save(folder + 'em_te.npy', em[1])
 
-    folder_content = os.listdir(folder)
+    folder_content = np.sort(os.listdir(folder))
     print(folder_content)
     data = [np.load(folder + f) for f in folder_content if f.split('_')[-1] != 'Store']
 
