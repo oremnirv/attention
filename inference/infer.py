@@ -39,6 +39,7 @@ def evaluate(model, x, y, sample=True, d=False, x_2=None, xx=None, yy=None, c_st
     and then run steps (c) and (d) from inference below. compare the 50th index in the output of
     inference with the last row extracted from running the steps (a-f) above.
     """
+    np.random.seed(443)
     combined_mask_x = masks.create_masks(x)
     if d:
         pred = model(x, x_2, y, False, combined_mask_x[:, :-1, :-1], infer=infer, ix=xx, iy=yy, n=c_step, x0=x0, y0=y0,
@@ -83,6 +84,7 @@ def inference(model, x, y, num_steps=1, sample=True, d=False, x_2=None, infer=Fa
         d) infer.inference(decoder, x=data[3][idx, :].reshape(1, -1), y=data[6][idx, :50].reshape(1, -1), num_steps=5,
                                           sample=True, d=True, x_2=data[0][idx, :].reshape(1, -1))
     """
+    np.random.seed(443)
     n = y.shape[1]
     num_steps = x.shape[1] - n if num_steps == 999 else min(num_steps, x.shape[1] - n)
     temp_x = x[:, :(n + 1)]
