@@ -38,7 +38,6 @@ def build_graph():
         y *= to_gather  # this is the step to make sure we only consider non context points in prediction
         y_real = y[:, 1:]
         combined_mask_x = masks.create_masks(x) # see masks.py for description
-        tf.print(combined_mask_x[0, 0, :5])
         with tf.GradientTape(persistent=True) as tape:
             if d:
                 pred = decoder(x, x2, y_inp, True, combined_mask_x[:, :-1, :-1]) # (batch_size x seq_len x 2)
