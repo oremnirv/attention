@@ -175,8 +175,8 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps=100, samples=10, order=True,
 
     axs.scatter(x0[:context_p], y0[:context_p], c='red')
     print('last_x: ', x0[context_p-1])
-    axs.plot(x0, y0, c='lightcoral')
-    axs.plot(x1, y1, c='black')
+    axs.plot(x0, y0, c='lightcoral', label = 's={}'.format(s))
+    axs.plot(x1, y1, c='black', label = 's={}'.format(1- s))
     for i, inf in enumerate(range(samples)):
         _, _, y_inf, _ = infer.inference(decoder, x=em_infer, y=y_infer, num_steps=num_steps,
                                       sample=True, d=True, x_2=em2_infer, infer=True, xx = x_infer.reshape(-1), yy=yy.reshape(-1), x0=x0, y0=y0, x1=x1, y1=y1)
@@ -193,6 +193,7 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps=100, samples=10, order=True,
     if ins:
         return axs
     else:
+        axs.legend()
         plt.show()
         return x, y, x1, y1, x_infer, em2_infer, y_inf.numpy().reshape(-1),  x0[:context_p], y0[:context_p], x0, y0
 
