@@ -182,7 +182,7 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps=100, samples=10, order=True,
                                       sample=True, d=True, x_2=em2_infer, infer=True, xx = x_infer.reshape(-1), yy=yy.reshape(-1), x0=x0, y0=y0, x1=x1, y1=y1)
 
         axs.scatter(x_infer.reshape(-1)[s_step:m_step], y_inf.numpy().reshape(-1)[s_step:], c='lightskyblue')
-        print('x_infer: ', x_infer[s_step])
+        print('x_infer: ', x_infer.reshape(-1)[s_step])
 
     if mean:
         _, _, y_inf, _ = infer.inference(decoder, x=em_infer, y=y_infer, num_steps=num_steps,
