@@ -42,7 +42,7 @@ def evaluate(model, x, y, sample=True, d=False, x_2=None, xx=None, yy=None, c_st
     np.random.seed(443)
     combined_mask_x = masks.create_masks(x)
     if d:
-        pred = model(x, x_2, y, False, combined_mask_x[:, :-1, :-1], infer=infer, ix=xx, iy=yy, n=c_step, x0=x0, y0=y0,
+        pred = model(x, x_2, y, True, combined_mask_x[:, :-1, :-1], infer=infer, ix=xx, iy=yy, n=c_step, x0=x0, y0=y0,
                      x1=x1, y1=y1)
     else:
         pred = model(x, y, False, combined_mask_x[:, :-1, :-1])
