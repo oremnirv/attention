@@ -71,7 +71,7 @@ def build_graph():
         1s.
         :return:
         """
-
+        tf.random.set_seed(443)
         y_inp_te = y_te[:, :-1]
         y_te *= to_gather
         y_real_te = y_te[:, 1:]
