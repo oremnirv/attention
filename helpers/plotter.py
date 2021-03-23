@@ -167,16 +167,16 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps=100, samples=10, order=True,
     print('em_2_0: ', em_2_0)
     print('em_2_1: ', em_2_1)
 
-    y_infer = np.concatenate((y1, y0[:context_p])).reshape(1, -1)
+    y_infer = np.concatenate((y0, y1[:context_p])).reshape(1, -1)
     s_step = y_infer.shape[1]
-    yy = np.concatenate((y1, y0)).reshape(1, -1)
-    x_infer = np.concatenate((x1, x0)).reshape(1, -1)
+    yy = np.concatenate((y0, y1)).reshape(1, -1)
+    x_infer = np.concatenate((x0, x1)).reshape(1, -1)
     m_step = x_infer.shape[1] if num_steps == 999 else y_infer.shape[1] + num_steps
-    em_infer = np.concatenate((em1, em0)).reshape(1, -1)
-    em2_infer = np.concatenate((em_2_1, em_2_0)).reshape(1, -1)
+    em_infer = np.concatenate((em0, em1)).reshape(1, -1)
+    em2_infer = np.concatenate((em_2_0, em_2_1)).reshape(1, -1)
 
-    axs.scatter(x0[:context_p], y0[:context_p], c='red')
-    print('last_x: ', x0[context_p-1])
+    axs.scatter(x1[:context_p], y1[:context_p], c='red')
+    print('last_x: ', x1[context_p-1])
     axs.plot(x0, y0, c='lightcoral', label = 's={}'.format(s))
     axs.plot(x1, y1, c='black', label = 's={}'.format(1- s))
     for i, inf in enumerate(range(samples)):
