@@ -76,7 +76,7 @@ def create_batch_2d_b(em_x, x, y, em_2, batch_s=128, context_p=50):
         x, y, em_x, em_2, c = rearange_tr_2d(x, y, em_x, em_2, context_p)
     elif p <= 0.5:
         x, y, em_x, em_2, c = rearange_tr_2d(x, y, em_x, em_2, context_p, s=0)
-    elif p <= 0.75:
+    elif p <= 1:
         permute_idx = np.random.permutation(np.arange(cols))
         x = x[:, permute_idx]
         y = y[:, permute_idx]
@@ -273,8 +273,8 @@ def rearange_tr_2d(x, y, em, em_2, context_p=50, s=1):
     for row in range(x.shape[0]):
         em_2_pre = em_2[row, :context_p * 2].reshape(-1)
         em_2_pos = em_2[row, context_p * 2:]
-        cond = [np.where(em_2_pre == s), np.where(em_2_pos == s), np.where(~(em_2_pre == s)),
-                np.where(~(em_2_pos == s))]
+        cond = [np.where(em_2_pre == s), np.where(em_2_pos == s), np.where((em_2_pre != s)),
+                np.where((em_2_pos != s))]
         y_pre = y[row, :context_p * 2].reshape(-1)
         y_post = y[row, context_p * 2:].reshape(-1)
         y_infer = np.concatenate((y_pre, y_post[cond[1]])).reshape(-1)
