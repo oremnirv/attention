@@ -187,17 +187,17 @@ def infer_plot2D(decoder, x, y, em, em_2, num_steps=100, samples=10, order=True,
         print('x_infer: ', x_infer.reshape(-1)[s_step])
 
     if mean:
-        _, _, y_inf, _ = infer.inference(decoder, x=em_infer, y=y_infer, num_steps=num_steps,
+        _, _, y_inf_m, _ = infer.inference(decoder, x=em_infer, y=y_infer, num_steps=num_steps,
                                       sample=False, d=True, x_2=em2_infer, infer=False)
 
-        axs.scatter(x_infer.reshape(-1)[s_step:m_step], y_inf.numpy().reshape(-1)[s_step:], c='goldenrod')
+        axs.scatter(x_infer.reshape(-1)[s_step:m_step], y_inf_m.numpy().reshape(-1)[s_step:], c='goldenrod')
 
     if ins:
         return axs
     else:
         axs.legend()
         plt.show()
-        return x, y, x1, y1, x_infer, em2_infer, y_inf.numpy().reshape(-1),  x0[:context_p], y0[:context_p], x0, y0
+        return x, y, x1, y1, x_infer, em2_infer, y_inf_m.numpy().reshape(-1),  x0[:context_p], y0[:context_p], x0, y0
 
 
 def concat_context_to_infer(df, cond, context_p):
