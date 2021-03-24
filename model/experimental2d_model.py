@@ -11,7 +11,9 @@ class Decoder(tf.keras.Model):
         super(Decoder, self).__init__()
         self.e = e
         self.layernorm1 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
-        self.embedding = tf.keras.layers.Embedding(input_vocab_size, e, name='embedding')
+        self.embedding = tf.keras.layers.Embedding(input_vocab_size, e, name='embedding_x')
+        self.embedding_k = tf.keras.layers.Embedding(input_vocab_size, e, name='embedding_k')
+
         self.mha = dot_prod_attention.MultiHeadAttention2D(e, num_heads)
         self.A1 = tf.keras.layers.Dense(l1, name='A1')
         self.A2 = tf.keras.layers.Dense(l1, name='A2')
@@ -34,7 +36,7 @@ class Decoder(tf.keras.Model):
         """
         y = y[:, :, tf.newaxis]  # (batch_size, seq_len, 1)
         x = self.embedding(x)  # (batch_size, seq_len + 1, e)
-        x_2 = self.embedding(x_2)  # (batch_size, seq_len + 1, e)
+        x_2 = self.embedding_k(x_2)  # (batch_size, seq_len + 1, e)
         # y = self.embedding(y)
         y_attn, _, v = self.mha(y, x, x, x_mask, infer=infer, x=ix, y=iy, n=n, x0=x0, y0=y0, x1=x1, y1=y1)  # (batch_size, seq_len, e)
         out1 = self.layernorm1(y_attn + v)

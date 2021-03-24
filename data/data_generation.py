@@ -257,7 +257,7 @@ def main():
 
     # Example for data generation
     x_tr, x_te, y_tr, y_te, df_tr, df_te, em, em_y = data_gen2d(5, 0.8, 3, grid_d=[[1, 15.1, 0.05], [-6, 6, 0.05]], inp_d=1, noise=True)
-    # print((em))
+    print((em))
 
 
 
