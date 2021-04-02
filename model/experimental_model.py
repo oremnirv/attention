@@ -11,7 +11,7 @@ class Decoder(tf.keras.Model):
         super(Decoder, self).__init__()
         self.rate = rate
         self.e = e
-        self.embedding = tf.keras.layers.Embedding(input_vocab_size, e)
+        self.embedding = tf.keras.layers.Embedding(input_vocab_size, e, name='embedding')
         self.mha = dot_prod_attention.MultiHeadAttention(e, num_heads)
         self.A1 = tf.keras.layers.Dense(l1, name='A1')
         self.A2 = tf.keras.layers.Dense(l1, name='A2')
