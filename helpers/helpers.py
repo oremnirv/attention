@@ -114,7 +114,10 @@ def load_spec(path, e, l, heads, context_p, d=False):
         return (e, *l, heads)
     else:
         df = pd.read_csv(path + '_context_' + str(context_p) + '_speci.csv', header=None)
-        heads = int(df.loc[df.iloc[:, 0] == 'heads', 1][0])
+        try:
+            heads = int(df.loc[df.iloc[:, 0] == 'heads', 1][0])
+        except:
+            heads = 8
         e = int(list(df.loc[df.iloc[:, 0] == 'embedding', 1])[0].split(' ')[-1][:-1])
         l1 = int(list(df.loc[df.iloc[:, 0] == 'A1', 1])[1][1:-1])
         if d:
