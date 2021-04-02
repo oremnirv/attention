@@ -98,7 +98,7 @@ def write_speci(folder, names, shapes, context_p, heads):
             writer.writerow([str(name.numpy()).split('/')[-2], str(shape.numpy())])
 
 
-def load_spec(path, e, l, heads, context_p):
+def load_spec(path, e, l, heads, context_p, d=False):
     """
     This function currently only fit a network with A1-A6 layers.
     :param path:
@@ -117,8 +117,13 @@ def load_spec(path, e, l, heads, context_p):
         heads = int(df.loc[df.iloc[:, 0] == 'heads', 1][0])
         e = int(list(df.loc[df.iloc[:, 0] == 'embedding', 1])[0].split(' ')[-1][:-1])
         l1 = int(list(df.loc[df.iloc[:, 0] == 'A1', 1])[1][1:-1])
-        l2 = int(list(df.loc[df.iloc[:, 0] == 'A4', 1])[1][1:-1])
-        l3 = int(list(df.loc[df.iloc[:, 0] == 'A5', 1])[1][1:-1])
+        if d:
+            l2 = int(list(df.loc[df.iloc[:, 0] == 'A4', 1])[1][1:-1])
+            l3 = int(list(df.loc[df.iloc[:, 0] == 'A5', 1])[1][1:-1])
+        else:
+            l2 = int(list(df.loc[df.iloc[:, 0] == 'A3', 1])[1][1:-1])
+            l3 = int(list(df.loc[df.iloc[:, 0] == 'A4', 1])[1][1:-1])
+
         l = [l1, l2, l3]
 
         return (e, *l, heads)
