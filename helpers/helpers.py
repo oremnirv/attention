@@ -135,7 +135,7 @@ def pre_trained_loader(x, save_dir, e, l, d=True, batch_s=64, context=50, heads=
     writer = tf.summary.create_file_writer(logdir)
     folder = save_dir + '/ckpt/check_' + name_comp
     optimizer_c = tf.keras.optimizers.Adam(3e-4)
-    e, l1, l2, l3, heads = load_spec(folder, e, l, heads, context)
+    e, l1, l2, l3, heads = load_spec(folder, e, l, d=d, heads, context)
     mkdir(folder)
     if d:
         decoder = experimental2d_model.Decoder(e, l1, l2, l3, num_heads=heads)
