@@ -3,7 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-from model import experimental2d_model
+from model import experimental_model, experimental2d_model
 
 
 def mkdir(folder):
