@@ -477,7 +477,7 @@ def infer_plot(model, em, x, y, num_steps, samples=10, mean=True, context_p=50, 
         mse_model = metrics.mse(y[context_p: maxi], tar_inf.numpy()[:, context_p: maxi])
         n = num_steps
         y_mean = np.repeat(np.mean(y), n).reshape(1, -1)
-        print('sample # {}, r squared: {}'.format(i, 1 - (mse_model / metrics.mse(y[context_p: maxi], y_mean))))
+        # print('sample # {}, r squared: {}'.format(i, 1 - (mse_model / metrics.mse(y[context_p: maxi], y_mean))))
         if i == 0:
             axs.plot(x[sorted_idx], tar_inf.numpy().reshape(-1)[sorted_idx], c='lightskyblue', label='samples')
         else:
