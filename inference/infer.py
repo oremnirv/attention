@@ -45,7 +45,7 @@ def evaluate(model, x, y, sample=True, d=False, x_2=None, xx=None, yy=None, c_st
                      x1=x1, y1=y1)
     else:
         pred = model(x, y, False, combined_mask_x[:, :-1, :-1])
-        print(pred[-1, 1])
+        # print(pred[-1, 1])
     if sample:
         sample_y = np.random.normal(pred[-1, 0], np.exp(pred[-1, 1]))
     else:
