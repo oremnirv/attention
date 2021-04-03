@@ -104,8 +104,9 @@ def data_gen(num_obs, tr_percent=0.8, seq_len=200, extarpo=False, extarpo_num=19
         if ordered:
             x = np.sort(x)
         if kernel == 'rbf':
-            k = gp_kernels.rbf_kernel(x.reshape(-1, 1))
-            f_prior = gp_priors.generate_priors(k,  1)
+            k = RBF()
+            gp = GaussianProcessRegressor(kernel=k)
+            f_prior = gp.sample_y(x.reshape(-1, 1)).reshape(-1)
         elif kernel == 'periodic':
             k = 1.0 * ExpSineSquared(length_scale=1.0,
                                      periodicity=3.0, length_scale_bounds=(0.1, 10.0))
@@ -256,10 +257,11 @@ def main():
     # print(b.idxs)
 
     # Example for data generation
-    x_tr, x_te, y_tr, y_te, df_tr, df_te, em, em_y = data_gen2d(5, 0.8, 3, grid_d=[[1, 15.1, 0.05], [-6, 6, 0.05]], inp_d=1, noise=True)
-    print((em))
+    # x_tr, x_te, y_tr, y_te, df_tr, df_te, em, em_y = data_gen2d(5, 0.8, 3, grid_d=[[1, 15.1, 0.05], [-6, 6, 0.05]], inp_d=1, noise=True)
+    # print((em))
 
-
+    x_tr, x_te, y_tr, y_te, df_tr, df_te, em = data_gen(4, seq_len=10)
+    print(em)
 
 
 if __name__ == '__main__':
