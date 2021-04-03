@@ -493,40 +493,40 @@ def infer_plot(model, em, x, y, num_steps, samples=10, mean=True, context_p=50, 
         return axs
     else:
         plt.show()
-#
 
-# def follow_training_plot(x_tr, y_tr, pred,
-#                          x_te, y_te, pred_te, num_context=50, num_samples=2):
-#     """
-#
-#     :param x_tr:
-#     :param y_tr:
-#     :param pred:
-#     :param x_te:
-#     :param y_te:
-#     :param pred_te:
-#     :param num_context:
-#     :param num_samples:
-#     :return:
-#     """
-#     fig, axs = plt.subplots(2, 2, figsize=(10, 6))
-#     custom_xlim = (4, 16)
-#     custom_ylim = (-4, 4)
-#
-#     # Setting the values for all axes.
-#     plt.setp(axs, xlim=custom_xlim, ylim=custom_ylim)
-#     idx_tr, samples_train, sorted_idx_tr = choose_random_ex_n_sort(x_tr, 2)
-#     idx_te, samples_test, sorted_idx_te = choose_random_ex_n_sort(x_te, 2)
-#     samples_tr = assign_context_points_to_preds(
-#         idx_tr, samples_train, y_tr, pred, num_context)
-#     samples_te = assign_context_points_to_preds(
-#         idx_te, samples_test, y_te, pred_te, num_context)
-#     axs = plot_subplot_training(axs, x_tr, x_te, y_tr, y_te, samples_tr, samples_te, idx_tr, idx_te, np.array(
-#         sorted_idx_tr), np.array(sorted_idx_te), num_context)
-#     for ax in axs.flat:
-#         ax.label_outer()
-#
-#     plt.show()
+
+def follow_training_plot(x_tr, y_tr, pred,
+                         x_te, y_te, pred_te, num_context=50, num_samples=2):
+    """
+
+    :param x_tr:
+    :param y_tr:
+    :param pred:
+    :param x_te:
+    :param y_te:
+    :param pred_te:
+    :param num_context:
+    :param num_samples:
+    :return:
+    """
+    fig, axs = plt.subplots(2, 2, figsize=(10, 6))
+    custom_xlim = (4, 16)
+    custom_ylim = (-4, 4)
+
+    # Setting the values for all axes.
+    plt.setp(axs, xlim=custom_xlim, ylim=custom_ylim)
+    idx_tr, samples_train, sorted_idx_tr = choose_random_ex_n_sort(x_tr, 2)
+    idx_te, samples_test, sorted_idx_te = choose_random_ex_n_sort(x_te, 2)
+    samples_tr = assign_context_points_to_preds(
+        idx_tr, samples_train, y_tr, pred, num_context)
+    samples_te = assign_context_points_to_preds(
+        idx_te, samples_test, y_te, pred_te, num_context)
+    axs = plot_subplot_training(axs, x_tr, x_te, y_tr, y_te, samples_tr, samples_te, idx_tr, idx_te, np.array(
+        sorted_idx_tr), np.array(sorted_idx_te), num_context)
+    for ax in axs.flat:
+        ax.label_outer()
+
+    plt.show()
 
 #
 # def concat_n_rearange(x, y, em, em_2, context_p, num_steps, series=1):
