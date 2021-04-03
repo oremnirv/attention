@@ -436,63 +436,63 @@ def plot_subplot_training2d(params, x, x_te, y, y_te, pred_y, pred_y_2, pred_y_t
     return params
 
 
-# def infer_plot(model, em, x, y, num_steps, samples=10, mean=True, context_p=50, order=False, axs=None, ins=False,
-#                consec=True):
-#     if axs:
-#         pass
-#     else:
-#         fig, axs = plt.subplots(1, 1, figsize=(10, 6))
-#         custom_xlim = (4, 16)
-#     # custom_ylim = (-3, 3)
-#     # plt.setp(axs, xlim=custom_xlim, ylim=custom_ylim)
-#
-#     maxi = num_steps + context_p
-#     sorted_idx = np.argsort(x)
-#
-#     if order:
-#         if consec:
-#             x = x[sorted_idx]
-#             y = y[sorted_idx]
-#             em = em[sorted_idx]
-#             sorted_idx = np.argsort(x)
-#         else:
-#             non_cosec_idx = np.concatenate(
-#                 (np.sort(np.random.choice(sorted_idx[:120], context_p, replace=False)), sorted_idx[120:]))
-#             x = x[non_cosec_idx]
-#             y = y[non_cosec_idx]
-#             em = em[non_cosec_idx]
-#             sorted_idx = np.argsort(x)
-#             num_steps = min(len(non_cosec_idx) - context_p, num_steps)
-#
-#     # true graph
-#     axs.plot(x[:maxi][sorted_idx], y[:maxi][sorted_idx], c='black', zorder=1, linewidth=3, label='obs. function')
-#
-#     # context points:
-#     axs.scatter(x[:context_p],
-#                 y[:context_p], c='red', label='context points')
-#
-#     for i, inf in enumerate(range(samples)):
-#         _, _, tar_inf = infer.inference(model, em[:maxi].reshape(1, -1), y[:context_p].reshape(1, -1),
-#                                         num_steps=num_steps)
-#         mse_model = metrics.mse(y[context_p: maxi], tar_inf.numpy()[:, context_p: maxi])
-#         n = num_steps
-#         y_mean = np.repeat(np.mean(y), n).reshape(1, -1)
-#         print('sample # {}, r squared: {}'.format(i, 1 - (mse_model / metrics.mse(y[context_p: maxi], y_mean))))
-#         if i == 0:
-#             axs.plot(x[sorted_idx], tar_inf.numpy().reshape(-1)[sorted_idx], c='lightskyblue', label='samples')
-#         else:
-#             axs.plot(x[sorted_idx], tar_inf.numpy().reshape(-1)[sorted_idx], c='lightskyblue')
-#
-#     if mean:
-#         _, _, tar_inf = infer.inference(model, em[:maxi].reshape(1, -1), y[:context_p].reshape(1, -1),
-#                                         num_steps=num_steps, sample=False)
-#
-#         axs.plot(x[sorted_idx], tar_inf.numpy().reshape(-1)[sorted_idx], c='goldenrod', label='mean sample')
-#
-#     if ins:
-#         return axs
-#     else:
-#         plt.show()
+def infer_plot(model, em, x, y, num_steps, samples=10, mean=True, context_p=50, order=False, axs=None, ins=False,
+               consec=True):
+    if axs:
+        pass
+    else:
+        fig, axs = plt.subplots(1, 1, figsize=(10, 6))
+        custom_xlim = (4, 16)
+    # custom_ylim = (-3, 3)
+    # plt.setp(axs, xlim=custom_xlim, ylim=custom_ylim)
+
+    maxi = num_steps + context_p
+    sorted_idx = np.argsort(x)
+
+    if order:
+        if consec:
+            x = x[sorted_idx]
+            y = y[sorted_idx]
+            em = em[sorted_idx]
+            sorted_idx = np.argsort(x)
+        else:
+            non_cosec_idx = np.concatenate(
+                (np.sort(np.random.choice(sorted_idx[:120], context_p, replace=False)), sorted_idx[120:]))
+            x = x[non_cosec_idx]
+            y = y[non_cosec_idx]
+            em = em[non_cosec_idx]
+            sorted_idx = np.argsort(x)
+            num_steps = min(len(non_cosec_idx) - context_p, num_steps)
+
+    # true graph
+    axs.plot(x[:maxi][sorted_idx], y[:maxi][sorted_idx], c='black', zorder=1, linewidth=3, label='obs. function')
+
+    # context points:
+    axs.scatter(x[:context_p],
+                y[:context_p], c='red', label='context points')
+
+    for i, inf in enumerate(range(samples)):
+        _, _, tar_inf = infer.inference(model, em[:maxi].reshape(1, -1), y[:context_p].reshape(1, -1),
+                                        num_steps=num_steps)
+        mse_model = metrics.mse(y[context_p: maxi], tar_inf.numpy()[:, context_p: maxi])
+        n = num_steps
+        y_mean = np.repeat(np.mean(y), n).reshape(1, -1)
+        print('sample # {}, r squared: {}'.format(i, 1 - (mse_model / metrics.mse(y[context_p: maxi], y_mean))))
+        if i == 0:
+            axs.plot(x[sorted_idx], tar_inf.numpy().reshape(-1)[sorted_idx], c='lightskyblue', label='samples')
+        else:
+            axs.plot(x[sorted_idx], tar_inf.numpy().reshape(-1)[sorted_idx], c='lightskyblue')
+
+    if mean:
+        _, _, tar_inf = infer.inference(model, em[:maxi].reshape(1, -1), y[:context_p].reshape(1, -1),
+                                        num_steps=num_steps, sample=False)
+
+        axs.plot(x[sorted_idx], tar_inf.numpy().reshape(-1)[sorted_idx], c='goldenrod', label='mean sample')
+
+    if ins:
+        return axs
+    else:
+        plt.show()
 #
 
 # def follow_training_plot(x_tr, y_tr, pred,
