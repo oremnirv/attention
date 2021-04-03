@@ -12,7 +12,6 @@ def build_graph():
     test_loss = tf.keras.metrics.Mean(name='test_loss')
     m_tr = tf.keras.metrics.Mean()
     m_te = tf.keras.metrics.Mean()
-    tf.random.set_seed(443)
 
     @tf.function
     def train_step(decoder, optimizer_c, train_loss, m_tr, x, y, d=False, x2=None, to_gather=None):
@@ -34,7 +33,6 @@ def build_graph():
         (tf.tensor) of weights, (tf.tensor) of names of weights, (tf.tensor) of shapes of weights
 
         """
-        tf.random.set_seed(443)
         y_inp = y[:, :-1]
         y *= to_gather  # this is the step to make sure we only consider non context points in prediction
         y_real = y[:, 1:]
@@ -71,7 +69,6 @@ def build_graph():
         1s.
         :return:
         """
-        tf.random.set_seed(443)
         y_inp_te = y_te[:, :-1]
         y_te *= to_gather
         y_real_te = y_te[:, 1:]
