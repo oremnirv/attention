@@ -141,7 +141,7 @@ def create_batch_2d(em_x, x, y, em_2, batch_s=128, context_p=50):
     return b_data, c
 
 
-def create_batch(em_x, x, y, batch_s=128, chnge_context=True, d=False, em_2=None):
+def create_batch(em_x, x, y, batch_s=128, chnge_context=True, d=False, em_2=None, order=False):
     """
 
     :param x: (np.array)
@@ -166,6 +166,11 @@ def create_batch(em_x, x, y, batch_s=128, chnge_context=True, d=False, em_2=None
     shape = y.shape[0]
     cols = y.shape[1]
     batch_idx = np.random.choice(list(range(shape)), batch_s)
+    if order:
+        sorted_idx = np.argsort(x, 1)
+        x = pick_diff_cols_from_each_row(x, sorted_idx)
+        y = pick_diff_cols_from_each_row(y, sorted_idx)
+        em_x = pick_diff_cols_from_each_row(em_x, sorted_idx)
 
     if not chnge_context:
         b_data.append(y[batch_idx])

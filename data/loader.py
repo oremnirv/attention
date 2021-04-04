@@ -6,7 +6,7 @@ import numpy as np
 from data import data_generation
 
 
-def load_data(kernel='rbf', size=150000, rewrite='False', diff_x=False, noise=False, d=False, ordered=False):
+def load_data(kernel='rbf', size=150000, rewrite='False', diff_x=False, noise=False, d=False, ordered=False, p=0.5):
     """
 
     """
@@ -27,7 +27,7 @@ def load_data(kernel='rbf', size=150000, rewrite='False', diff_x=False, noise=Fa
             np.save(folder + 'em_y_te.npy', em_y[1])
         else:
             x_tr, x_te, y_tr, y_te, _, df_te, em = data_generation.data_gen(
-                int(size), ordered=ordered, diff_x=diff_x, kernel=kernel1, noise=noise)
+                int(size), ordered=ordered, diff_x=diff_x, kernel=kernel1, noise=noise, p_order=p)
 
         np.save(folder + 'x_tr.npy', x_tr)
         np.save(folder + 'x_te.npy', x_te)
