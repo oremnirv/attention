@@ -39,7 +39,7 @@ def build_graph():
         combined_mask_x = masks.create_masks(x) # see masks.py for description
         with tf.GradientTape(persistent=True) as tape:
             if d:
-                tf.print(y_inp)
+                # tf.print(y_inp)
                 pred = decoder(x, x2, y_inp, True, combined_mask_x[:, :-1, :-1]) # (batch_size x seq_len x 2)
             else:
                 pred = decoder(x, y_inp, True, combined_mask_x[:, :-1, :-1]) # (batch_size x seq_len x 2)
