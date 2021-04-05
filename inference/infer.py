@@ -1,6 +1,7 @@
 from helpers import masks
 import tensorflow as tf
 import numpy as np
+from data import data_generation
 
 
 def evaluate(model, x, y, sample=True, d=False, x_2=None, xx=None, yy=None, c_step=0, infer=False, x0=None, y0=None,
@@ -96,8 +97,11 @@ def inference(model, x, y, em_y,  num_steps=1, sample=True, d=False, x_2=None, i
 
     y = tf.concat((y, tf.reshape(sample_y, [1, 1])), axis=1)
 
+    b = data_generation.EmbderMap(2, [np.arange(4.9, 15.1, 0.1), np.arange(-5, 5, 0.1)])
+    b.map_value_to_grid(np.array(15).reshape(1, -1))
+    b.map_value_to_grid(np.array(sample_y).reshape(1, -1))
 
-    em_y = tf.concat((em_y, tf.reshape(sample_y, [1, 1])), axis=1)
+    em_y = tf.concat((em_y, tf.reshape(b[1], [1, 1])), axis=1)
     if num_steps > 1:
         model, x, y, num_steps = inference(model, x, y, em_y,  num_steps - 1, d=d, x_2=x_2,
                                            sample=sample, xx=xx, yy=yy, infer=infer, x0=x0, y0=y0, x1=x1, y1=y1)

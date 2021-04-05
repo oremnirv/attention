@@ -4,8 +4,6 @@
 import numpy as np
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import ExpSineSquared, WhiteKernel, RBF
-from data import gp_kernels
-from data import gp_priors
 
 
 class EmbderMap:
@@ -266,8 +264,13 @@ def main():
     # x_tr, x_te, y_tr, y_te, df_tr, df_te, em, em_y = data_gen2d(5, 0.8, 3, grid_d=[[1, 15.1, 0.05], [-6, 6, 0.05]], inp_d=1, noise=True)
     # print((em))
 
-    x_tr, x_te, y_tr, y_te, df_tr, df_te, em, em_y = data_gen(4, seq_len=10)
-    print(em_y)
+    x_tr, x_te, y_tr, y_te, df_tr, df_te, em, em_y = data_gen(4, seq_len=50)
+    print(y_te)
+    print(em_y[1])
+    b = EmbderMap(2, [np.arange(4.9, 15.1, 0.1), np.arange(-5, 5, 0.1)])
+    b.map_value_to_grid(np.array(15).reshape(1, -1))
+    b.map_value_to_grid(np.array(0.6).reshape(1, -1))
+    print(b.idxs[1])
 
 
 if __name__ == '__main__':
