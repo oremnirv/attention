@@ -81,7 +81,7 @@ def data_gen(num_obs, tr_percent=0.8, seq_len=200, extarpo=False, extarpo_num=19
     df = np.zeros((num_obs * 2, seq_len))
     em_idx = np.zeros((num_obs, seq_len))
     em_y_idx = np.zeros((num_obs, seq_len))
-    em = []
+    em = []; em_y = []
     rows = df.shape[0]
     tr_rows = int(tr_percent * rows)
     tr_rows = tr_rows if tr_rows % 2 == 0 else tr_rows + 1
