@@ -2,7 +2,7 @@ import numpy as np
 from helpers import plotter
 
 
-def batch_regime_2d(x, y, em, em_2, kind='shuffle', context_p=50, batch_s=64):
+def batch_regime_2d(x, y, em, em_2, em_y,  kind='shuffle', context_p=50, batch_s=64):
     """
     This is a wrapper for the three different batching options
 
@@ -21,7 +21,7 @@ def batch_regime_2d(x, y, em, em_2, kind='shuffle', context_p=50, batch_s=64):
     b_data[2] corresponds to 0/1 values specifying the sequence member
     """
     if kind == 'shuffle':
-        b_data = create_batch(em, x, y, batch_s=batch_s, d=True, em_2=em_2)
+        b_data = create_batch(em, em_y, x, y, batch_s=batch_s, d=True, em_2=em_2)
         c = context_p
     elif kind == 'full infer':
         b_data, c = create_batch_2d(em, x, y, em_2, batch_s=batch_s, context_p=context_p)
