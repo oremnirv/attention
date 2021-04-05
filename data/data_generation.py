@@ -96,7 +96,7 @@ def data_gen(num_obs, tr_percent=0.8, seq_len=200, extarpo=False, extarpo_num=19
             x = np.random.permutation(np.linspace(5, 15, seq_len))
             x = x.reshape(1, -1)
 
-        idx = EmbderMap(1, [grid])
+        idx = EmbderMap(len(grid_d), grid)  # To get intuition of what this does run the script in main below
         idx.map_value_to_grid(x[0])
 
         if (p_order > 0) & (np.random.binomial(1, p_order) == 0):
@@ -266,7 +266,7 @@ def main():
     # x_tr, x_te, y_tr, y_te, df_tr, df_te, em, em_y = data_gen2d(5, 0.8, 3, grid_d=[[1, 15.1, 0.05], [-6, 6, 0.05]], inp_d=1, noise=True)
     # print((em))
 
-    x_tr, x_te, y_tr, y_te, df_tr, df_te, em = data_gen(4, seq_len=10)
+    x_tr, x_te, y_tr, y_te, df_tr, df_te, em. em_y = data_gen(4, seq_len=10)
     print(em)
 
 
