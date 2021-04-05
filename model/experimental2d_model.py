@@ -41,7 +41,7 @@ class Decoder(tf.keras.Model):
         2D (tf.tensor) with first dimension being the mean and second the log sigma
         """
         x_2 = x_2[:, :, tf.newaxis]  # (batch_size, seq_len, 1)
-        x = self.embedding(tf.concat((x, x_2)))  # (batch_size, seq_len + 1, e)
+        x = self.embedding(tf.concat((x, x_2), axis=-1))  # (batch_size, seq_len + 1, e)
         y = self.embedding_y(y)
         y_attn, _, _ = self.mha(y, x, x, x_mask, infer=infer, x=ix, y=iy, n=n, x0=x0, y0=y0, x1=x1, y1=y1)  # (batch_size, seq_len, e)
         attn_output = self.dropout1(y_attn, training=training)

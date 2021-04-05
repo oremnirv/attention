@@ -54,7 +54,7 @@ def evaluate(model, x, y, sample=True, d=False, x_2=None, xx=None, yy=None, c_st
     return pred[:, 0], pred[:, 1], sample_y
 
 
-def inference(model, x, y, num_steps=1, sample=True, d=False, x_2=None, infer=False, xx=None, yy=None,
+def inference(model, x, y, em_y,  num_steps=1, sample=True, d=False, x_2=None, infer=False, xx=None, yy=None,
               x0=None, y0=None, x1=None, y1=None):
     """
     This is a recursive function for inference. It receives y-vals, x-vals and the series which they came from (x_2-vals).
@@ -92,10 +92,14 @@ def inference(model, x, y, num_steps=1, sample=True, d=False, x_2=None, infer=Fa
         pred, pred_log_sig, sample_y = evaluate(model, temp_x, y, d=True, x_2=temp_x2, sample=sample, infer=infer,
                                                 xx=xx, yy=yy, c_step=n, x0=x0, y0=y0, x1=x1, y1=y1)
     else:
-        pred, pred_log_sig, sample_y = evaluate(model, temp_x, y, sample=sample)
+        pred, pred_log_sig, sample_y = evaluate(model, temp_x, em_y, sample=sample)
+
     y = tf.concat((y, tf.reshape(sample_y, [1, 1])), axis=1)
+
+
+    em_y = tf.concat((em_y, tf.reshape(sample_y, [1, 1])), axis=1)
     if num_steps > 1:
-        model, x, y, num_steps = inference(model, x, y, num_steps - 1, d=d, x_2=x_2,
+        model, x, y, num_steps = inference(model, x, y, em_y,  num_steps - 1, d=d, x_2=x_2,
                                            sample=sample, xx=xx, yy=yy, infer=infer, x0=x0, y0=y0, x1=x1, y1=y1)
 
     return model, x, y, num_steps
