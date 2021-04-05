@@ -141,7 +141,7 @@ def create_batch_2d(em_x, x, y, em_2, batch_s=128, context_p=50):
     return b_data, c
 
 
-def create_batch(em_x, x, y, batch_s=128, chnge_context=True, d=False, em_2=None, order=False):
+def create_batch(em_x, em_y, x, y, batch_s=128, chnge_context=True, d=False, em_2=None, order=False):
     """
 
     :param x: (np.array)
@@ -171,11 +171,13 @@ def create_batch(em_x, x, y, batch_s=128, chnge_context=True, d=False, em_2=None
         x = pick_diff_cols_from_each_row(x, sorted_idx)
         y = pick_diff_cols_from_each_row(y, sorted_idx)
         em_x = pick_diff_cols_from_each_row(em_x, sorted_idx)
+        em_y = pick_diff_cols_from_each_row(em_y, sorted_idx)
 
     if not chnge_context:
         b_data.append(y[batch_idx])
         b_data.append(x[batch_idx])
         b_data.append(em_x[batch_idx])
+        b_data.append(em_y[batch_idx])
         if d:
             b_data.append(em_2[batch_idx])
     else:
@@ -183,6 +185,8 @@ def create_batch(em_x, x, y, batch_s=128, chnge_context=True, d=False, em_2=None
         b_data.append(y[batch_idx][:, permute_idx])
         b_data.append(x[batch_idx][:, permute_idx])
         b_data.append(em_x[batch_idx][:, permute_idx])
+        b_data.append(em_y[batch_idx][:, permute_idx])
+
         if d:
             b_data.append(em_2[batch_idx][:, permute_idx])
     return b_data
