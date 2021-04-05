@@ -80,6 +80,7 @@ def data_gen(num_obs, tr_percent=0.8, seq_len=200, extarpo=False, extarpo_num=19
         grid_d = [1, 15.1, 0.1]
     df = np.zeros((num_obs * 2, seq_len))
     em_idx = np.zeros((num_obs, seq_len))
+    em_y_idx = np.zeros((num_obs, seq_len))
     em = []
     rows = df.shape[0]
     tr_rows = int(tr_percent * rows)
@@ -119,6 +120,9 @@ def data_gen(num_obs, tr_percent=0.8, seq_len=200, extarpo=False, extarpo_num=19
             f_prior = f_prior + gp.sample_y(x, seq_len)
         else:
             pass
+
+        idx.map_value_to_grid(np.array(f_prior))
+        em_y_idx[int(i / 2), :] = idx.idxs[1]
         df[i, :x.shape[1]] = x
         df[i + 1, :x.shape[1]] = f_prior
         em_idx[int(i / 2), :] = idx.idxs[0]
@@ -127,6 +131,8 @@ def data_gen(num_obs, tr_percent=0.8, seq_len=200, extarpo=False, extarpo_num=19
     df_te = df[tr_rows:, :]
     em_tr = em_idx[:int(tr_rows / 2), :]
     em_te = em_idx[int(tr_rows / 2):, :]
+    em_y.append(em_y_idx[:int(tr_rows / 2), :])
+    em_y.append(em_y_idx[int(tr_rows / 2):, :])
     em.append(em_tr)
     em.append(em_te)
     # get all even rows
@@ -136,7 +142,7 @@ def data_gen(num_obs, tr_percent=0.8, seq_len=200, extarpo=False, extarpo_num=19
     y_tr = df_tr[1::2, :]
     y_te = df_te[1::2, :]
 
-    return x_tr, x_te, y_tr, y_te, df_tr, df_te, em
+    return x_tr, x_te, y_tr, y_te, df_tr, df_te, em, em_y
 
 
 def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf',

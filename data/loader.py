@@ -23,10 +23,9 @@ def load_data(kernel='rbf', size=150000, rewrite='False', diff_x=False, noise=Fa
                                                                                                               noise=noise)
             np.save(folder + 'em_tr_2.npy', em[2])
             np.save(folder + 'em_te_2.npy', em[3])
-            np.save(folder + 'em_y_tr.npy', em_y[0])
-            np.save(folder + 'em_y_te.npy', em_y[1])
+
         else:
-            x_tr, x_te, y_tr, y_te, _, df_te, em = data_generation.data_gen(
+            x_tr, x_te, y_tr, y_te, _, df_te, em, em_y = data_generation.data_gen(
                 int(size), ordered=ordered, diff_x=diff_x, kernel=kernel1, noise=noise, p_order=p)
 
         np.save(folder + 'x_tr.npy', x_tr)
@@ -35,6 +34,8 @@ def load_data(kernel='rbf', size=150000, rewrite='False', diff_x=False, noise=Fa
         np.save(folder + 'y_te.npy', y_te)
         np.save(folder + 'em_tr.npy', em[0])
         np.save(folder + 'em_te.npy', em[1])
+        np.save(folder + 'em_y_tr.npy', em_y[0])
+        np.save(folder + 'em_y_te.npy', em_y[1])
 
     folder_content = np.sort(os.listdir(folder))
     print(folder_content)
