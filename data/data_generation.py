@@ -146,7 +146,7 @@ def data_gen(num_obs, tr_percent=0.8, seq_len=200, extarpo=False, extarpo_num=19
 
 
 def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf',
-               grid_d=[[1, 15.1, 0.05], [-5, 5, 0.05]], noise=False,
+               grid_d=[[4.9, 15.1, 0.1], [-5, 5, 0.1]], noise=False,
                ordered=False, inp_d=1, p_order=0.5):
     """
     Generator for training a GPT inspired netowrk for pairs of sequences.
@@ -218,7 +218,7 @@ def data_gen2d(num_obs, tr_percent=0.8, seq_len=200, bias='const', kernel='rbf',
             else:
                 pass
         if noise:
-            y = (np.array(y).reshape(1, -1) + np.random.normal(0, 0.1, size=(1, seq_len*2)))[0]
+            y = (np.array(y).reshape(1, -1) + np.random.normal(0, 0.05, size=(1, seq_len*2)))[0]
 
 
 
