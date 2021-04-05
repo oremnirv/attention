@@ -474,7 +474,7 @@ def infer_plot(model, em, em_y,  x, y, num_steps, samples=10, mean=True, context
                 y[:context_p], c='red', label='context points')
 
     for i, inf in enumerate(range(samples)):
-        _, _, tar_inf, _ = infer.inference(model, em[:maxi].reshape(1, -1), em_y[:context_p].reshape(1, -1),
+        _, _, tar_inf, _ = infer.inference(model, em[:maxi].reshape(1, -1),  y[:context_p].reshape(1, -1),  em_y[:context_p].reshape(1, -1),
                                         num_steps=num_steps, sample=True)
         # mse_model = metrics.mse(y[context_p: maxi], tar_inf.numpy()[:, context_p: maxi])
         # n = num_steps
@@ -486,7 +486,7 @@ def infer_plot(model, em, em_y,  x, y, num_steps, samples=10, mean=True, context
             axs.plot(x[sorted_idx], tar_inf.numpy().reshape(-1)[sorted_idx], c='lightskyblue')
 
     if mean:
-        _, _, tar_inf, _ = infer.inference(model, em[:maxi].reshape(1, -1), em_y[:context_p].reshape(1, -1),
+        _, _, tar_inf, _ = infer.inference(model, em[:maxi].reshape(1, -1), y[:context_p].reshape(1, -1), em_y[:context_p].reshape(1, -1),
                                         num_steps=num_steps, sample=False)
 
         axs.plot(x[sorted_idx], tar_inf.numpy().reshape(-1)[sorted_idx], c='goldenrod', label='mean sample')
