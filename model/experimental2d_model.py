@@ -34,10 +34,10 @@ class Decoder(tf.keras.Model):
         :return:
         2D (tf.tensor) with first dimension being the mean and second the log sigma
         """
-        y = y[:, :, tf.newaxis]  # (batch_size, seq_len, 1)
+        # y = y[:, :, tf.newaxis]  # (batch_size, seq_len, 1)
         x = self.embedding(x)  # (batch_size, seq_len + 1, e)
         x_2 = self.embedding_k(x_2)  # (batch_size, seq_len + 1, e)
-        # y = self.embedding(y)
+        y = self.embedding(y)
         y_attn, _, v = self.mha(y, x, x, x_mask, infer=infer, x=ix, y=iy, n=n, x0=x0, y0=y0, x1=x1, y1=y1)  # (batch_size, seq_len, e)
         out1 = self.layernorm1(y_attn + v)
         out1 = tf.nn.leaky_relu(out1)
