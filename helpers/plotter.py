@@ -436,7 +436,7 @@ def plot_subplot_training2d(params, x, x_te, y, y_te, pred_y, pred_y_2, pred_y_t
     return params
 
 
-def infer_plot(model, em, x, y, num_steps, samples=10, mean=True, context_p=50, order=False, axs=None, ins=False,
+def infer_plot(model, em, em_y,  x, y, num_steps, samples=10, mean=True, context_p=50, order=False, axs=None, ins=False,
                consec=True):
     if axs:
         pass
@@ -454,6 +454,7 @@ def infer_plot(model, em, x, y, num_steps, samples=10, mean=True, context_p=50, 
             x = x[sorted_idx]
             y = y[sorted_idx]
             em = em[sorted_idx]
+            em_y = em_y[sorted_idx]
             sorted_idx = np.argsort(x)
         else:
             non_cosec_idx = np.concatenate(
@@ -461,6 +462,7 @@ def infer_plot(model, em, x, y, num_steps, samples=10, mean=True, context_p=50, 
             x = x[non_cosec_idx]
             y = y[non_cosec_idx]
             em = em[non_cosec_idx]
+            em_y = em_y[non_cosec_idx]
             sorted_idx = np.argsort(x)
             num_steps = min(len(non_cosec_idx) - context_p, num_steps)
 
@@ -472,7 +474,7 @@ def infer_plot(model, em, x, y, num_steps, samples=10, mean=True, context_p=50, 
                 y[:context_p], c='red', label='context points')
 
     for i, inf in enumerate(range(samples)):
-        _, _, tar_inf, _ = infer.inference(model, em[:maxi].reshape(1, -1), y[:context_p].reshape(1, -1),
+        _, _, tar_inf, _ = infer.inference(model, em[:maxi].reshape(1, -1), em_y[:context_p].reshape(1, -1),
                                         num_steps=num_steps, sample=True)
         # mse_model = metrics.mse(y[context_p: maxi], tar_inf.numpy()[:, context_p: maxi])
         # n = num_steps
@@ -484,7 +486,7 @@ def infer_plot(model, em, x, y, num_steps, samples=10, mean=True, context_p=50, 
             axs.plot(x[sorted_idx], tar_inf.numpy().reshape(-1)[sorted_idx], c='lightskyblue')
 
     if mean:
-        _, _, tar_inf, _ = infer.inference(model, em[:maxi].reshape(1, -1), y[:context_p].reshape(1, -1),
+        _, _, tar_inf, _ = infer.inference(model, em[:maxi].reshape(1, -1), em_y[:context_p].reshape(1, -1),
                                         num_steps=num_steps, sample=False)
 
         axs.plot(x[sorted_idx], tar_inf.numpy().reshape(-1)[sorted_idx], c='goldenrod', label='mean sample')

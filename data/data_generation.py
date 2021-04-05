@@ -59,7 +59,7 @@ class EmbderMap:
 def data_gen(num_obs, tr_percent=0.8, seq_len=200, extarpo=False, extarpo_num=19, p_order=0.5,
              ordered=False,
              kernel='rbf', noise=False, diff_x=False,
-             grid_d=[[1, 15.1, 0.1], [-5, 5, 0.05]]):
+             grid_d=[[4.9, 15.1, 0.1], [-5, 5, 0.1]]):
     """
     Generator for training a GPT inspired netowrk.
     -----------------------
