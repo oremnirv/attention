@@ -3,7 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-from model import experimental_model, experimental2d_model
+from model import old_model_1D, experimental_model, experimental2d_model
 
 
 def mkdir(folder):
@@ -132,7 +132,7 @@ def load_spec(path, e, l, heads, context_p, d=False):
         return (e, *l, heads)
 
 
-def pre_trained_loader(x, save_dir, e, l, d=True, batch_s=64, context=50, heads=1, run=9999):
+def pre_trained_loader(x, save_dir, e, l, d=True, batch_s=64, context=50, heads=1, run=9999, old =False):
     name_comp = 'run_' + str(run)
     logdir = save_dir + '/logs/' + name_comp
     writer = tf.summary.create_file_writer(logdir)
@@ -142,6 +142,8 @@ def pre_trained_loader(x, save_dir, e, l, d=True, batch_s=64, context=50, heads=
     mkdir(folder)
     if d:
         decoder = experimental2d_model.Decoder(e, l1, l2, l3, num_heads=heads)
+    elif old:
+        decoder = old_model_1D.Decoder(e, l1, l2, l3, num_heads=heads)
     else:
         decoder = experimental_model.Decoder(e, l1, l2, l3, num_heads=heads)
     num_batches = int(x.shape[0] / batch_s)
