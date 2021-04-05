@@ -23,9 +23,10 @@ class Decoder(tf.keras.Model):
         self.mha2 = dot_prod_attention.MultiHeadAttention2D(e + 1, num_heads)
         self.mha = dot_prod_attention.MultiHeadAttention2D(e + 1, num_heads)
         self.A1 = tf.keras.layers.Dense(l1, name='A1')
-        self.A2 = tf.keras.layers.Dense(l2, name='A2')
-        self.A3 = tf.keras.layers.Dense(l3, name='A3')
-        self.A4 = tf.keras.layers.Dense(2, name='A4')
+        self.A2 = tf.keras.layers.Dense(l1, name='A2')
+        self.A3 = tf.keras.layers.Dense(l2, name='A3')
+        self.A4 = tf.keras.layers.Dense(l3, name='A4')
+        self.A5 = tf.keras.layers.Dense(2, name='A5')
 
 
     def call(self, x, x_2, y, training, x_mask, infer=False, ix=None, iy=None, n=0, x0=None, y0=None, x1=None, y1=None):
@@ -58,5 +59,6 @@ class Decoder(tf.keras.Model):
         L = self.dropout3(L, training=training)
         L = self.layernorm3(L + out2)
         L = tf.nn.leaky_relu(self.A3(L))  # (batch_size, seq_len, l3)
-        L = self.A4(L)  # (batch_size, seq_len, 2)
+        L = tf.nn.leaky_relu(self.A4(L))  # (batch_size, seq_len, 2)
+        L = self.A5(L)  # (batch_size, seq_len, 2)
         return tf.squeeze(L)
