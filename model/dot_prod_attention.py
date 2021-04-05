@@ -107,9 +107,9 @@ class MultiHeadAttention(tf.keras.layers.Layer):
                          for z in range(num_inp)]
         self.k_layers = [tf.keras.layers.Dense(d_model, name='k' + str(z))
                          for z in range(num_inp)]
-        self.wq = tf.keras.layers.Dense(d_model, name='wq')
-        self.wk = tf.keras.layers.Dense(d_model, name='wk')
-        self.wv = tf.keras.layers.Dense(d_model, name='wv')
+        self.wq = tf.keras.layers.Dense(d_model)
+        self.wk = tf.keras.layers.Dense(d_model)
+        self.wv = tf.keras.layers.Dense(d_model)
         self.dense = tf.keras.layers.Dense(d_model)
 
     def split_heads(self, x, batch_size):
