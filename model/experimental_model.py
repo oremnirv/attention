@@ -7,11 +7,13 @@ from model import dot_prod_attention
 
 
 class Decoder(tf.keras.Model):
-    def __init__(self, e, l1=512, l2=256, l3=32, rate=0.1, num_heads=1, input_vocab_size=400):
+    def __init__(self, e, l1=512, l2=256, l3=32, rate=0.1, num_heads=1, input_vocab_size=700):
         super(Decoder, self).__init__()
         self.rate = rate
         self.e = e
-        self.embedding = tf.keras.layers.Embedding(input_vocab_size, e, name='embedding')
+        self.embedding = tf.keras.layers.Embedding(input_vocab_size, e, name='embedding_x')
+        self.embedding_y = tf.keras.layers.Embedding(input_vocab_size, e, name='embedding_y')
+
         self.mha = dot_prod_attention.MultiHeadAttention(e, num_heads)
         self.mha2 = dot_prod_attention.MultiHeadAttention(e, num_heads)
         self.layernorm1 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
@@ -27,7 +29,7 @@ class Decoder(tf.keras.Model):
         self.A5 = tf.keras.layers.Dense(2, name='A5')
 
     def call(self, x, y, training, x_mask):
-        y = y[:, :, tf.newaxis]
+        y = self.embedding_y(y)
         x = self.embedding(x)
         attn, _ = self.mha(y, x, x, x_mask)
         attn_output = self.dropout1(attn, training=training)
