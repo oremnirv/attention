@@ -59,7 +59,7 @@ class EmbderMap:
 def data_gen(num_obs, tr_percent=0.8, seq_len=200, extarpo=False, extarpo_num=19, p_order=0.5,
              ordered=False,
              kernel='rbf', noise=False, diff_x=False,
-             grid_d=None):
+             grid_d=[[1, 15.1, 0.05], [-5, 5, 0.05]]):
     """
     Generator for training a GPT inspired netowrk.
     -----------------------
@@ -85,7 +85,7 @@ def data_gen(num_obs, tr_percent=0.8, seq_len=200, extarpo=False, extarpo_num=19
     rows = df.shape[0]
     tr_rows = int(tr_percent * rows)
     tr_rows = tr_rows if tr_rows % 2 == 0 else tr_rows + 1
-    grid = np.arange(*grid_d)
+    grid = [np.arange(*grid) for grid in grid_d]
     for i in range(0, num_obs * 2, 2):
         if (i >= tr_rows) & extarpo & diff_x:
             x = np.concatenate((np.random.uniform(5, 15, size=(
