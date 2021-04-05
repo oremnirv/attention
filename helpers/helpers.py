@@ -118,7 +118,7 @@ def load_spec(path, e, l, heads, context_p, d=False):
             heads = int(df.loc[df.iloc[:, 0] == 'heads', 1][0])
         except:
             heads = 8
-        e = int(list(df.loc[df.iloc[:, 0] == 'embedding', 1])[0].split(' ')[-1][:-1])
+        e = int(list(df.loc[df.iloc[:, 0] == 'embedding_x', 1])[0].split(' ')[-1][:-1])
         l1 = int(list(df.loc[df.iloc[:, 0] == 'A1', 1])[1][1:-1])
         if d:
             l2 = int(list(df.loc[df.iloc[:, 0] == 'A4', 1])[1][1:-1])
