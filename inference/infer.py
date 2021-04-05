@@ -46,7 +46,6 @@ def evaluate(model, x, y, sample=True, d=False, x_2=None, xx=None, yy=None, c_st
                      x1=x1, y1=y1)
     else:
         pred = model(x, y, False, combined_mask_x[:, :-1, :-1])
-        # print(pred[-1, 1])
     if sample:
         sample_y = np.random.normal(pred[-1, 0], np.exp(pred[-1, 1]))
     else:
@@ -101,12 +100,12 @@ def inference(model, x, y, em_y,  num_steps=1, sample=True, d=False, x_2=None, i
     b.map_value_to_grid(np.array(15).reshape(1, -1))
     b.map_value_to_grid(np.array(sample_y).reshape(1, -1))
 
-    em_y = tf.concat((em_y, tf.reshape(b[1], [1, 1])), axis=1)
+    em_y = tf.concat((em_y, tf.reshape(b.idxs[1], [1, 1])), axis=1)
     if num_steps > 1:
-        model, x, y, num_steps = inference(model, x, y, em_y,  num_steps - 1, d=d, x_2=x_2,
+        model, x, y, em_y, num_steps = inference(model, x, y, em_y,  num_steps - 1, d=d, x_2=x_2,
                                            sample=sample, xx=xx, yy=yy, infer=infer, x0=x0, y0=y0, x1=x1, y1=y1)
 
-    return model, x, y, num_steps
+    return model, x, y, em_y, num_steps
 
 
 def main():
