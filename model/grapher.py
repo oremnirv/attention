@@ -14,7 +14,7 @@ def build_graph():
     m_te = tf.keras.metrics.Mean()
 
     @tf.function
-    def train_step(decoder, optimizer_c, train_loss, m_tr, x, y, y2, d=False, x2=None, to_gather=None):
+    def train_step(decoder, optimizer_c, train_loss, m_tr, x, y, d=False, to_gather=None):
         """
         # Examples for using @tf.function: https://www.tensorflow.org/guide/keras/writing_a_training_loop_from_scratch
         # Examples for using tf.GradientTape: https://www.tensorflow.org/api_docs/python/tf/GradientTape
@@ -33,14 +33,14 @@ def build_graph():
         (tf.tensor) of weights, (tf.tensor) of names of weights, (tf.tensor) of shapes of weights
 
         """
-        y_inp = y2[:, :-1]
+        y_inp = y[:, :-1]
         y *= to_gather  # this is the step to make sure we only consider non context points in prediction
         y_real = y[:, 1:]
         combined_mask_x = masks.create_masks(x) # see masks.py for description
         with tf.GradientTape(persistent=True) as tape:
             if d:
                 # tf.print(y_inp)
-                pred = decoder(x, x2, y_inp, True, combined_mask_x[:, :-1, :-1]) # (batch_size x seq_len x 2)
+                pred = decoder(x, y_inp, True, combined_mask_x[:, :-1, :-1]) # (batch_size x seq_len x 2)
             else:
                 pred = decoder(x, y_inp, True, combined_mask_x[:, :-1, :-1]) # (batch_size x seq_len x 2)
 
@@ -55,7 +55,7 @@ def build_graph():
         return pred[:, :, 0], pred[:, :, 1], decoder.trainable_variables, names, shapes, y_real, to_gather
 
     @tf.function
-    def test_step(decoder, test_loss, m_te, x_te, y_te, y2_te, d=False, x2_te=None, to_gather=None):
+    def test_step(decoder, test_loss, m_te, x_te, y_te, d=False, to_gather=None):
         """
 
         :param decoder: tf.keras.Model
@@ -69,14 +69,14 @@ def build_graph():
         1s.
         :return:
         """
-        y_inp_te = y2_te[:, :-1]
+        y_inp_te = y_te[:, :-1]
         y_te *= to_gather
         y_real_te = y_te[:, 1:]
         combined_mask_x_te = masks.create_masks(x_te)
         # training=False is only needed if there are layers with different
         # behavior during training versus inference (e.g. Dropout).
         if d:
-            pred_te = decoder(x_te, x2_te, y_inp_te, False, combined_mask_x_te[:, :-1, :-1])
+            pred_te = decoder(x_te, y_inp_te, False, combined_mask_x_te[:, :-1, :-1])
         else:
             pred_te = decoder(x_te, y_inp_te, False, combined_mask_x_te[:, :-1, :-1])
 
