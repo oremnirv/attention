@@ -448,6 +448,7 @@ def infer_plot(model, em, em_y,  x, y, num_steps, samples=10, mean=True, context
 
     maxi = num_steps + context_p
     sorted_idx = np.argsort(x)
+    samples_arr = np.zeros((samples, 2))
 
     if order:
         if consec:
@@ -480,6 +481,9 @@ def infer_plot(model, em, em_y,  x, y, num_steps, samples=10, mean=True, context
         # n = num_steps
         # y_mean = np.repeat(np.mean(y), n).reshape(1, -1)
         # print('sample # {}, r squared: {}'.format(i, 1 - (mse_model / metrics.mse(y[context_p: maxi], y_mean))))
+
+        samples_arr[i, :] = tar_inf[-2:]
+
         if i == 0:
             axs.plot(x[sorted_idx], tar_inf.numpy().reshape(-1)[sorted_idx], c='lightskyblue', label='samples')
         else:
@@ -495,6 +499,7 @@ def infer_plot(model, em, em_y,  x, y, num_steps, samples=10, mean=True, context
         return axs
     else:
         plt.show()
+        return samples_arr
 
 
 def follow_training_plot(x_tr, y_tr, pred,
