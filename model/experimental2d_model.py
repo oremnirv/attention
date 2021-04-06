@@ -29,7 +29,7 @@ class Decoder(tf.keras.Model):
         self.A5 = tf.keras.layers.Dense(2, name='A5')
 
 
-    def call(self, x, x_2, y, training, x_mask, infer=False, ix=None, iy=None, n=0, x0=None, y0=None, x1=None, y1=None):
+    def call(self, x, y, training, x_mask, infer=False, ix=None, iy=None, n=0, x0=None, y0=None, x1=None, y1=None):
         """
 
         :param x: (np.array of int) of indices associated with a range of continuous x-vals
