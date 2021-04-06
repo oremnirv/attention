@@ -20,8 +20,8 @@ class Decoder(tf.keras.Model):
         self.embedding = tf.keras.layers.Embedding(input_vocab_size, e, name='embedding')
         self.embedding_y = tf.keras.layers.Embedding(input_vocab_size, e, name='embedding_y')
 
-        self.mha2 = dot_prod_attention.MultiHeadAttention2D(e + 1, num_heads)
-        self.mha = dot_prod_attention.MultiHeadAttention2D(e + 1, num_heads)
+        self.mha2 = dot_prod_attention.MultiHeadAttention2D(e, num_heads)
+        self.mha = dot_prod_attention.MultiHeadAttention2D(e, num_heads)
         self.A1 = tf.keras.layers.Dense(l1, name='A1')
         self.A2 = tf.keras.layers.Dense(l1, name='A2')
         self.A3 = tf.keras.layers.Dense(l2, name='A3')
