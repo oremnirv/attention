@@ -11,8 +11,8 @@ class Decoder(tf.keras.Model):
         super(Decoder, self).__init__()
         self.rate = rate
         self.e = e
-        self.embedding = tf.keras.layers.Embedding(input_vocab_size, e, name='embedding_x')
-        self.embedding_y = tf.keras.layers.Embedding(input_vocab_size, e, name='embedding_y')
+        # self.embedding = tf.keras.layers.Embedding(input_vocab_size, e, name='embedding_x')
+        # self.embedding_y = tf.keras.layers.Embedding(input_vocab_size, e, name='embedding_y')
 
         self.mha = dot_prod_attention.MultiHeadAttention(e, num_heads)
         self.mha2 = dot_prod_attention.MultiHeadAttention(e, num_heads)
@@ -29,8 +29,9 @@ class Decoder(tf.keras.Model):
         self.A5 = tf.keras.layers.Dense(2, name='A5')
 
     def call(self, x, y, training, x_mask):
-        y = self.embedding_y(y)
-        x = self.embedding(x)
+        y = y[:, :, tf.newaxis]
+        # y = self.embedding_y(y)
+        # x = self.embedding(x)
         attn, _ = self.mha(y, x, x, x_mask)
         attn_output = self.dropout1(attn, training=training)
         current_x = x[:, 1:, :]
