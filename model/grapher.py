@@ -36,7 +36,7 @@ def build_graph():
         y_inp = y[:, :-1]
         y *= to_gather  # this is the step to make sure we only consider non context points in prediction
         y_real = y[:, 1:]
-        combined_mask_x = masks.create_masks(x) # see masks.py for description
+        combined_mask_x = masks.create_masks(tf.squeeze(x[:, :, 0])) # see masks.py for description
         with tf.GradientTape(persistent=True) as tape:
             if d:
                 # tf.print(y_inp)
@@ -72,7 +72,7 @@ def build_graph():
         y_inp_te = y_te[:, :-1]
         y_te *= to_gather
         y_real_te = y_te[:, 1:]
-        combined_mask_x_te = masks.create_masks(x_te)
+        combined_mask_x_te = masks.create_masks(tf.squeeze(x_te[:, :, 0]))
         # training=False is only needed if there are layers with different
         # behavior during training versus inference (e.g. Dropout).
         if d:
