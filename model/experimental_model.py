@@ -31,7 +31,8 @@ class Decoder(tf.keras.Model):
     def call(self, x, y, training, x_mask):
         y = y[:, :, tf.newaxis]
         # y = self.embedding_y(y)
-        # x = self.embedding(x)
+        # x = self.embedding(x)a
+        #aaa
         attn, _ = self.mha(y, x, x, x_mask)
         attn_output = self.dropout1(attn, training=training)
         current_x = x[:, 1:, :]
