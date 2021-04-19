@@ -51,7 +51,7 @@ class Decoder(tf.keras.Model):
         current_position = x[:, 1:, :]  # (batch_size, seq_len, e)
         out1 = self.layernorm1(attn_output + current_position)
         y_attn2, _, _ = self.mha2(out1, x, x, x_mask)
-        attn2_output = self.dropout1(y_attn2, training=training)
+        attn2_output = self.dropout2(y_attn2, training=training)
         out2 = self.layernorm2(attn2_output + out1)
 
         out2 = tf.nn.leaky_relu(out2)
