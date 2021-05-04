@@ -43,8 +43,10 @@ def build_graph():
             if d:
                 pred = decoder(x, y_inp, True, combined_mask_x[:, :-1, :-1]) # (batch_size x seq_len x 2)
 
+            print('pred: ', pred)
             loss, mse, mask = losses.loss_function(y_real, pred=pred[:, :, 0],
                                                        pred_log_sig=pred[:, :, 1])
+        print('loss: ', loss)
         gradients = tape.gradient(loss, decoder.trainable_variables)
         optimizer_c.apply_gradients(zip(gradients, decoder.trainable_variables))
         train_loss(loss)
@@ -75,8 +77,6 @@ def build_graph():
         # training=False is only needed if there are layers with different
         # behavior during training versus inference (e.g. Dropout).
         if d:
-            pred_te = decoder(x_te, y_inp_te, False, combined_mask_x_te[:, :-1, :-1])
-        else:
             pred_te = decoder(x_te, y_inp_te, False, combined_mask_x_te[:, :-1, :-1])
 
         t_loss, t_mse, t_mask = losses.loss_function(y_real_te, pred=pred_te[:, :, 0],

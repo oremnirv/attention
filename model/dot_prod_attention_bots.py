@@ -88,7 +88,6 @@ class MultiHeadAttention2D(tf.keras.layers.Layer):
         q = self.wq(q)  # (batch_size, seq_len, d_model)
         k = self.wk(k)  # (batch_size, seq_len, d_model)
         v = self.wv(v)  # (batch_size, seq_len, d_model)
-        # embed_y = v[:, :, :]
 
         q = self.split_heads(q, batch_size)  # (batch_size, num_heads, seq_len_q, depth)
         k = self.split_heads(k, batch_size)  # (batch_size, num_heads, seq_len_q, depth)
@@ -96,8 +95,5 @@ class MultiHeadAttention2D(tf.keras.layers.Layer):
 
         scaled_att, att_weights, _ = dot_product_attention(
             q, k, v, mask, infer=infer, x=x, y=y, n=n, x0=x0, y0=y0, x1=x1, y1=y1)
-        scaled_att = tf.transpose(scaled_att, perm=[0, 2, 1, 3])  # (batch_size, seq_len_q, num_heads, depth)
-        concat_att = tf.reshape(scaled_att,
-                                (batch_size, -1, self.d_model))  # (batch_size, seq_len_q, d_model)
-        output = self.dense(concat_att)  # (batch_size, seq_len_q, d_model)
+        output = self.dense(scaled_att)  # (batch_size, seq_len_q, d_model)
         return output, att_weights
