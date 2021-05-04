@@ -33,16 +33,17 @@ def mse(y_true, y_pred):
     :return: (float)
     """
 
-    return np.mean(np.mean((y_true - y_pred) ** 2, 1))
+    return np.mean((y_true - y_pred) ** 2, 1)
 
-# def r_squared(mse_model, y_true, batch_s=64):
-#     """
-#     Measures the R^2 metric
-#     :param mse_model: (float) mean squared error derived by comparing predictions with y_true
-#     :param y_true: (np.array) the true values of y
-#     :param batch_s: (int) size of batch
-#     :return: (float)
-#     """
-#     n = y_true.shape[1]
-#     y_mean = np.repeat(np.mean(y_true, 1), n).reshape(batch_s, -1)
-#     return 1 - (mse_model / mse(y_true, y_mean))
+def r_squared(pred, y_true, batch_s=64, c=280):
+    """
+    Measures the R^2 metric
+    :param mse_model: (float) mean squared error derived by comparing predictions with y_true
+    :param y_true: (np.array) the true values of y
+    :param batch_s: (int) size of batch
+    :return: (float)
+    """
+    n = y_true.shape[1]
+    y_mean = np.repeat(np.mean(y_true, 1), n).reshape(batch_s, -1)
+    mse_model = mse(y_true[:, c:], pred)
+    return 1 - (mse_model / mse(y_true[:, c:], y_mean[:, c:]))
