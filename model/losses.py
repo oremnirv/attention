@@ -19,7 +19,7 @@ def loss_function(real, pred, pred_log_sig=None, epsilon=0.001):
     loss value (tf.float64), mean squared error, masking
     """
     mask = tf.math.logical_not(tf.math.equal(real, 0))
-    tf.print(mask)
+    # tf.print(mask)
     mse = tf.math.square(tf.math.subtract(real, pred))
     # tf.print(mse)
     loss_ = 1 / 2 * (tf.math.divide(mse, tf.math.square(tf.math.exp(pred_log_sig)) + epsilon) + pred_log_sig)
