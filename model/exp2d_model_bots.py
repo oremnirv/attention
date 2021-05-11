@@ -47,7 +47,7 @@ class Decoder(tf.keras.Model):
         y = y[:, :, :, tf.newaxis]
         y_attn, _ = self.mha(y, x, x, x_mask, infer=infer, x=ix, y=iy, n=n, x0=x0, y0=y0, x1=x1, y1=y1)  # (batch_size, seq_len, e)
         attn_output = self.dropout1(y_attn, training=training)
-        print('attn_output: ', attn_output)
+        # print('attn_output: ', attn_output)
         current_position = tf.squeeze(x)[:, 1:, :]  # (batch_size, seq_len, e)
         out1 = self.layernorm1(attn_output + current_position)
         y_attn2, _= self.mha2(out1, x, x, x_mask)
@@ -57,7 +57,7 @@ class Decoder(tf.keras.Model):
         attn3_output = self.dropout3(y_attn3, training=training)
         out2 = self.layernorm3(attn3_output + out2)
 
-        print('out2: ', out2)
+        # print('out2: ', out2)
         out2 = tf.nn.leaky_relu(out2)
         L = self.A1(out2)  # (batch_size, seq_len, l1)
         L = tf.nn.leaky_relu(L)
@@ -67,5 +67,5 @@ class Decoder(tf.keras.Model):
         L = tf.nn.leaky_relu(self.A3(L))  # (batch_size, seq_len, l3)
         L = tf.nn.leaky_relu(self.A4(L))  # (batch_size, seq_len, 2)
         L = self.A5(L)  # (batch_size, seq_len, 2)
-        print('L: ', L)
+        # print('L: ', L)
         return tf.squeeze(L)

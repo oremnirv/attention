@@ -3,7 +3,7 @@ import sys
 sys.path.append("..")
 import tensorflow as tf
 from helpers import masks
-from model import losses
+from model import losses_bots
 
 
 def build_graph():
@@ -36,17 +36,18 @@ def build_graph():
         y_inp = y[:, :, :-1]
         y *= to_gather  # this is the step to make sure we only consider non context points in prediction
         y_real = y[:, :, 1:]
-        print('x: ', x)
+        # print('x: ', x)
         combined_mask_x = masks.create_masks((tf.squeeze(x)[:, : ,0])) # see masks.py for description
-        print('combined_mask_x: ', combined_mask_x)
+        # print('combined_mask_x: ', combined_mask_x)
         with tf.GradientTape(persistent=True) as tape:
             if d:
                 pred = decoder(x, y_inp, True, combined_mask_x[:, :-1, :-1]) # (batch_size x seq_len x 2)
 
-            print('pred: ', pred)
-            loss, mse, mask = losses.loss_function(y_real, pred=pred[:, :, 0],
+            # tf.print(pred[:, :, 0])
+            print(pred)
+            loss, mse, mask = losses_bots.loss_function(y_real, pred=pred[:, :, 0],
                                                        pred_log_sig=pred[:, :, 1])
-        print('loss: ', loss)
+        # tf.print(loss)
         gradients = tape.gradient(loss, decoder.trainable_variables)
         optimizer_c.apply_gradients(zip(gradients, decoder.trainable_variables))
         train_loss(loss)

@@ -27,14 +27,14 @@ def dot_product_attention(q, k, v, mask, infer=False, x=None, y=None, n=0, x0=No
 
     :return:
     """
-    mask = tf.repeat(mask[:, tf.newaxis, :, :], 528, axis=1)
+    mask = tf.repeat(mask[:, tf.newaxis, :, :], 14, axis=1)
 
-    print('mask: ', mask)
-    print('q: ', q)
+    # print('mask: ', mask)
+    # print('q: ', q)
     matmul_qk = tf.transpose(
         tf.squeeze(tf.tensordot(tf.squeeze(q)[tf.newaxis, :, :, :], tf.transpose(tf.squeeze(k)[tf.newaxis, :, :, :], perm=[0, 1, 3, 2]), axes=[[3], [2]])),
                  perm=[0, 2, 1, 3])
-    print('matmul_qk: ', matmul_qk)
+    # print('matmul_qk: ', matmul_qk)
 
     # Notice that matmul_qk will produce (batch size, num heads, seq_len + 1, seq_len +1)
     # tensor. However, we are not interested in the first row since it tells us about the dot product of
@@ -44,7 +44,7 @@ def dot_product_attention(q, k, v, mask, infer=False, x=None, y=None, n=0, x0=No
     matmul_qk = matmul_qk[ :, :, 1:, :-1]  # (batch size, num heads, seq_len, seq_len)
     dk = tf.cast(tf.shape(k)[-1], tf.float64)
     nl_qk = tf.cast((matmul_qk / tf.math.sqrt(dk)), tf.float64)
-    print('nl_qk', nl_qk)
+    # print('nl_qk', nl_qk)
     # Why do we divide by sqrt(dk)? For example, consider that Q and K have a mean of 0 and variance of 1.
     # Their matrix multiplication will have a mean of 0 and variance of dk.
     # So the square root of dk is used for scaling so you get a consistent variance regardless of the value of dk
@@ -54,12 +54,12 @@ def dot_product_attention(q, k, v, mask, infer=False, x=None, y=None, n=0, x0=No
         # will receive a huge negative value that will translate to 0 weighting after softmax
         nl_qk += ((tf.cast(mask, tf.float64)) * -1e9)  # (batch size, num heads, seq_len, seq_len)
 
-    print('nl_qk 2: ', nl_qk)
-    att_weights = tf.reshape(tf.nn.softmax(tf.reshape(nl_qk, [409, -1]), axis=-1, name='att_weights'), [528, 528, 409, -1])
-    print('att_weights: ', att_weights)
-    print('v: ', v)
+    # print('nl_qk 2: ', nl_qk)
+    att_weights = tf.reshape(tf.nn.softmax(tf.reshape(nl_qk, [409, -1]), axis=-1, name='att_weights'), [14, 14, 409, -1])
+    # print('att_weights: ', att_weights)
+    # print('v: ', v)
     out_tar = tf.tensordot(att_weights, tf.cast(tf.squeeze(v), tf.float64), axes=[[1, 3], [0, 1]])
-    print(out_tar)
+    # print(out_tar)
     return out_tar, att_weights, matmul_qk
 
 
@@ -80,7 +80,7 @@ class MultiHeadAttention2D(tf.keras.layers.Layer):
         """Split the last dimension into (num_heads, depth).
     Transpose the result such that the shape is (batch_size, num_heads, seq_len, depth)
     """
-        x = tf.reshape(x, (batch_size, 528, -1, self.num_heads, self.depth))
+        x = tf.reshape(x, (batch_size, 14, -1, self.num_heads, self.depth))
         return tf.transpose(x, perm=[0, 3, 1, 2, 4])
 
     def call(self, v, k, q, mask, infer=False, x=None, y=None, n=0, x0=None, y0=None, x1=None, y1=None):
